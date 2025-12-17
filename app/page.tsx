@@ -13,8 +13,8 @@ import SkillsSection from "@/components/Skills/SkillsSection";
 import ProjectsSection from "@/components/Projects/ProjectsSection";
 import ContactSection from "@/components/Contact/ContactSection";
 import { LoadingScreen } from "@/components/Loading/LoadingScreen";
-import { ParticleBackground } from "@/components/Background/ParticleBackground";
-import { FloatingElements } from "@/components/Background/FloatingElements";
+// import { ParticleBackground } from "@/components/Background/ParticleBackground";
+// import { FloatingElements } from "@/components/Background/FloatingElements";
 import { useLoading } from "@/hooks/useLoading";
 
 // Smooth scroll helper
