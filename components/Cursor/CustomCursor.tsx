@@ -19,6 +19,8 @@ interface CursorParticle {
   velocity: { x: number; y: number };
   rotation: number;
   scale: number;
+  delay: number;
+  type: "trail" | "floating";
 }
 
 interface TrailPoint {
@@ -71,135 +73,134 @@ const CURSOR_COLORS = {
 };
 
 const PARTICLE_CONFIGS = [
-  // Primary colors - larger and more prominent
+  // Primary particles - larger and more prominent
   {
     colorKey: "primary",
-    size: 8,
+    size: 6,
     delay: 0,
     velocity: { x: 0, y: 0 },
-    shape: "circle",
+    type: "main" as const,
   },
   {
     colorKey: "secondary",
-    size: 7,
-    delay: 0.01,
-    velocity: { x: 0.3, y: -0.3 },
-    shape: "circle",
+    size: 5,
+    delay: 0.02,
+    velocity: { x: 0.1, y: -0.1 },
+    type: "trail" as const,
   },
   {
     colorKey: "accent",
-    size: 6,
-    delay: 0.02,
-    velocity: { x: -0.3, y: 0.3 },
-    shape: "circle",
+    size: 4.5,
+    delay: 0.04,
+    velocity: { x: -0.1, y: 0.1 },
+    type: "trail" as const,
   },
 
-  // Secondary colors - medium size
+  // Trail particles
   {
     colorKey: "purple",
-    size: 5,
-    delay: 0.03,
-    velocity: { x: 0.4, y: 0.4 },
-    shape: "square",
+    size: 4,
+    delay: 0.06,
+    velocity: { x: 0.08, y: 0.08 },
+    type: "trail" as const,
   },
   {
     colorKey: "pink",
-    size: 5,
-    delay: 0.04,
-    velocity: { x: -0.4, y: -0.4 },
-    shape: "triangle",
+    size: 4,
+    delay: 0.08,
+    velocity: { x: -0.08, y: -0.08 },
+    type: "trail" as const,
   },
   {
     colorKey: "cyan",
-    size: 6,
-    delay: 0.05,
-    velocity: { x: 0.2, y: -0.5 },
-    shape: "circle",
+    size: 4.5,
+    delay: 0.1,
+    velocity: { x: 0.05, y: -0.12 },
+    type: "trail" as const,
   },
-
-  // Tertiary colors - smaller trailing particles
   {
     colorKey: "orange",
-    size: 4,
-    delay: 0.06,
-    velocity: { x: -0.5, y: 0.2 },
-    shape: "diamond",
+    size: 3.5,
+    delay: 0.12,
+    velocity: { x: -0.12, y: 0.05 },
+    type: "trail" as const,
   },
   {
     colorKey: "teal",
-    size: 4,
-    delay: 0.07,
-    velocity: { x: 0.5, y: 0.3 },
-    shape: "circle",
+    size: 3.5,
+    delay: 0.14,
+    velocity: { x: 0.1, y: 0.06 },
+    type: "trail" as const,
   },
   {
     colorKey: "indigo",
-    size: 5,
-    delay: 0.08,
-    velocity: { x: -0.3, y: -0.5 },
-    shape: "square",
+    size: 4,
+    delay: 0.16,
+    velocity: { x: -0.06, y: -0.1 },
+    type: "trail" as const,
   },
   {
     colorKey: "rose",
-    size: 4,
-    delay: 0.09,
-    velocity: { x: 0.3, y: 0.5 },
-    shape: "triangle",
+    size: 3.5,
+    delay: 0.18,
+    velocity: { x: 0.06, y: 0.1 },
+    type: "trail" as const,
   },
   {
     colorKey: "lime",
-    size: 5,
-    delay: 0.1,
-    velocity: { x: -0.4, y: 0.4 },
-    shape: "circle",
+    size: 4,
+    delay: 0.2,
+    velocity: { x: -0.1, y: 0.08 },
+    type: "trail" as const,
   },
   {
     colorKey: "amber",
-    size: 4,
-    delay: 0.11,
-    velocity: { x: 0.4, y: -0.4 },
-    shape: "diamond",
+    size: 3.5,
+    delay: 0.22,
+    velocity: { x: 0.1, y: -0.08 },
+    type: "trail" as const,
   },
   {
     colorKey: "emerald",
-    size: 5,
-    delay: 0.12,
-    velocity: { x: -0.2, y: -0.3 },
-    shape: "circle",
+    size: 4,
+    delay: 0.24,
+    velocity: { x: -0.05, y: -0.06 },
+    type: "trail" as const,
   },
   {
     colorKey: "sky",
-    size: 4,
-    delay: 0.13,
-    velocity: { x: 0.3, y: 0.2 },
-    shape: "square",
+    size: 3.5,
+    delay: 0.26,
+    velocity: { x: 0.06, y: 0.05 },
+    type: "trail" as const,
   },
   {
     colorKey: "violet",
-    size: 5,
-    delay: 0.14,
-    velocity: { x: -0.3, y: 0.3 },
-    shape: "triangle",
+    size: 4,
+    delay: 0.28,
+    velocity: { x: -0.06, y: 0.06 },
+    type: "trail" as const,
   },
   {
     colorKey: "fuchsia",
-    size: 4,
-    delay: 0.15,
-    velocity: { x: 0.2, y: -0.2 },
-    shape: "circle",
+    size: 3.5,
+    delay: 0.3,
+    velocity: { x: 0.05, y: -0.05 },
+    type: "trail" as const,
   },
 ];
 
+// Faster spring configuration
 const SPRING_CONFIG = {
-  damping: 15,
-  stiffness: 150,
-  mass: 0.3,
+  damping: 10, // Reduced from 15
+  stiffness: 300, // Increased from 150
+  mass: 0.1, // Reduced from 0.3
 };
 
 const TRAIL_SPRING_CONFIG = {
-  damping: 12,
-  stiffness: 100,
-  mass: 0.4,
+  damping: 8, // Reduced from 12
+  stiffness: 200, // Increased from 100
+  mass: 0.2, // Reduced from 0.4
 };
 
 export const CustomCursor = () => {
@@ -220,21 +221,57 @@ export const CustomCursor = () => {
   const springX = useSpring(cursorX, SPRING_CONFIG);
   const springY = useSpring(cursorY, SPRING_CONFIG);
 
-  // Trail springs for smooth following effect
+  // Create separate springs for each particle with varying delays
   const trailSprings = useRef(
-    PARTICLE_CONFIGS.map(() => ({
-      x: useSpring(cursorX, TRAIL_SPRING_CONFIG),
-      y: useSpring(cursorY, TRAIL_SPRING_CONFIG),
+    PARTICLE_CONFIGS.map((_, index) => ({
+      x: useSpring(cursorX, {
+        ...TRAIL_SPRING_CONFIG,
+        restDelta: 0.001,
+      }),
+      y: useSpring(cursorY, {
+        ...TRAIL_SPRING_CONFIG,
+        restDelta: 0.001,
+      }),
     }))
   ).current;
 
   const colors = theme === "dark" ? CURSOR_COLORS.dark : CURSOR_COLORS.light;
+  const animationFrameRef = useRef<number>();
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const velocityRef = useRef({ x: 0, y: 0 });
 
-  // Hide default cursor globally
+  // Hide default cursor globally and on links
   useEffect(() => {
-    document.body.style.cursor = "none";
+    const hideDefaultCursor = () => {
+      document.body.style.cursor = "none";
+
+      // Also hide cursor on all interactive elements
+      const interactiveSelectors =
+        'a, button, input, textarea, select, [role="button"]';
+      document.querySelectorAll(interactiveSelectors).forEach((el) => {
+        (el as HTMLElement).style.cursor = "none";
+      });
+    };
+
+    hideDefaultCursor();
+
+    // Re-hide cursor on dynamic content changes
+    const observer = new MutationObserver(hideDefaultCursor);
+    observer.observe(document.body, { childList: true, subtree: true });
+
     return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       document.body.style.cursor = "auto";
+      observer.disconnect();
+
+      // Restore cursor on interactive elements
+      const interactiveSelectors =
+        'a, button, input, textarea, select, [role="button"]';
+      document.querySelectorAll(interactiveSelectors).forEach((el) => {
+        (el as HTMLElement).style.cursor = "";
+      });
     };
   }, []);
 
@@ -244,11 +281,6 @@ export const CustomCursor = () => {
       const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
       const isSmallScreen = window.innerWidth < 768;
       setIsMobile(isTouchDevice || isSmallScreen);
-
-      // Re-enable cursor if mobile
-      if (isTouchDevice || isSmallScreen) {
-        document.body.style.cursor = "auto";
-      }
     };
 
     checkMobile();
@@ -256,61 +288,104 @@ export const CustomCursor = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Mouse move handler with smooth updates
+  // Optimized mouse move handler with requestAnimationFrame
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-
-      if (!isVisible) setIsVisible(true);
-
-      // Add trail points more frequently for smoother effect
-      const newTrailPoint: TrailPoint = {
-        id: Date.now(),
-        x: e.clientX,
-        y: e.clientY,
-        size: isHovering ? 10 : 8, // Increased size
-        opacity: 1,
-        color: isHovering ? colors.secondary : colors.primary,
-        timestamp: Date.now(),
-      };
-
-      setTrail((prev) => [...prev.slice(-20), newTrailPoint]); // Keep more trail points
-
-      // Create particles on movement with velocity threshold
-      const velocity = Math.sqrt(e.movementX ** 2 + e.movementY ** 2);
-      if (velocity > 5) {
-        const newParticles = PARTICLE_CONFIGS.map((config) => {
-          const colorKeys = Object.keys(colors) as Array<keyof typeof colors>;
-          const randomColorKey =
-            colorKeys[Math.floor(Math.random() * colorKeys.length)];
-
-          return {
-            id: Date.now() + Math.random(),
-            x: e.clientX,
-            y: e.clientY,
-            size: config.size * (isHovering ? 1.2 : 1),
-            color: colors[randomColorKey],
-            lifetime: 1200 + Math.random() * 600,
-            velocity: {
-              x: config.velocity.x + (Math.random() - 0.5) * 1.5,
-              y: config.velocity.y + (Math.random() - 0.5) * 1.5,
-            },
-            rotation: Math.random() * 360,
-            scale: 1,
-          };
-        });
-        setParticles((prev) => [...prev, ...newParticles].slice(-100)); // More particles
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
       }
+
+      animationFrameRef.current = requestAnimationFrame(() => {
+        const now = Date.now();
+        const deltaX = e.clientX - lastMousePos.current.x;
+        const deltaY = e.clientY - lastMousePos.current.y;
+
+        // Calculate velocity
+        velocityRef.current = {
+          x: deltaX * 0.5,
+          y: deltaY * 0.5,
+        };
+
+        setMousePosition({ x: e.clientX, y: e.clientY });
+        cursorX.set(e.clientX);
+        cursorY.set(e.clientY);
+
+        if (!isVisible) setIsVisible(true);
+
+        // Update last position
+        lastMousePos.current = { x: e.clientX, y: e.clientY };
+
+        // Create trail points with dispersion
+        const speed = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+        const trailCount = Math.min(Math.floor(speed / 2), 8);
+
+        if (speed > 1) {
+          const newTrailPoints: TrailPoint[] = [];
+          const colorKeys = Object.keys(colors) as Array<keyof typeof colors>;
+
+          for (let i = 0; i < trailCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 15 * (speed / 10);
+            const dispersionX = Math.cos(angle) * distance;
+            const dispersionY = Math.sin(angle) * distance;
+            const randomColorKey =
+              colorKeys[Math.floor(Math.random() * colorKeys.length)];
+
+            newTrailPoints.push({
+              id: now + i,
+              x: e.clientX + dispersionX,
+              y: e.clientY + dispersionY,
+              size: 3 + Math.random() * 5,
+              opacity: 0.8 + Math.random() * 0.2,
+              color: colors[randomColorKey],
+              timestamp: now,
+            });
+          }
+
+          setTrail((prev) => [...prev, ...newTrailPoints].slice(-40)); // Keep more trail points
+        }
+
+        // Create floating particles with velocity-based dispersion
+        if (speed > 8) {
+          const velocityAngle = Math.atan2(deltaY, deltaX);
+          const newParticles: CursorParticle[] = [];
+          const colorKeys = Object.keys(colors) as Array<keyof typeof colors>;
+          const particleCount = Math.min(Math.floor(speed / 3), 12);
+
+          for (let i = 0; i < particleCount; i++) {
+            const randomColorKey =
+              colorKeys[Math.floor(Math.random() * colorKeys.length)];
+            const angle = velocityAngle + (Math.random() - 0.5) * Math.PI;
+            const speedFactor = 0.5 + Math.random() * 1.5;
+
+            newParticles.push({
+              id: now + Math.random(),
+              x: e.clientX,
+              y: e.clientY,
+              size: 2 + Math.random() * 4,
+              color: colors[randomColorKey],
+              lifetime: 400 + Math.random() * 400, // Shorter lifetime
+              velocity: {
+                x: Math.cos(angle) * speedFactor + (Math.random() - 0.5) * 0.5,
+                y: Math.sin(angle) * speedFactor + (Math.random() - 0.5) * 0.5,
+              },
+              rotation: Math.random() * 360,
+              scale: 1,
+              delay: Math.random() * 0.1,
+              type: Math.random() > 0.5 ? "trail" : "floating",
+            });
+          }
+
+          setParticles((prev) => [...prev, ...newParticles].slice(-80));
+        }
+      });
     },
-    [cursorX, cursorY, isVisible, isHovering, colors]
+    [cursorX, cursorY, isVisible, colors]
   );
 
-  // Mouse enter/leave handlers
+  // Optimized mouse enter/leave handlers
   const handleMouseEnter = useCallback(() => {
     setIsVisible(true);
-    document.body.style.cursor = "none";
   }, []);
 
   const handleMouseLeave = useCallback(() => {
@@ -318,110 +393,151 @@ export const CustomCursor = () => {
     setTrail([]);
   }, []);
 
-  // Click handlers with improved particles
+  // Click handlers
   const handleMouseDown = useCallback(() => {
     setIsClicking(true);
 
-    // Create more click particles with varied colors
-    const clickParticles = Array.from({ length: 20 }).map((_, i) => {
-      const colorKeys = Object.keys(colors) as Array<keyof typeof colors>;
+    // Create click particles with radial dispersion
+    const clickParticles: CursorParticle[] = [];
+    const colorKeys = Object.keys(colors) as Array<keyof typeof colors>;
+
+    for (let i = 0; i < 24; i++) {
+      const angle = (i * Math.PI * 2) / 24;
+      const speed = 1 + Math.random() * 2;
       const colorKey = colorKeys[i % colorKeys.length];
 
-      return {
+      clickParticles.push({
         id: Date.now() + i,
         x: mousePosition.x,
         y: mousePosition.y,
-        size: 4 + Math.random() * 6, // Larger particles
+        size: 2 + Math.random() * 5,
         color: colors[colorKey],
-        lifetime: 1000 + Math.random() * 500,
+        lifetime: 600 + Math.random() * 400,
         velocity: {
-          x: Math.cos((i * Math.PI * 2) / 20) * (3 + Math.random() * 3),
-          y: Math.sin((i * Math.PI * 2) / 20) * (3 + Math.random() * 3),
+          x: Math.cos(angle) * speed,
+          y: Math.sin(angle) * speed,
         },
         rotation: Math.random() * 360,
         scale: 1,
-      };
-    });
+        delay: Math.random() * 0.1,
+        type: "floating",
+      });
+    }
+
     setParticles((prev) => [...prev, ...clickParticles]);
   }, [mousePosition, colors]);
 
   const handleMouseUp = useCallback(() => setIsClicking(false), []);
 
-  // Update cursor type based on hover
+  // Update cursor type based on hover - optimized
   useEffect(() => {
     if (isMobile) return;
+
+    let hoverTimeout: NodeJS.Timeout;
 
     const updateCursorType = (e: Event) => {
       const target = e.target as HTMLElement;
 
+      clearTimeout(hoverTimeout);
+
       if (target.tagName === "A" || target.closest("a")) {
-        setCursorType("link");
-        setIsHovering(true);
+        hoverTimeout = setTimeout(() => {
+          setCursorType("link");
+          setIsHovering(true);
+        }, 50);
       } else if (target.tagName === "BUTTON" || target.closest("button")) {
-        setCursorType("link");
-        setIsHovering(true);
+        hoverTimeout = setTimeout(() => {
+          setCursorType("link");
+          setIsHovering(true);
+        }, 50);
       } else if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
-        setCursorType("text");
-        setIsHovering(true);
+        hoverTimeout = setTimeout(() => {
+          setCursorType("text");
+          setIsHovering(true);
+        }, 50);
       } else {
-        setCursorType("default");
-        setIsHovering(false);
+        hoverTimeout = setTimeout(() => {
+          setCursorType("default");
+          setIsHovering(false);
+        }, 50);
       }
     };
 
-    const resetCursorType = () => {
-      setCursorType("default");
-      setIsHovering(false);
-    };
-
     document.addEventListener("mouseover", updateCursorType);
-    document.addEventListener("mouseout", resetCursorType);
-
     return () => {
       document.removeEventListener("mouseover", updateCursorType);
-      document.removeEventListener("mouseout", resetCursorType);
+      clearTimeout(hoverTimeout);
     };
   }, [isMobile]);
 
-  // Update particles and trail with smoother animations
+  // Optimized particle update loop
   useEffect(() => {
     if (isMobile) return;
 
-    let animationFrameId: number;
+    const updateParticlesAndTrail = () => {
+      const now = Date.now();
 
-    const updateParticles = () => {
+      // Update particles
       setParticles((prev) =>
         prev
-          .map((p) => ({
-            ...p,
-            x: p.x + p.velocity.x,
-            y: p.y + p.velocity.y,
-            lifetime: p.lifetime - 16,
-            size: p.size * 0.995, // Slower decay
-            rotation: p.rotation + p.velocity.x * 2,
-            scale: Math.max(0.1, p.scale * 0.998),
-          }))
+          .map((p) => {
+            const age = now - p.id;
+            const progress = age / p.lifetime;
+
+            // Apply different physics based on particle type
+            if (p.type === "floating") {
+              // Floating particles drift and fade
+              return {
+                ...p,
+                x: p.x + p.velocity.x,
+                y: p.y + p.velocity.y,
+                lifetime: p.lifetime - 16,
+                size: p.size * (1 - progress * 0.1),
+                rotation: p.rotation + p.velocity.x * 3,
+                scale: Math.max(0.1, 1 - progress),
+              };
+            } else {
+              // Trail particles fade quickly
+              return {
+                ...p,
+                x: p.x + p.velocity.x * 0.5,
+                y: p.y + p.velocity.y * 0.5,
+                lifetime: p.lifetime - 32,
+                size: p.size * 0.9,
+                scale: Math.max(0.1, p.scale * 0.85),
+              };
+            }
+          })
           .filter((p) => p.lifetime > 0 && p.size > 0.5)
       );
 
-      // Update trail with smoother fade
+      // Update trail - faster fade
       setTrail((prev) =>
         prev
-          .map((p) => ({
-            ...p,
-            opacity: p.opacity * 0.92, // Slower fade
-            size: p.size * 0.96,
-          }))
-          .filter((p) => p.opacity > 0.05 && p.size > 1)
+          .map((p) => {
+            const age = now - p.timestamp;
+            const opacity = Math.max(0, 1 - age / 500); // Faster fade (500ms)
+
+            return {
+              ...p,
+              opacity,
+              size: p.size * 0.85,
+            };
+          })
+          .filter((p) => p.opacity > 0.01 && p.size > 0.5)
       );
 
-      animationFrameId = requestAnimationFrame(updateParticles);
+      animationFrameRef.current = requestAnimationFrame(
+        updateParticlesAndTrail
+      );
     };
 
-    animationFrameId = requestAnimationFrame(updateParticles);
+    animationFrameRef.current = requestAnimationFrame(updateParticlesAndTrail);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, [isMobile]);
 
@@ -429,14 +545,26 @@ export const CustomCursor = () => {
   useEffect(() => {
     if (isMobile) return;
 
-    window.addEventListener("mousemove", handleMouseMove);
+    // Throttle mousemove events
+    let lastCall = 0;
+    const throttleTime = 1000 / 144; // 144 FPS
+
+    const throttledMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastCall >= throttleTime) {
+        handleMouseMove(e);
+        lastCall = now;
+      }
+    };
+
+    window.addEventListener("mousemove", throttledMouseMove);
     document.addEventListener("mouseenter", handleMouseEnter);
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", throttledMouseMove);
       document.removeEventListener("mouseenter", handleMouseEnter);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mousedown", handleMouseDown);
@@ -455,11 +583,10 @@ export const CustomCursor = () => {
 
   return (
     <>
-      {/* Main Cursor - Now with colored dots */}
       <AnimatePresence>
         {isVisible && (
           <>
-            {/* Trail Effect - More dots with varied colors */}
+            {/* Trail Effect - Disperse dots */}
             {trail.map((point, index) => {
               const colorKeys = Object.keys(colors) as Array<
                 keyof typeof colors
@@ -478,116 +605,95 @@ export const CustomCursor = () => {
                     width: point.size,
                     height: point.size,
                     background: trailColor,
+                    filter: "blur(1px)",
                   }}
                   initial={{
                     opacity: point.opacity,
                     scale: 1,
-                    filter: "blur(0px)",
                   }}
                   animate={{
-                    opacity: point.opacity * 0.3,
-                    scale: 0.8,
-                    filter: "blur(2px)",
-                  }}
-                  exit={{
                     opacity: 0,
-                    scale: 0,
+                    scale: 0.5,
                   }}
+                  exit={{ opacity: 0 }}
                   transition={{
-                    opacity: { duration: 0.5, ease: "easeOut" },
-                    scale: { duration: 0.5, ease: "easeOut" },
+                    duration: 0.3,
+                    ease: "easeOut",
                   }}
                 />
               );
             })}
 
-            {/* Primary Cursor Particles - Larger and more colorful */}
+            {/* Primary Cursor Particles with dispersion */}
             {PARTICLE_CONFIGS.map((config, index) => {
               const color = colors[config.colorKey as keyof typeof colors];
+              const dispersion = isHovering ? 15 : 8;
+              const angle = (index / PARTICLE_CONFIGS.length) * Math.PI * 2;
+              const offsetX = Math.cos(angle) * dispersion;
+              const offsetY = Math.sin(angle) * dispersion;
 
               return (
                 <motion.div
                   key={index}
                   className="fixed top-0 left-0 pointer-events-none z-[9997]"
                   style={{
-                    x: trailSprings[index].x,
-                    y: trailSprings[index].y,
-                    translateX: "-50%",
-                    translateY: "-50%",
-                  }}
-                  initial={{
-                    opacity: 0,
-                    scale: 0,
-                    rotate: 0,
+                    x: trailSprings[index].x.get() + offsetX,
+                    y: trailSprings[index].y.get() + offsetY,
                   }}
                   animate={{
+                    scale: isHovering ? 1.2 : 1,
                     opacity: isHovering ? 0.9 : 0.7,
-                    scale: isHovering
-                      ? (config.size / 8) * 1.3
-                      : config.size / 8,
-                    rotate: isClicking ? 180 : 0,
-                    width: config.size,
-                    height: config.size,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    scale: 0,
+                    rotate: [0, 360],
                   }}
                   transition={{
-                    opacity: { duration: 0.3 },
-                    scale: {
+                    x: {
                       type: "spring",
-                      damping: 20,
+                      damping: 15,
                       stiffness: 200,
-                      delay: config.delay,
+                      delay: config.delay * 2,
                     },
-                    rotate: { duration: 0.5 },
+                    y: {
+                      type: "spring",
+                      damping: 15,
+                      stiffness: 200,
+                      delay: config.delay * 2,
+                    },
+                    scale: { duration: 0.2 },
+                    opacity: { duration: 0.2 },
+                    rotate: {
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear",
+                    },
                   }}
                 >
                   <div
-                    className="rounded-full relative"
+                    className="rounded-full"
                     style={{
-                      width: "100%",
-                      height: "100%",
-                      background: color,
-                      boxShadow: `0 0 15px ${color}80`,
+                      width: config.size,
+                      height: config.size,
+                      background: `radial-gradient(circle at 30% 30%, ${color}, ${color}80)`,
+                      boxShadow: `0 0 10px ${color}80`,
+                      transform: "translate(-50%, -50%)",
                     }}
-                  >
-                    {/* Inner glow */}
-                    <div
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background: `radial-gradient(circle at 30% 30%, ${color}ff, ${color}00 70%)`,
-                        opacity: 0.4,
-                      }}
-                    />
-
-                    {/* Outer glow */}
-                    <div
-                      className="absolute inset-0 rounded-full blur-sm"
-                      style={{
-                        background: color,
-                        opacity: 0.3,
-                      }}
-                    />
-                  </div>
+                  />
                 </motion.div>
               );
             })}
 
-            {/* Floating Particles - More and larger */}
+            {/* Floating Particles */}
             <AnimatePresence>
               {particles.map((particle) => (
                 <motion.div
                   key={particle.id}
-                  className="fixed top-0 left-0 pointer-events-none z-[9998]"
+                  className="fixed top-0 left-0 pointer-events-none z-[9998] rounded-full"
                   style={{
                     x: particle.x,
                     y: particle.y,
-                    translateX: "-50%",
-                    translateY: "-50%",
-                    rotate: particle.rotation,
-                    scale: particle.scale,
+                    width: particle.size,
+                    height: particle.size,
+                    background: particle.color,
+                    boxShadow: `0 0 8px ${particle.color}`,
                   }}
                   initial={{
                     opacity: 0.9,
@@ -595,130 +701,109 @@ export const CustomCursor = () => {
                     rotate: 0,
                   }}
                   animate={{
-                    opacity: [0.9, 0.6, 0],
-                    scale: [1, 1.8, 0],
-                  }}
-                  exit={{
                     opacity: 0,
                     scale: 0,
+                    x: particle.x + particle.velocity.x * 50,
+                    y: particle.y + particle.velocity.y * 50,
+                    rotate: particle.rotation + 180,
                   }}
+                  exit={{ opacity: 0 }}
                   transition={{
                     duration: particle.lifetime / 1000,
                     ease: "easeOut",
+                    delay: particle.delay,
                   }}
-                >
-                  <div
-                    className="rounded-full"
-                    style={{
-                      width: particle.size,
-                      height: particle.size,
-                      background: particle.color,
-                      boxShadow: `0 0 20px ${particle.color}`,
-                      opacity: 0.8,
-                    }}
-                  />
-                </motion.div>
+                />
               ))}
             </AnimatePresence>
 
-            {/* Main Cursor Center */}
+            {/* Main Cursor Center - Faster and more responsive */}
             <motion.div
               className="fixed top-0 left-0 pointer-events-none z-[9999]"
               style={{
                 x: springX,
                 y: springY,
-                translateX: "-50%",
-                translateY: "-50%",
               }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
+              animate={{
+                scale: isClicking ? 0.9 : 1,
+              }}
+              transition={{
+                type: "spring",
+                damping: 15,
+                stiffness: 400,
+                mass: 0.1,
+              }}
             >
-              {/* Outer Ring - Larger and more visible */}
+              {/* Outer Ring */}
               <motion.div
                 className="absolute rounded-full border-2"
                 style={{
                   borderColor:
                     cursorType === "link" ? colors.secondary : colors.primary,
+                  width: 50,
+                  height: 50,
+                  x: -25,
+                  y: -25,
                 }}
                 animate={{
-                  width: isHovering ? 70 : 60,
-                  height: isHovering ? 70 : 60,
-                  opacity: isHovering ? 1 : 0.8,
-                  x: isHovering ? -35 : -30,
-                  y: isHovering ? -35 : -30,
+                  scale: isHovering ? 1.2 : 1,
                   rotate: isHovering ? 180 : 0,
                 }}
                 transition={{
                   type: "spring",
-                  damping: 12,
-                  stiffness: 180,
+                  damping: 15,
+                  stiffness: 300,
                 }}
-              >
-                {/* Rotating accent for links */}
-                {cursorType === "link" && (
-                  <motion.div
-                    className="absolute inset-0 rounded-full border-2 border-transparent border-t-accent"
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
-                )}
-              </motion.div>
+              />
 
-              {/* Inner Dot - Larger and glowing */}
+              {/* Inner Dot */}
               <motion.div
                 className="absolute rounded-full"
                 style={{
                   background:
                     cursorType === "link"
-                      ? `radial-gradient(circle at 30% 30%, ${colors.secondary}, ${colors.primary})`
+                      ? colors.secondary
                       : cursorType === "text"
                       ? colors.accent
                       : colors.primary,
+                  width: 12,
+                  height: 12,
+                  x: -6,
+                  y: -6,
                 }}
                 animate={{
-                  width: isClicking ? 24 : isHovering ? 16 : 14,
-                  height: isClicking ? 24 : isHovering ? 16 : 14,
-                  scale: isClicking ? 0.9 : 1,
-                  x: isClicking ? -12 : isHovering ? -8 : -7,
-                  y: isClicking ? -12 : isHovering ? -8 : -7,
+                  scale: isClicking ? 1.5 : isHovering ? 1.3 : 1,
                 }}
                 transition={{
                   type: "spring",
                   damping: 15,
-                  stiffness: 350,
+                  stiffness: 500,
                 }}
               >
-                {/* Glow effect - More intense */}
+                {/* Glow effect */}
                 <motion.div
-                  className="absolute inset-0 rounded-full blur-lg"
+                  className="absolute inset-0 rounded-full blur-md"
                   style={{
                     background:
                       cursorType === "link" ? colors.secondary : colors.primary,
                   }}
                   animate={{
-                    scale: isHovering ? 2.5 : 2,
-                    opacity: isHovering ? 0.7 : 0.4,
+                    scale: isHovering ? 2 : 1.5,
+                    opacity: isHovering ? 0.6 : 0.4,
                   }}
-                  transition={{ duration: 0.2 }}
                 />
               </motion.div>
 
               {/* Text cursor indicator */}
               {cursorType === "text" && (
                 <motion.div
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-1.5 h-8 rounded-full"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full"
                   style={{ background: colors.accent }}
                   animate={{
-                    height: [8, 16, 8],
-                    opacity: [0.6, 1, 0.6],
+                    height: [12, 24, 12],
                   }}
                   transition={{
-                    duration: 0.8,
+                    duration: 1,
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
@@ -728,14 +813,17 @@ export const CustomCursor = () => {
               {/* Link cursor indicator */}
               {cursorType === "link" && (
                 <motion.div
-                  className="absolute -right-3 top-1/2 -translate-y-1/2"
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
+                  className="absolute -right-4 top-1/2 -translate-y-1/2"
+                  animate={{ x: [0, 2, 0] }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 >
                   <svg
-                    width="16"
-                    height="16"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke={colors.secondary}
@@ -746,112 +834,25 @@ export const CustomCursor = () => {
                 </motion.div>
               )}
 
-              {/* Click ripple effect - More visible */}
+              {/* Click ripple effect */}
               <AnimatePresence>
                 {isClicking && (
-                  <>
-                    <motion.div
-                      className="absolute rounded-full border-2"
-                      style={{ borderColor: colors.secondary }}
-                      initial={{
-                        width: 14,
-                        height: 14,
-                        x: -7,
-                        y: -7,
-                        opacity: 1,
-                      }}
-                      animate={{
-                        width: 100,
-                        height: 100,
-                        x: -50,
-                        y: -50,
-                        opacity: 0,
-                      }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.8, ease: "easeOut" }}
-                    />
-                    <motion.div
-                      className="absolute rounded-full border-2"
-                      style={{ borderColor: colors.primary }}
-                      initial={{
-                        width: 14,
-                        height: 14,
-                        x: -7,
-                        y: -7,
-                        opacity: 1,
-                      }}
-                      animate={{
-                        width: 80,
-                        height: 80,
-                        x: -40,
-                        y: -40,
-                        opacity: 0,
-                      }}
-                      exit={{ opacity: 0 }}
-                      transition={{
-                        duration: 0.6,
-                        ease: "easeOut",
-                        delay: 0.1,
-                      }}
-                    />
-                  </>
+                  <motion.div
+                    className="absolute rounded-full border-2"
+                    style={{
+                      borderColor: colors.secondary,
+                      width: 12,
+                      height: 12,
+                      x: -6,
+                      y: -6,
+                    }}
+                    initial={{ opacity: 1, scale: 1 }}
+                    animate={{ opacity: 0, scale: 4 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                  />
                 )}
               </AnimatePresence>
-
-              {/* Magnetic effect lines - More lines */}
-              {isHovering && (
-                <motion.div
-                  className="absolute inset-0"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {Array.from({ length: 12 }).map((_, i) => {
-                    const colorKeys = Object.keys(colors) as Array<
-                      keyof typeof colors
-                    >;
-                    const lineColor = colors[colorKeys[i % colorKeys.length]];
-
-                    return (
-                      <motion.div
-                        key={i}
-                        className="absolute w-1.5 h-1.5 rounded-full"
-                        style={{
-                          background: lineColor,
-                          left: "50%",
-                          top: "50%",
-                          transform: `translate(-50%, -50%) rotate(${
-                            i * 30
-                          }deg)`,
-                          boxShadow: `0 0 8px ${lineColor}`,
-                        }}
-                        animate={{
-                          x: [
-                            0,
-                            Math.cos((i * Math.PI) / 6) * 60,
-                            Math.cos((i * Math.PI) / 6) * 45,
-                          ],
-                          y: [
-                            0,
-                            Math.sin((i * Math.PI) / 6) * 60,
-                            Math.sin((i * Math.PI) / 6) * 45,
-                          ],
-                          opacity: [0, 1, 0],
-                          scale: [0.5, 1.2, 0.5],
-                        }}
-                        transition={{
-                          duration: 2.5,
-                          times: [0, 0.5, 1],
-                          repeat: Infinity,
-                          delay: i * 0.08,
-                          ease: "easeInOut",
-                        }}
-                      />
-                    );
-                  })}
-                </motion.div>
-              )}
             </motion.div>
           </>
         )}
@@ -867,64 +868,6 @@ export const CursorProvider = ({ children }: { children: React.ReactNode }) => {
       <CustomCursor />
       {children}
     </>
-  );
-};
-
-// Magnetic Effect Component - Enhanced
-export const MagneticElement = ({
-  children,
-  strength = 0.3,
-  className = "",
-}: {
-  children: React.ReactNode;
-  strength?: number;
-  className?: string;
-}) => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    const distanceX = e.clientX - centerX;
-    const distanceY = e.clientY - centerY;
-
-    const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
-    const maxDistance = Math.min(rect.width, rect.height) / 2;
-
-    // Smooth magnetic effect with easing
-    const easeFactor = 1 - Math.min(distance / maxDistance, 1);
-    const magnetStrength = strength * easeFactor;
-
-    setPosition({
-      x: distanceX * magnetStrength,
-      y: distanceY * magnetStrength,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
-  };
-
-  return (
-    <motion.div
-      className={`relative ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        x: position.x,
-        y: position.y,
-      }}
-      transition={{
-        type: "spring",
-        damping: 15,
-        stiffness: 200,
-        mass: 0.5,
-      }}
-    >
-      {children}
-    </motion.div>
   );
 };
 
