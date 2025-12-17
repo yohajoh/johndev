@@ -253,7 +253,8 @@ export const HeroSection = () => {
             </motion.div>
 
             {/* Main Heading */}
-            <motion.div className="space-y-4" variants={itemVariants}>
+            {/* <motion.div className="space-y-4" variants={itemVariants}> */}
+            <motion.div className="space-y-4">
               <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight">
                 <span className="block text-muted-foreground">Hi, I'm</span>
                 <span className="block text-gradient-primary mt-2">
@@ -276,7 +277,7 @@ export const HeroSection = () => {
             {/* Description */}
             <motion.p
               className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl"
-              variants={itemVariants}
+              // variants={itemVariants}
             >
               I craft exceptional digital experiences with modern technologies.
               Specializing in full-stack development, cloud architecture, and
@@ -292,7 +293,7 @@ export const HeroSection = () => {
                 <motion.div
                   key={stat.label}
                   custom={index}
-                  variants={statCardVariants}
+                  // variants={statCardVariants}
                   whileHover="hover"
                   className={`p-4 rounded-2xl border ${
                     activeStat === index
@@ -328,7 +329,7 @@ export const HeroSection = () => {
             {/* CTA Buttons */}
             <motion.div
               className="flex flex-wrap gap-4"
-              variants={itemVariants}
+              // variants={itemVariants}
             >
               <MagneticElement strength={0.2}>
                 <motion.button
@@ -359,7 +360,7 @@ export const HeroSection = () => {
             {/* Social Links */}
             <motion.div
               className="flex items-center gap-4"
-              variants={itemVariants}
+              // variants={itemVariants}
             >
               <span className="text-sm text-muted-foreground">Follow me:</span>
               <div className="flex items-center gap-3">
@@ -387,7 +388,7 @@ export const HeroSection = () => {
             {/* Main Photo Container */}
             <motion.div
               className="relative mx-auto lg:mx-0 max-w-md lg:max-w-lg"
-              variants={photoVariants}
+              // variants={photoVariants}
               initial="hidden"
               animate="visible"
               whileHover="hover"

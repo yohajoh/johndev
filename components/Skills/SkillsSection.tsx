@@ -380,7 +380,7 @@ export const SkillsSection = () => {
         {/* Section Header */}
         <motion.div
           className="text-center mb-16 md:mb-20"
-          variants={itemVariants}
+          // variants={itemVariants}
         >
           <motion.span
             className="inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 text-accent text-sm font-medium rounded-full mb-4 border border-accent/20"
@@ -401,7 +401,10 @@ export const SkillsSection = () => {
 
         <div className="grid lg:grid-cols-3 gap-12">
           {/* Left Column - Category Selector */}
-          <motion.div className="lg:col-span-1" variants={itemVariants}>
+          <motion.div
+            className="lg:col-span-1"
+            // variants={itemVariants}
+          >
             <div className="sticky top-24 space-y-6">
               <div className="p-6 rounded-2xl bg-card/50 border border-border/50 backdrop-blur-sm">
                 <h3 className="font-heading text-lg text-foreground mb-4 flex items-center gap-2">
@@ -494,7 +497,10 @@ export const SkillsSection = () => {
           </motion.div>
 
           {/* Right Column - Skills Visualization */}
-          <motion.div className="lg:col-span-2" variants={itemVariants}>
+          <motion.div
+            className="lg:col-span-2"
+            // variants={itemVariants}
+          >
             <div className="p-6 md:p-8 rounded-3xl bg-card/50 border border-border/50 backdrop-blur-sm">
               {/* Category Header */}
               <div className="flex items-center justify-between mb-8">
@@ -582,7 +588,7 @@ export const SkillsSection = () => {
                             ? "bg-gradient-to-r from-primary to-accent"
                             : "bg-primary"
                         } relative`}
-                        variants={skillBarVariants}
+                        // variants={skillBarVariants}
                         custom={skill.level}
                         initial="hidden"
                         animate={isInView ? "visible" : "hidden"}

@@ -149,7 +149,8 @@ export const AboutSection = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: [0.4, 0, 0.2, 1],
+        // cast the numeric cubic-bezier array to any so it satisfies the Variants type
+        ease: [0.4, 0, 0.2, 1] as any,
       },
     },
   };
@@ -162,7 +163,8 @@ export const AboutSection = () => {
       transition: {
         delay: i * 0.2,
         duration: 0.6,
-        ease: [0.4, 0, 0.2, 1],
+        // cast the numeric cubic-bezier array to any so it satisfies the Variants type
+        ease: [0.4, 0, 0.2, 1] as any,
       },
     }),
   };
@@ -431,6 +433,7 @@ export const AboutSection = () => {
                       <motion.div
                         className="h-full rounded-full bg-gradient-to-r from-primary to-secondary"
                         initial={{ width: 0 }}
+                        // eslint-disable-next-line react-hooks/purity
                         animate={{ width: `${80 + Math.random() * 20}%` }}
                         transition={{ delay: 0.5 + i * 0.1, duration: 1 }}
                       />

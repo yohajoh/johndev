@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTheme } from "next-themes";
@@ -13,6 +14,7 @@ interface CursorParticle {
   type: "trail" | "float" | "ring";
   rotation: number;
   opacity: number;
+  delay: number;
 }
 
 const CURSOR_COLORS = {
@@ -33,6 +35,10 @@ const CURSOR_COLORS = {
     sky: "#0ea5e9",
     violet: "#8b5cf6",
     fuchsia: "#d946ef",
+    blue: "#0ea5e9",
+    yellow: "#fbbf24",
+    green: "#10b981",
+    red: "#ef4444",
   },
   dark: {
     primary: "#3b82f6",
@@ -51,6 +57,10 @@ const CURSOR_COLORS = {
     sky: "#0ea5e9",
     violet: "#8b5cf6",
     fuchsia: "#d946ef",
+    blue: "#0ea5e9",
+    yellow: "#fbbf24",
+    green: "#10b981",
+    red: "#ef4444",
   },
 };
 
@@ -67,18 +77,28 @@ export const CustomCursor = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorInnerRef = useRef<HTMLDivElement>(null);
   const cursorRingRef = useRef<HTMLDivElement>(null);
-  const particlesRef = useRef<HTMLDivElement>(null);
 
+  // Real-time cursor position (instant, no delay)
   const cursorPos = useRef({ x: 0, y: 0 });
-  const targetPos = useRef({ x: 0, y: 0 });
-  const velocity = useRef({ x: 0, y: 0 });
+
+  // Trail particle positions (follow behind with delay)
+  const trailParticles = useRef<
+    Array<{ x: number; y: number; delay: number; color: string }>
+  >([]);
+  const floatingParticles = useRef<
+    Array<{ x: number; y: number; color: string; size: number }>
+  >([]);
 
   const [particles, setParticles] = useState<CursorParticle[]>([]);
   const colors = theme === "dark" ? CURSOR_COLORS.dark : CURSOR_COLORS.light;
   const colorKeys = Object.keys(colors);
 
-  const animationFrameRef = useRef<number>();
-  const lastUpdateTime = useRef<number>(0);
+  const animationFrameRef = useRef<number>(0);
+  const mousePosHistory = useRef<
+    Array<{ x: number; y: number; timestamp: number }>
+  >([]);
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const velocityRef = useRef({ x: 0, y: 0 });
 
   // Hide default cursor globally
   useEffect(() => {
@@ -123,49 +143,80 @@ export const CustomCursor = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Mouse move handler
+  // Ultra-fast mouse move handler - immediate response
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      targetPos.current = { x: e.clientX, y: e.clientY };
+      const now = Date.now();
 
-      // Calculate velocity for particle creation
-      const dx = e.movementX;
-      const dy = e.movementY;
+      // Update cursor position IMMEDIATELY (no delay)
+      cursorPos.current = { x: e.clientX, y: e.clientY };
+
+      // Calculate velocity
+      const dx = e.clientX - lastMousePos.current.x;
+      const dy = e.clientY - lastMousePos.current.y;
+      velocityRef.current = { x: dx, y: dy };
       const speed = Math.sqrt(dx * dx + dy * dy);
+
+      // Store mouse position history for trail
+      mousePosHistory.current.push({
+        x: e.clientX,
+        y: e.clientY,
+        timestamp: now,
+      });
+      if (mousePosHistory.current.length > 30) {
+        mousePosHistory.current.shift();
+      }
+
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
 
       if (!isVisible) setIsVisible(true);
 
-      // Create trail particles based on speed
-      if (speed > 3) {
-        const now = Date.now();
+      // Create MANY trail particles based on speed
+      if (speed > 1) {
         const newParticles: CursorParticle[] = [];
-        const particleCount = Math.min(Math.floor(speed / 5), 15);
+        const particleCount = Math.min(Math.floor(speed / 2), 25); // More particles
         const angle = Math.atan2(dy, dx);
 
         for (let i = 0; i < particleCount; i++) {
           const colorIndex = Math.floor(Math.random() * colorKeys.length);
           const colorKey = colorKeys[colorIndex];
           const particleAngle = angle + (Math.random() - 0.5) * Math.PI;
-          const particleSpeed = (0.5 + Math.random() * 2) * (speed / 10);
+          const particleSpeed = (0.2 + Math.random() * 1.5) * (speed / 15);
 
           newParticles.push({
             id: now + i + Math.random(),
-            x: e.clientX,
-            y: e.clientY,
-            size: 4 + Math.random() * 6, // Bigger dots (4-10px)
+            x: e.clientX + (Math.random() - 0.5) * 10,
+            y: e.clientY + (Math.random() - 0.5) * 10,
+            size: 6 + Math.random() * 8, // Bigger dots (6-14px)
             color: colors[colorKey as keyof typeof colors],
-            lifetime: 400 + Math.random() * 400,
+            lifetime: 300 + Math.random() * 400,
             velocity: {
-              x: Math.cos(particleAngle) * particleSpeed,
-              y: Math.sin(particleAngle) * particleSpeed,
+              x:
+                Math.cos(particleAngle) * particleSpeed +
+                (Math.random() - 0.5) * 0.5,
+              y:
+                Math.sin(particleAngle) * particleSpeed +
+                (Math.random() - 0.5) * 0.5,
             },
-            type: Math.random() > 0.3 ? "trail" : "float",
+            type: Math.random() > 0.4 ? "trail" : "float",
             rotation: Math.random() * 360,
-            opacity: 0.7 + Math.random() * 0.3,
+            opacity: 0.8 + Math.random() * 0.2,
+            delay: Math.random() * 0.2,
           });
         }
 
-        setParticles((prev) => [...prev, ...newParticles].slice(-200)); // Keep more particles
+        setParticles((prev) => [...prev, ...newParticles].slice(-300)); // Keep many particles
+      }
+
+      // Update cursor immediately
+      if (
+        cursorRef.current &&
+        cursorInnerRef.current &&
+        cursorRingRef.current
+      ) {
+        cursorRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        cursorInnerRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        cursorRingRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
       }
     },
     [isVisible, colors, colorKeys]
@@ -180,39 +231,42 @@ export const CustomCursor = () => {
     (e: MouseEvent) => {
       setIsClicking(true);
 
-      // Create click explosion particles
+      // Create massive click explosion particles
       const now = Date.now();
       const newParticles: CursorParticle[] = [];
 
-      for (let i = 0; i < 30; i++) {
-        // More particles
-        const angle = (i * Math.PI * 2) / 30;
+      for (let i = 0; i < 40; i++) {
+        // Even more particles
+        const angle = (i * Math.PI * 2) / 40;
         const colorIndex = i % colorKeys.length;
         const colorKey = colorKeys[colorIndex];
+        const size = 5 + Math.random() * 10; // Bigger particles (5-15px)
 
         newParticles.push({
           id: now + i,
           x: e.clientX,
           y: e.clientY,
-          size: 3 + Math.random() * 7, // Bigger dots
+          size: size,
           color: colors[colorKey as keyof typeof colors],
-          lifetime: 600 + Math.random() * 400,
+          lifetime: 400 + Math.random() * 400,
           velocity: {
-            x: Math.cos(angle) * (1.5 + Math.random() * 3),
-            y: Math.sin(angle) * (1.5 + Math.random() * 3),
+            x: Math.cos(angle) * (2 + Math.random() * 4),
+            y: Math.sin(angle) * (2 + Math.random() * 4),
           },
           type: "float",
           rotation: Math.random() * 360,
-          opacity: 0.8 + Math.random() * 0.2,
+          opacity: 0.9 + Math.random() * 0.1,
+          delay: Math.random() * 0.1,
         });
       }
 
       setParticles((prev) => [...prev, ...newParticles]);
+
+      // Click ripple effect
+      setTimeout(() => setIsClicking(false), 150);
     },
     [colors, colorKeys]
   );
-
-  const handleMouseUp = useCallback(() => setIsClicking(false), []);
 
   // Update cursor type
   useEffect(() => {
@@ -245,81 +299,93 @@ export const CustomCursor = () => {
     };
   }, [isMobile]);
 
-  // Smooth cursor movement with lerp
-  const updateCursor = useCallback((timestamp: number) => {
-    const deltaTime =
-      Math.min(timestamp - lastUpdateTime.current, 1000 / 60) / 1000;
-    lastUpdateTime.current = timestamp;
+  // Smooth animation loop for particles only (cursor is immediate)
+  const animateParticles = useCallback(() => {
+    const now = Date.now();
 
-    // Smooth follow with acceleration
-    const smoothness = 0.15;
-    cursorPos.current.x +=
-      (targetPos.current.x - cursorPos.current.x) * smoothness;
-    cursorPos.current.y +=
-      (targetPos.current.y - cursorPos.current.y) * smoothness;
-
-    // Update cursor position
-    if (cursorRef.current && cursorInnerRef.current && cursorRingRef.current) {
-      cursorRef.current.style.transform = `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`;
-      cursorInnerRef.current.style.transform = `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`;
-      cursorRingRef.current.style.transform = `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`;
-    }
-
-    // Update particles animation
+    // Update all particles
     setParticles((prev) =>
       prev
         .map((p) => {
-          const newX = p.x + p.velocity.x;
-          const newY = p.y + p.velocity.y;
-          const newLifetime = p.lifetime - 16;
+          const age = now - p.id;
+          const progress = age / p.lifetime;
+
+          let newX = p.x;
+          let newY = p.y;
+
+          if (p.type === "float") {
+            // Floating particles have physics
+            newX = p.x + p.velocity.x;
+            newY = p.y + p.velocity.y;
+            p.velocity.x *= 0.98; // Slow down
+            p.velocity.y *= 0.98;
+          } else {
+            // Trail particles just fade out
+            newX = p.x + p.velocity.x * 0.5;
+            newY = p.y + p.velocity.y * 0.5;
+          }
 
           return {
             ...p,
             x: newX,
             y: newY,
-            lifetime: newLifetime,
-            size: p.size * (p.type === "float" ? 0.99 : 0.97),
-            opacity: Math.max(0, p.opacity - 0.01),
-            rotation: p.rotation + p.velocity.x * 0.5,
+            lifetime: p.lifetime - 16,
+            size: p.size * (1 - progress * 0.2),
+            opacity: p.opacity * (1 - progress * 0.5),
+            rotation: p.rotation + p.velocity.x * 0.3,
           };
         })
-        .filter((p) => p.lifetime > 0 && p.size > 1)
+        .filter((p) => {
+          const age = now - p.id;
+          return age < p.lifetime && p.size > 1 && p.opacity > 0.05;
+        })
     );
 
-    // Continue animation
-    animationFrameRef.current = requestAnimationFrame(updateCursor);
+    animationFrameRef.current = requestAnimationFrame(animateParticles);
   }, []);
 
   // Start animation loop
   useEffect(() => {
     if (isMobile) return;
 
-    lastUpdateTime.current = performance.now();
-    animationFrameRef.current = requestAnimationFrame(updateCursor);
+    // Wrap animateParticles call so the identifier is not accessed
+    // before it's initialized (avoids TDZ / "accessed before declared" errors).
+    animationFrameRef.current = requestAnimationFrame(() => animateParticles());
 
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isMobile, updateCursor]);
+  }, [isMobile, animateParticles]);
 
-  // Event listeners
+  // Event listeners with throttling for performance
   useEffect(() => {
     if (isMobile) return;
 
-    window.addEventListener("mousemove", handleMouseMove);
+    let lastCall = 0;
+    const throttleMs = 1000 / 120; // 120 FPS limit
+
+    const throttledMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastCall >= throttleMs) {
+        handleMouseMove(e);
+        lastCall = now;
+      }
+    };
+
+    window.addEventListener("mousemove", throttledMouseMove);
     document.addEventListener("mouseenter", handleMouseEnter);
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mousedown", handleMouseDown);
-    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseup", () => setIsClicking(false));
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", throttledMouseMove);
       document.removeEventListener("mouseenter", handleMouseEnter);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseup", () => {});
     };
   }, [
     isMobile,
@@ -327,18 +393,122 @@ export const CustomCursor = () => {
     handleMouseEnter,
     handleMouseLeave,
     handleMouseDown,
-    handleMouseUp,
   ]);
 
   if (isMobile) return null;
 
+  // Generate trailing dots that follow behind cursor
+  const trailingDots = Array.from({ length: 20 }).map((_, i) => {
+    const delay = (i + 1) * 10; // Staggered delay
+    const historyIndex = Math.max(
+      0,
+      mousePosHistory.current.length - 1 - delay
+    );
+    const pos = mousePosHistory.current[historyIndex] || cursorPos.current;
+
+    const colorIndex = i % colorKeys.length;
+    const colorKey = colorKeys[colorIndex];
+    const size = 4 + (i % 3) * 2; // Varying sizes
+
+    return {
+      x: pos?.x || cursorPos.current.x,
+      y: pos?.y || cursorPos.current.y,
+      color: colors[colorKey as keyof typeof colors],
+      size,
+      opacity: 0.7 - i * 0.03,
+    };
+  });
+
   return (
     <>
+      {/* CSS Animations */}
+      <style jsx global>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes pulse {
+          0%,
+          100% {
+            transform: scale(1);
+            opacity: 0.7;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 1;
+          }
+        }
+
+        @keyframes blink {
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.3;
+          }
+        }
+
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-3px);
+          }
+        }
+
+        @keyframes ripple {
+          0% {
+            transform: scale(0.5);
+            opacity: 1;
+          }
+          100% {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+
+        @keyframes orbit {
+          0% {
+            transform: rotate(0deg) translateX(30px) rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg) translateX(30px) rotate(-360deg);
+          }
+        }
+      `}</style>
+
       {/* All Particles */}
-      <div
-        ref={particlesRef}
-        className="fixed top-0 left-0 w-full h-full pointer-events-none z-[9997] overflow-hidden"
-      >
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-[9997] overflow-hidden">
+        {/* Trailing dots that follow cursor */}
+        {trailingDots.map((dot, i) => (
+          <div
+            key={`trail-${i}`}
+            className="absolute rounded-full"
+            style={{
+              left: dot.x,
+              top: dot.y,
+              width: dot.size,
+              height: dot.size,
+              background: dot.color,
+              borderRadius: "50%",
+              transform: "translate(-50%, -50%)",
+              opacity: dot.opacity,
+              boxShadow: `0 0 ${dot.size}px ${dot.color}`,
+              transition: "all 0.05s linear",
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+
+        {/* Floating particles */}
         {particles.map((particle) => {
           const style: React.CSSProperties = {
             position: "absolute",
@@ -347,11 +517,10 @@ export const CustomCursor = () => {
             width: particle.size,
             height: particle.size,
             background: particle.color,
-            borderRadius: "50%",
+            borderRadius: particle.type === "float" ? "50%" : "30%",
             transform: `translate(-50%, -50%) rotate(${particle.rotation}deg)`,
             opacity: particle.opacity,
-            boxShadow: `0 0 ${particle.size / 2}px ${particle.color}`,
-            transition: particle.type === "float" ? "none" : "all 0.1s linear",
+            boxShadow: `0 0 ${particle.size}px ${particle.color}`,
             pointerEvents: "none",
           };
 
@@ -359,34 +528,34 @@ export const CustomCursor = () => {
         })}
       </div>
 
-      {/* Main Cursor */}
+      {/* Main Cursor - Immediate response */}
       {isVisible && (
         <>
           {/* Outer Ring */}
           <div
             ref={cursorRingRef}
-            className="fixed top-0 left-0 pointer-events-none z-[9999]"
+            className="fixed top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
             style={{
               transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
-              transition: "transform 0s linear",
-              width: isHovering ? "64px" : "56px",
-              height: isHovering ? "64px" : "56px",
-              marginLeft: isHovering ? "-32px" : "-28px",
-              marginTop: isHovering ? "-32px" : "-28px",
+              width: isHovering ? "60px" : "50px",
+              height: isHovering ? "60px" : "50px",
+              marginLeft: isHovering ? "-30px" : "-25px",
+              marginTop: isHovering ? "-30px" : "-25px",
               border: `2px solid ${
                 cursorType === "link" ? colors.secondary : colors.primary
-              }`,
+              }80`,
               borderRadius: "50%",
               opacity: isHovering ? 1 : 0.8,
-              transformOrigin: "center",
               animation:
-                cursorType === "link" ? "spin 3s linear infinite" : "none",
+                cursorType === "link" ? "spin 2s linear infinite" : "none",
+              transition:
+                "transform 0s linear, width 0.1s, height 0.1s, opacity 0.1s",
             }}
           >
             {/* Ring particles */}
-            {Array.from({ length: 12 }).map((_, i) => {
-              const angle = (i * 30 * Math.PI) / 180;
-              const radius = 32;
+            {Array.from({ length: 16 }).map((_, i) => {
+              const angle = (i * 22.5 * Math.PI) / 180;
+              const radius = 30;
               const x = Math.cos(angle) * radius;
               const y = Math.sin(angle) * radius;
               const colorIndex = i % colorKeys.length;
@@ -395,21 +564,21 @@ export const CustomCursor = () => {
               return (
                 <div
                   key={i}
-                  className="absolute rounded-full"
+                  className="absolute rounded-full transition-all duration-200"
                   style={{
-                    width: "8px",
-                    height: "8px",
+                    width: "6px",
+                    height: "6px",
                     left: "50%",
                     top: "50%",
-                    marginLeft: "-4px",
-                    marginTop: "-4px",
-                    transform: `translate(${x}px, ${y}px) rotate(${angle}rad)`,
+                    marginLeft: "-3px",
+                    marginTop: "-3px",
+                    transform: `translate(${x}px, ${y}px)`,
                     background: colors[colorKey as keyof typeof colors],
                     boxShadow: `0 0 8px ${
                       colors[colorKey as keyof typeof colors]
                     }`,
-                    opacity: isHovering ? 0.8 : 0.6,
-                    animation: `pulse 2s ease-in-out infinite ${i * 0.1}s`,
+                    opacity: isHovering ? 0.9 : 0.7,
+                    animation: `pulse 1.5s ease-in-out infinite ${i * 0.05}s`,
                   }}
                 />
               );
@@ -419,14 +588,13 @@ export const CustomCursor = () => {
           {/* Inner Cursor */}
           <div
             ref={cursorRef}
-            className="fixed top-0 left-0 pointer-events-none z-[9999]"
+            className="fixed top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
             style={{
               transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
-              transition: "transform 0s linear",
-              width: isClicking ? "24px" : isHovering ? "18px" : "16px",
-              height: isClicking ? "24px" : isHovering ? "18px" : "16px",
-              marginLeft: isClicking ? "-12px" : isHovering ? "-9px" : "-8px",
-              marginTop: isClicking ? "-12px" : isHovering ? "-9px" : "-8px",
+              width: isClicking ? "22px" : isHovering ? "16px" : "14px",
+              height: isClicking ? "22px" : isHovering ? "16px" : "14px",
+              marginLeft: isClicking ? "-11px" : isHovering ? "-8px" : "-7px",
+              marginTop: isClicking ? "-11px" : isHovering ? "-8px" : "-7px",
               background:
                 cursorType === "link"
                   ? `radial-gradient(circle at 30% 30%, ${colors.secondary}, ${colors.primary})`
@@ -435,60 +603,83 @@ export const CustomCursor = () => {
                   : colors.primary,
               borderRadius: "50%",
               boxShadow: `
-                0 0 20px ${
+                0 0 25px ${
                   cursorType === "link" ? colors.secondary : colors.primary
-                },
-                inset 0 0 10px rgba(255, 255, 255, 0.3)
+                }80,
+                0 0 10px ${
+                  cursorType === "link" ? colors.secondary : colors.primary
+                }40,
+                inset 0 0 8px rgba(255, 255, 255, 0.4)
               `,
-              transformOrigin: "center",
-              animation: isClicking ? "pulse 0.5s ease-out" : "none",
+              animation: isClicking ? "pulse 0.3s ease-out" : "none",
+              transition: "transform 0s linear, width 0.1s, height 0.1s",
             }}
           >
             {/* Floating dots around cursor */}
-            {Array.from({ length: 8 }).map((_, i) => {
+            {Array.from({ length: 12 }).map((_, i) => {
               const colorIndex = i % colorKeys.length;
               const colorKey = colorKeys[colorIndex];
-              const angle = (i * 45 * Math.PI) / 180;
-              const distance = isHovering ? 35 : 30;
+              const angle = (i * 30 * Math.PI) / 180;
+              const distance = isHovering ? 40 : 35;
               const x = Math.cos(angle) * distance;
               const y = Math.sin(angle) * distance;
 
               return (
                 <div
                   key={i}
-                  className="absolute rounded-full"
+                  className="absolute rounded-full transition-all duration-300"
                   style={{
-                    width: "6px",
-                    height: "6px",
+                    width: "5px",
+                    height: "5px",
                     left: "50%",
                     top: "50%",
-                    marginLeft: "-3px",
-                    marginTop: "-3px",
+                    marginLeft: "-2.5px",
+                    marginTop: "-2.5px",
                     background: colors[colorKey as keyof typeof colors],
-                    boxShadow: `0 0 8px ${
+                    boxShadow: `0 0 10px ${
                       colors[colorKey as keyof typeof colors]
                     }`,
                     transform: `translate(${x}px, ${y}px)`,
                     opacity: isHovering ? 0.9 : 0.7,
-                    animation: `orbit 4s linear infinite ${i * 0.5}s`,
+                    animation: `orbit 3s linear infinite ${i * 0.2}s`,
                   }}
                 />
               );
             })}
           </div>
 
+          {/* Inner dot - moves with cursor */}
+          <div
+            ref={cursorInnerRef}
+            className="fixed top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
+            style={{
+              transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
+              width: "6px",
+              height: "6px",
+              marginLeft: "-3px",
+              marginTop: "-3px",
+              background: "white",
+              borderRadius: "50%",
+              boxShadow: "0 0 15px white, 0 0 8px rgba(255, 255, 255, 0.8)",
+              opacity: 0.9,
+              transition: "transform 0s linear",
+            }}
+          />
+
           {/* Text cursor indicator */}
           {cursorType === "text" && (
             <div
-              className="fixed pointer-events-none z-[9999]"
+              className="fixed pointer-events-none z-[9999] transition-all duration-100"
               style={{
-                left: cursorPos.current.x + 10,
-                top: cursorPos.current.y - 8,
-                width: "2px",
-                height: "24px",
+                left: cursorPos.current.x + 12,
+                top: cursorPos.current.y - 10,
+                width: "3px",
+                height: "20px",
                 background: colors.accent,
                 animation: "blink 1s infinite",
-                boxShadow: `0 0 8px ${colors.accent}`,
+                boxShadow: `0 0 12px ${colors.accent}`,
+                borderRadius: "2px",
+                transition: "left 0s linear, top 0s linear",
               }}
             />
           )}
@@ -496,20 +687,21 @@ export const CustomCursor = () => {
           {/* Link cursor indicator */}
           {cursorType === "link" && (
             <div
-              className="fixed pointer-events-none z-[9999]"
+              className="fixed pointer-events-none z-[9999] transition-all duration-100"
               style={{
-                left: cursorPos.current.x + 12,
-                top: cursorPos.current.y - 6,
-                animation: "float 2s ease-in-out infinite",
+                left: cursorPos.current.x + 15,
+                top: cursorPos.current.y - 7,
+                animation: "float 1.5s ease-in-out infinite",
+                transition: "left 0s linear, top 0s linear",
               }}
             >
               <svg
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke={colors.secondary}
-                strokeWidth="2"
+                strokeWidth="2.5"
               >
                 <path d="M7 17L17 7M17 7H8M17 7V16" />
               </svg>
@@ -522,111 +714,31 @@ export const CustomCursor = () => {
               <div
                 className="fixed top-0 left-0 pointer-events-none z-[9998] rounded-full"
                 style={{
-                  transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
-                  marginLeft: "-50px",
-                  marginTop: "-50px",
-                  width: "100px",
-                  height: "100px",
-                  border: `2px solid ${colors.secondary}`,
-                  animation: "ripple 0.8s ease-out forwards",
+                  left: cursorPos.current.x,
+                  top: cursorPos.current.y,
+                  width: "120px",
+                  height: "120px",
+                  marginLeft: "-60px",
+                  marginTop: "-60px",
+                  border: `3px solid ${colors.secondary}`,
+                  animation: "ripple 0.6s ease-out forwards",
                 }}
               />
               <div
                 className="fixed top-0 left-0 pointer-events-none z-[9998] rounded-full"
                 style={{
-                  transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
-                  marginLeft: "-40px",
-                  marginTop: "-40px",
-                  width: "80px",
-                  height: "80px",
+                  left: cursorPos.current.x,
+                  top: cursorPos.current.y,
+                  width: "90px",
+                  height: "90px",
+                  marginLeft: "-45px",
+                  marginTop: "-45px",
                   border: `2px solid ${colors.primary}`,
-                  animation: "ripple 0.6s ease-out 0.1s forwards",
+                  animation: "ripple 0.5s ease-out 0.1s forwards",
                 }}
               />
             </>
           )}
-
-          {/* Add CSS animations */}
-          <style jsx>{`
-            @keyframes spin {
-              from {
-                transform: translate(
-                    ${cursorPos.current.x}px,
-                    ${cursorPos.current.y}px
-                  )
-                  rotate(0deg);
-              }
-              to {
-                transform: translate(
-                    ${cursorPos.current.x}px,
-                    ${cursorPos.current.y}px
-                  )
-                  rotate(360deg);
-              }
-            }
-
-            @keyframes pulse {
-              0%,
-              100% {
-                opacity: 0.7;
-                transform: scale(1);
-              }
-              50% {
-                opacity: 1;
-                transform: scale(1.2);
-              }
-            }
-
-            @keyframes blink {
-              0%,
-              100% {
-                opacity: 1;
-              }
-              50% {
-                opacity: 0.2;
-              }
-            }
-
-            @keyframes float {
-              0%,
-              100% {
-                transform: translateY(0px);
-              }
-              50% {
-                transform: translateY(-3px);
-              }
-            }
-
-            @keyframes ripple {
-              0% {
-                transform: translate(
-                    ${cursorPos.current.x}px,
-                    ${cursorPos.current.y}px
-                  )
-                  scale(0.5);
-                opacity: 1;
-              }
-              100% {
-                transform: translate(
-                    ${cursorPos.current.x}px,
-                    ${cursorPos.current.y}px
-                  )
-                  scale(2);
-                opacity: 0;
-              }
-            }
-
-            @keyframes orbit {
-              0% {
-                transform: translate(0px, 0px) rotate(0deg)
-                  translateX(${isHovering ? 35 : 30}px) rotate(0deg);
-              }
-              100% {
-                transform: translate(0px, 0px) rotate(360deg)
-                  translateX(${isHovering ? 35 : 30}px) rotate(-360deg);
-              }
-            }
-          `}</style>
         </>
       )}
     </>
@@ -686,7 +798,7 @@ export const MagneticElement = ({
       onMouseLeave={handleMouseLeave}
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
-        transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: "transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
       {children}

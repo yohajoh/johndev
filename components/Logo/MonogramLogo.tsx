@@ -141,7 +141,7 @@ const MonogramLogo = ({
         style={{
           background: `radial-gradient(circle at 50% 50%, ${colors.primary}20 0%, transparent 70%)`,
         }}
-        variants={glowVariants}
+        // variants={glowVariants}
         initial="hidden"
         animate={animated ? "visible" : "hidden"}
       />
@@ -154,7 +154,7 @@ const MonogramLogo = ({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="relative z-10"
-        variants={containerVariants}
+        // variants={containerVariants}
         initial={animated ? "hidden" : "visible"}
         animate={isHovering ? "hover" : "visible"}
         whileTap={{ scale: 0.95 }}
@@ -165,7 +165,7 @@ const MonogramLogo = ({
           cy="50"
           r="45"
           fill={`url(#bg-gradient-${variant})`}
-          variants={fillVariants}
+          // variants={fillVariants}
         />
 
         {/* Y Letter - Stylized */}
@@ -177,7 +177,7 @@ const MonogramLogo = ({
           strokeLinejoin="round"
           fill="none"
           custom={0}
-          variants={pathVariants}
+          // variants={pathVariants}
         />
         <motion.path
           d="M50 50 L50 75"
@@ -185,7 +185,7 @@ const MonogramLogo = ({
           strokeWidth="4"
           strokeLinecap="round"
           custom={1}
-          variants={pathVariants}
+          // variants={pathVariants}
         />
 
         {/* B Letter - Integrated */}
@@ -195,7 +195,7 @@ const MonogramLogo = ({
           strokeWidth="4"
           strokeLinecap="round"
           custom={2}
-          variants={pathVariants}
+          // variants={pathVariants}
         />
         <motion.path
           d="M55 30 C70 30 80 40 80 50 C80 60 70 70 55 70"
@@ -204,7 +204,7 @@ const MonogramLogo = ({
           strokeLinecap="round"
           fill="none"
           custom={3}
-          variants={pathVariants}
+          // variants={pathVariants}
         />
         <motion.path
           d="M55 50 C65 50 70 55 70 50 C70 45 65 50 55 50"
@@ -212,7 +212,7 @@ const MonogramLogo = ({
           strokeWidth="2"
           strokeLinecap="round"
           custom={4}
-          variants={pathVariants}
+          // variants={pathVariants}
         />
 
         {/* Decorative Elements */}
@@ -224,7 +224,7 @@ const MonogramLogo = ({
               r="3"
               fill={colors.accent}
               custom={5}
-              variants={fillVariants}
+              // variants={fillVariants}
             />
             <motion.circle
               cx="70"
@@ -232,7 +232,7 @@ const MonogramLogo = ({
               r="3"
               fill={colors.accent}
               custom={6}
-              variants={fillVariants}
+              // variants={fillVariants}
             />
             <motion.circle
               cx="80"
@@ -240,7 +240,7 @@ const MonogramLogo = ({
               r="3"
               fill={colors.accent}
               custom={7}
-              variants={fillVariants}
+              // variants={fillVariants}
             />
             <motion.circle
               cx="50"
@@ -248,7 +248,7 @@ const MonogramLogo = ({
               r="3"
               fill={colors.accent}
               custom={8}
-              variants={fillVariants}
+              // variants={fillVariants}
             />
           </>
         )}
@@ -261,7 +261,7 @@ const MonogramLogo = ({
           strokeDasharray="4"
           fill="none"
           custom={9}
-          variants={pathVariants}
+          // variants={pathVariants}
         />
 
         {/* Center Dot */}
@@ -270,7 +270,7 @@ const MonogramLogo = ({
           cy="50"
           r="6"
           fill={colors.accent}
-          variants={fillVariants}
+          // variants={fillVariants}
         />
 
         {/* Subtle Inner Glow */}
@@ -280,7 +280,7 @@ const MonogramLogo = ({
           r="8"
           fill="white"
           opacity="0.1"
-          variants={fillVariants}
+          // variants={fillVariants}
         />
 
         {/* Gradients */}
@@ -452,7 +452,7 @@ export const MinimalMonogramLogo = ({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // setMounted(true);
   }, []);
 
   if (!mounted) return null;

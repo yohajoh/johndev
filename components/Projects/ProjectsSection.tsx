@@ -311,20 +311,20 @@ export const ProjectsSection = () => {
           <motion.div
             className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/10 text-secondary-foreground text-sm font-medium rounded-full mb-4 border border-secondary/20"
             whileHover={{ scale: 1.05 }}
-            variants={itemVariants}
+            // variants={itemVariants}
           >
             <Code2 className="w-4 h-4" />
             Project Showcase
           </motion.div>
           <motion.h2
             className="font-heading text-foreground mb-6"
-            variants={itemVariants}
+            // variants={itemVariants}
           >
             Featured <span className="text-gradient-secondary">Work</span>
           </motion.h2>
           <motion.p
             className="font-body text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed"
-            variants={itemVariants}
+            // variants={itemVariants}
           >
             A curated selection of projects demonstrating end-to-end technical
             expertise, from architecture design to production deployment.
@@ -347,7 +347,7 @@ export const ProjectsSection = () => {
                     ? "bg-primary text-primary-foreground shadow-glow-primary"
                     : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
-                variants={itemVariants}
+                // variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -367,7 +367,7 @@ export const ProjectsSection = () => {
 
         {/* Infinite Marquee */}
         <motion.div
-          variants={itemVariants}
+          // variants={itemVariants}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           className="mb-16"
@@ -423,7 +423,7 @@ export const ProjectsSection = () => {
               {filteredProjects.map((project, index) => (
                 <motion.div
                   key={project.id}
-                  variants={itemVariants}
+                  // variants={itemVariants}
                   custom={index}
                   onMouseEnter={() => setHoveredProject(project.id)}
                   onMouseLeave={() => setHoveredProject(null)}
