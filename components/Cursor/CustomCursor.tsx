@@ -1,6 +1,19 @@
-/* eslint-disable react-hooks/immutability */
 "use client";
-import { useEffect, useState, useCallback, useRef } from "react";
+
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useMousePosition } from "@/hooks/useMousePosition";
+import { cn } from "@/lib/utils";
+
+interface CustomCursorProps {
+  enabled?: boolean;
+  size?: number;
+  color?: string;
+  trailColor?: string;
+  trailSize?: number;
+  trailLength?: number;
+  smoothness?: number;
+}
+
 import { useTheme } from "next-themes";
 
 interface CursorParticle {
@@ -341,6 +354,7 @@ export const CustomCursor = () => {
         })
     );
 
+    // eslint-disable-next-line react-hooks/immutability
     animationFrameRef.current = requestAnimationFrame(animateParticles);
   }, []);
 
@@ -755,54 +769,189 @@ export const CursorProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Magnetic Effect Component
+// Magnetic element wrapper for interactive elements
+interface MagneticElementProps {
+  children: React.ReactNode;
+  strength?: number;
+  range?: number;
+  className?: string;
+}
+
 export const MagneticElement = ({
   children,
   strength = 0.3,
-  className = "",
-}: {
-  children: React.ReactNode;
-  strength?: number;
-  className?: string;
-}) => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  range = 100,
+  className,
+}: MagneticElementProps) => {
+  const elementRef = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState({ x: 0, y: 0 });
+  const { x: mouseX, y: mouseY } = useMousePosition();
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+  useEffect(() => {
+    if (!elementRef.current) return;
+
+    const element = elementRef.current;
+    const rect = element.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    const distanceX = e.clientX - centerX;
-    const distanceY = e.clientY - centerY;
+    const distanceX = mouseX - centerX;
+    const distanceY = mouseY - centerY;
+    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
-    const distance = Math.sqrt(distanceX ** 2 + distanceY ** 2);
-    const maxDistance = Math.min(rect.width, rect.height) / 2;
-
-    const easeFactor = 1 - Math.min(distance / maxDistance, 1);
-    const magnetStrength = strength * easeFactor;
-
-    setPosition({
-      x: distanceX * magnetStrength,
-      y: distanceY * magnetStrength,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
-  };
+    if (distance < range) {
+      const force = 1 - distance / range;
+      setTransform({
+        x: distanceX * strength * force,
+        y: distanceY * strength * force,
+      });
+    } else {
+      setTransform({ x: 0, y: 0 });
+    }
+  }, [mouseX, mouseY, range, strength]);
 
   return (
     <div
-      className={`relative ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      ref={elementRef}
+      className={cn("transition-transform duration-300 ease-out", className)}
       style={{
-        transform: `translate(${position.x}px, ${position.y}px)`,
-        transition: "transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        transform: `translate(${transform.x}px, ${transform.y}px)`,
       }}
     >
       {children}
     </div>
+  );
+};
+
+// Hover text effect component
+interface HoverTextEffectProps {
+  text: string;
+  className?: string;
+  hoverColor?: string;
+}
+
+export const HoverTextEffect = ({
+  text,
+  className,
+  hoverColor = "text-primary",
+}: HoverTextEffectProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const letters = text.split("");
+
+  return (
+    <div
+      className={cn("inline-flex overflow-hidden", className)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {letters.map((letter, index) => (
+        <span
+          key={index}
+          className={cn(
+            "inline-block transition-all duration-500 ease-out",
+            isHovered && `${hoverColor} transform translate-y-0`
+          )}
+          style={{
+            transitionDelay: `${index * 50}ms`,
+            transform: isHovered ? "translateY(0)" : "translateY(100%)",
+            opacity: isHovered ? 1 : 0,
+          }}
+        >
+          {letter}
+        </span>
+      ))}
+    </div>
+  );
+};
+
+// Interactive button with cursor effects
+interface InteractiveButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
+  disabled?: boolean;
+}
+
+export const InteractiveButton = ({
+  children,
+  onClick,
+  className,
+  variant = "primary",
+  size = "md",
+  disabled = false,
+}: InteractiveButtonProps) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+
+  const variantClasses = {
+    primary:
+      "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25",
+    secondary: "bg-white/10 text-white backdrop-blur-sm border border-white/20",
+    outline: "bg-transparent text-primary border-2 border-primary",
+    ghost: "bg-transparent text-gray-400 hover:text-white",
+  };
+
+  const sizeClasses = {
+    sm: "px-4 py-2 text-sm",
+    md: "px-6 py-3 text-base",
+    lg: "px-8 py-4 text-lg",
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setIsActive(false);
+      }}
+      onMouseDown={() => setIsActive(true)}
+      onMouseUp={() => setIsActive(false)}
+      className={cn(
+        "relative overflow-hidden rounded-xl font-medium transition-all duration-300",
+        "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        variantClasses[variant],
+        sizeClasses[size],
+        className,
+        isHovered && "scale-105 shadow-xl",
+        isActive && "scale-95"
+      )}
+    >
+      {/* Shimmer effect */}
+      {isHovered && !disabled && (
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -inset-[100%] bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+        </div>
+      )}
+
+      {/* Ripple effect on click */}
+      {isActive && !disabled && (
+        <div className="absolute inset-0 rounded-xl bg-white/10 animate-ping" />
+      )}
+
+      {/* Glow effect */}
+      <div
+        className={cn(
+          "absolute inset-0 rounded-xl transition-opacity duration-300",
+          isHovered ? "opacity-100" : "opacity-0"
+        )}
+        style={{
+          boxShadow: `0 0 40px ${
+            variant === "primary"
+              ? "rgba(22, 163, 74, 0.4)"
+              : "rgba(255, 255, 255, 0.1)"
+          }`,
+        }}
+      />
+
+      <span className="relative z-10 flex items-center justify-center gap-2">
+        {children}
+      </span>
+    </button>
   );
 };
 
