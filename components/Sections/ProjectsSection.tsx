@@ -1,17 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ExternalLink,
   Github,
   Eye,
   Code2,
-  Server,
-  Database,
-  Cloud,
-  Palette,
-  Smartphone,
-  Zap,
   Filter,
   Search,
   Grid,
@@ -20,6 +15,7 @@ import {
   Star,
   Users,
   TrendingUp,
+  Zap,
   Globe,
   Cpu,
   ChevronLeft,
@@ -28,93 +24,380 @@ import {
   Maximize2,
   Play,
   Pause,
+  Server,
+  Database,
+  Cloud,
+  Palette,
+  Smartphone,
 } from "lucide-react";
-import { MagneticElement } from "../Cursor/CustomCursor";
-import { Button, IconButton } from "@/components/UI/Button";
-import { PROJECT_CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ProjectModal } from "../UI/ProjectModal";
+import { MagneticElement } from "@/components/Cursor/CustomCursor";
+import { Button, IconButton } from "@/components/UI/Button";
+import { ProjectCard, CompactProjectCard } from "@/components/UI/ProjectCard";
+import { ProjectModal } from "@/components/UI/ProjectModal";
 
-// Light Mode Background Component
+// Technology icon mapping
+const TECH_ICONS: Record<string, React.ElementType> = {
+  "Next.js": Globe,
+  React: Code2,
+  "Vue.js": Code2,
+  "Node.js": Server,
+  Python: Server,
+  Go: Cpu,
+  MongoDB: Database,
+  PostgreSQL: Database,
+  Redis: Database,
+  AWS: Cloud,
+  GCP: Cloud,
+  Docker: Server,
+  Kubernetes: Server,
+  TypeScript: Code2,
+  GraphQL: Server,
+  Firebase: Cloud,
+  "React Native": Smartphone,
+  Stripe: Zap,
+  FastAPI: Server,
+  Kafka: Server,
+  ClickHouse: Database,
+  Jest: Zap,
+  Storybook: Code2,
+  Rollup: Zap,
+  "GitHub Actions": Zap,
+  MQTT: Cloud,
+  "Raspberry Pi": Cpu,
+  "AWS IoT": Cloud,
+  AppCenter: Smartphone,
+  Redux: Code2,
+};
+
+// Project categories
+const PROJECT_CATEGORIES = [
+  "All",
+  "Full-Stack",
+  "Frontend",
+  "Backend",
+  "Mobile",
+  "AI/ML",
+  "E-commerce",
+  "Enterprise",
+  "Open Source",
+  "UI/UX",
+  "SaaS",
+  "IoT",
+  "Health",
+  "Data Visualization",
+];
+
+// Enhanced projects data with all properties
+const PROJECTS_DATA = [
+  {
+    id: "project-1",
+    title: "E-Commerce Platform",
+    subtitle:
+      "Full-stack e-commerce solution with real-time inventory management",
+    description:
+      "A scalable e-commerce platform built with Next.js, Node.js, and MongoDB. Features include real-time inventory management, payment processing, admin dashboard, and advanced search functionality.",
+    longDescription:
+      "This project involved building a complete e-commerce solution from scratch. The platform handles thousands of concurrent users with real-time inventory updates, secure payment processing using Stripe, and an intuitive admin dashboard for business owners.",
+    context:
+      "Businesses needed a scalable e-commerce solution that could handle high traffic during sales events while maintaining real-time inventory accuracy.",
+    action:
+      "Built a microservices architecture with Next.js frontend, Node.js backend, MongoDB for data storage, Redis for caching, and Docker containers for easy deployment.",
+    result:
+      "Platform handles 50K+ monthly users with 99.9% uptime, processes $2M+ in annual revenue, and reduces inventory discrepancies by 95%.",
+    category: "E-commerce",
+    technologies: [
+      "Next.js",
+      "Node.js",
+      "MongoDB",
+      "Stripe",
+      "Redis",
+      "Docker",
+    ],
+    year: 2024,
+    links: {
+      github: "https://github.com/example",
+      live: "https://example.com",
+    },
+    image: "/projects/ecommerce.jpg",
+    featured: true,
+    color: "primary",
+    metrics: [
+      { label: "Performance", value: "98", icon: Zap },
+      { label: "Monthly Users", value: "50K+", icon: Users },
+      { label: "Annual Revenue", value: "$2M+", icon: TrendingUp },
+      { label: "Uptime", value: "99.9%", icon: Globe },
+    ],
+    stats: [
+      { label: "Performance", value: "Lighthouse 98" },
+      { label: "Users", value: "50K+" },
+      { label: "Revenue", value: "$2M+" },
+      { label: "Uptime", value: "99.9%" },
+    ],
+  },
+  {
+    id: "project-2",
+    title: "AI Content Generator",
+    subtitle: "AI-powered content creation platform with GPT integration",
+    description:
+      "Advanced AI content generation platform that uses GPT-4 to create high-quality articles, social media posts, and marketing copy.",
+    longDescription:
+      "A comprehensive AI platform that helps content creators generate high-quality content in minutes. Features include template system, team collaboration, content scheduling, and performance analytics.",
+    context:
+      "Content creators and marketers needed a tool to generate high-quality content quickly while maintaining brand voice and SEO optimization.",
+    action:
+      "Developed a React frontend with Python/FastAPI backend, integrated GPT-4 API, built template engine, and implemented team collaboration features.",
+    result:
+      "Platform serves 10K+ users, generated 1M+ pieces of content with 95% user satisfaction rate, and reduced content creation time by 80%.",
+    category: "AI/ML",
+    technologies: ["React", "Python", "FastAPI", "PostgreSQL", "Redis", "AWS"],
+    year: 2024,
+    links: {
+      github: "https://github.com/ai-example",
+      live: "https://ai.example.com",
+    },
+    image: "/projects/ai-platform.jpg",
+    featured: true,
+    color: "secondary",
+    metrics: [
+      { label: "AI Models", value: "5+", icon: Cpu },
+      { label: "Active Users", value: "10K+", icon: Users },
+      { label: "Content Generated", value: "1M+", icon: TrendingUp },
+      { label: "Accuracy", value: "95%", icon: Star },
+    ],
+    stats: [
+      { label: "AI Models", value: "5+" },
+      { label: "Users", value: "10K+" },
+      { label: "Content Generated", value: "1M+" },
+      { label: "Accuracy", value: "95%" },
+    ],
+  },
+  {
+    id: "project-3",
+    title: "Enterprise Dashboard",
+    subtitle: "Real-time analytics dashboard for enterprise clients",
+    description:
+      "Comprehensive analytics dashboard for enterprise clients with real-time data visualization, custom reporting, and team collaboration features.",
+    longDescription:
+      "Built with microservices architecture, this dashboard handles billions of data points with sub-100ms query response times. Features include real-time notifications, custom report builder, and role-based access control.",
+    context:
+      "Large enterprises needed a unified dashboard to monitor KPIs across multiple departments with real-time updates and custom reporting capabilities.",
+    action:
+      "Implemented Vue.js frontend with Go microservices, Kafka for real-time data streaming, ClickHouse for analytics, and Kubernetes for orchestration.",
+    result:
+      "Handles 1B+ data points, processes 10M+ queries daily with <100ms response time, and serves 50+ enterprise clients with 99.99% uptime.",
+    category: "Enterprise",
+    technologies: ["Vue.js", "Go", "Kafka", "ClickHouse", "Kubernetes", "GCP"],
+    year: 2023,
+    links: {
+      github: "https://github.com/dashboard-example",
+      live: "https://dashboard.example.com",
+    },
+    image: "/projects/dashboard.jpg",
+    featured: true,
+    color: "accent",
+    metrics: [
+      { label: "Data Points", value: "1B+", icon: Database },
+      { label: "Daily Queries", value: "10M+", icon: TrendingUp },
+      { label: "Response Time", value: "<100ms", icon: Zap },
+      { label: "Enterprise Clients", value: "50+", icon: Users },
+    ],
+    stats: [
+      { label: "Data Points", value: "1B+" },
+      { label: "Queries/Day", value: "10M+" },
+      { label: "Response Time", value: "<100ms" },
+      { label: "Clients", value: "50+" },
+    ],
+  },
+  {
+    id: "project-4",
+    title: "Mobile Fitness App",
+    subtitle: "Cross-platform fitness tracking application",
+    description:
+      "Feature-rich fitness tracking app with workout plans, nutrition tracking, and social features for iOS and Android.",
+    longDescription:
+      "A React Native app that helps users track workouts, nutrition, and progress. Includes social features, personalized workout plans, and integration with health devices.",
+    context:
+      "Fitness enthusiasts needed a comprehensive app to track workouts, nutrition, and progress across iOS and Android devices with offline capabilities.",
+    action:
+      "Built with React Native, Firebase backend, GraphQL API, Redux for state management, and comprehensive testing with Jest.",
+    result:
+      "100K+ downloads, 1M+ workouts logged, 4.8/5 app store rating, and 20K+ active monthly users with 95% retention rate.",
+    category: "Mobile",
+    technologies: [
+      "React Native",
+      "Firebase",
+      "GraphQL",
+      "Redux",
+      "Jest",
+      "AppCenter",
+    ],
+    year: 2023,
+    links: {
+      github: "https://github.com/fitness-app",
+      live: "https://apps.apple.com/app",
+    },
+    image: "/projects/fitness-app.jpg",
+    featured: false,
+    color: "primary",
+    metrics: [
+      { label: "Downloads", value: "100K+", icon: Smartphone },
+      { label: "Workouts Logged", value: "1M+", icon: TrendingUp },
+      { label: "App Rating", value: "4.8/5", icon: Star },
+      { label: "Active Users", value: "20K+", icon: Users },
+    ],
+    stats: [
+      { label: "Downloads", value: "100K+" },
+      { label: "Workouts", value: "1M+" },
+      { label: "Rating", value: "4.8/5" },
+      { label: "Active Users", value: "20K+" },
+    ],
+  },
+  {
+    id: "project-5",
+    title: "IoT Smart Home System",
+    subtitle: "Complete IoT solution for smart home automation",
+    description:
+      "End-to-end IoT solution for smart home automation with device management, real-time monitoring, and automation rules.",
+    longDescription:
+      "A complete IoT ecosystem including mobile app, web dashboard, cloud backend, and device firmware. Supports 100+ different smart devices with real-time control and automation.",
+    context:
+      "Homeowners wanted a unified system to control all smart devices with reliable automation rules and real-time monitoring from anywhere.",
+    action:
+      "Developed React web app, Node.js backend, MQTT protocol for device communication, MongoDB for data storage, and Raspberry Pi gateways.",
+    result:
+      "Manages 100+ device types, 500+ automations, 99.99% uptime, and reduces energy consumption by 30% through smart automation.",
+    category: "IoT",
+    technologies: [
+      "React",
+      "Node.js",
+      "MQTT",
+      "MongoDB",
+      "Raspberry Pi",
+      "AWS IoT",
+    ],
+    year: 2023,
+    links: {
+      github: "https://github.com/iot-smart-home",
+      live: "https://smart-home.example.com",
+    },
+    image: "/projects/iot-system.jpg",
+    featured: false,
+    color: "secondary",
+    metrics: [
+      { label: "Device Types", value: "100+", icon: Cpu },
+      { label: "Automations", value: "500+", icon: Zap },
+      { label: "System Uptime", value: "99.99%", icon: Globe },
+      { label: "Energy Saved", value: "30%", icon: TrendingUp },
+    ],
+    stats: [
+      { label: "Devices", value: "100+" },
+      { label: "Automations", value: "500+" },
+      { label: "Uptime", value: "99.99%" },
+      { label: "Energy Saved", value: "30%" },
+    ],
+  },
+  {
+    id: "project-6",
+    title: "Open Source UI Library",
+    subtitle: "Popular open-source UI component library",
+    description:
+      "Comprehensive UI component library built with React and TypeScript used by thousands of developers worldwide.",
+    longDescription:
+      "A fully accessible, themeable UI component library with extensive documentation, TypeScript support, and comprehensive testing. Includes 50+ components with dark mode support.",
+    context:
+      "Developers needed a well-documented, accessible UI component library with TypeScript support and comprehensive theming capabilities.",
+    action:
+      "Built with React and TypeScript, Storybook for documentation, Jest for testing, Rollup for bundling, and GitHub Actions for CI/CD.",
+    result:
+      "5K+ GitHub stars, 1M+ npm downloads, 50+ components, 100+ contributors, and used by 500+ companies worldwide.",
+    category: "Open Source",
+    technologies: [
+      "React",
+      "TypeScript",
+      "Storybook",
+      "Jest",
+      "Rollup",
+      "GitHub Actions",
+    ],
+    year: 2023,
+    links: {
+      github: "https://github.com/ui-library",
+      live: "https://ui-library.example.com",
+    },
+    image: "/projects/ui-library.jpg",
+    featured: false,
+    color: "accent",
+    metrics: [
+      { label: "GitHub Stars", value: "5K+", icon: Star },
+      { label: "NPM Downloads", value: "1M+", icon: TrendingUp },
+      { label: "Components", value: "50+", icon: Palette },
+      { label: "Contributors", value: "100+", icon: Users },
+    ],
+    stats: [
+      { label: "Stars", value: "5K+" },
+      { label: "Downloads", value: "1M+" },
+      { label: "Components", value: "50+" },
+      { label: "Contributors", value: "100+" },
+    ],
+  },
+];
+
+// Light Mode Background Component using theme variables
 const LightModeBackground = () => {
   return (
     <div
       className="absolute inset-0 overflow-hidden pointer-events-none dark:hidden"
       aria-hidden="true"
     >
-      {/* Light gradient base */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-emerald-50/30" />
+      {/* White base with subtle gradient */}
+      <div className="absolute inset-0 bg-background gradient-bg" />
 
       {/* Subtle geometric pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `
-            linear-gradient(90deg, transparent 50%, rgba(16, 185, 129, 0.05) 100%),
-            linear-gradient(0deg, transparent 50%, rgba(245, 158, 11, 0.05) 100%),
-            radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.02) 0%, transparent 50%),
-            radial-gradient(circle at 70% 80%, rgba(245, 158, 11, 0.02) 0%, transparent 50%)
-          `,
-          backgroundSize: "80px 80px, 80px 80px, 300px 300px, 300px 300px",
-        }}
-      />
+      <div className="absolute inset-0 bg-grid opacity-20" />
 
-      {/* Floating orbs - lighter for light mode */}
+      {/* Floating orbs */}
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={`light-orb-${i}`}
-          className="absolute rounded-full animate-float-light"
+          className="absolute rounded-full animate-float"
           style={{
             width: `${30 + i * 8}px`,
             height: `${30 + i * 8}px`,
             left: `${15 + i * 20}%`,
             top: `${20 + ((i * 15) % 80)}%`,
-            background: `radial-gradient(circle, rgba(${16 + i * 8}, ${
-              185 + i * 3
-            }, ${129 + i * 4}, 0.05), transparent 70%)`,
+            background: `radial-gradient(circle, rgba(var(--primary) / 0.05), transparent 70%)`,
             animationDuration: `${20 + i * 5}s`,
             animationDelay: `${i * 2}s`,
-            filter: "blur(10px)",
+            filter: "blur(8px)",
           }}
         />
       ))}
 
-      {/* Corner accents - lighter */}
+      {/* Corner accents */}
       <div className="absolute top-0 left-0 w-96 h-96">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-100 via-transparent to-transparent blur-3xl" />
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-primary/10 via-transparent to-transparent blur-3xl" />
       </div>
       <div className="absolute bottom-0 right-0 w-96 h-96">
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-amber-100 via-transparent to-transparent blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-secondary/10 via-transparent to-transparent blur-3xl" />
       </div>
     </div>
   );
 };
 
-// Dark Mode Background Component
+// Dark Mode Background Component using theme variables
 const DarkModeBackground = () => {
   return (
     <div
       className="absolute inset-0 overflow-hidden pointer-events-none hidden dark:block"
       aria-hidden="true"
     >
-      {/* Base gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-950" />
+      <div className="absolute inset-0 bg-background gradient-bg" />
 
       {/* Animated geometric grid */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `
-            linear-gradient(90deg, transparent 50%, rgba(16, 185, 129, 0.1) 100%),
-            linear-gradient(0deg, transparent 50%, rgba(245, 158, 11, 0.1) 100%),
-            radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 70% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 50%)
-          `,
-          backgroundSize: "100px 100px, 100px 100px, 400px 400px, 400px 400px",
-        }}
-      />
+      <div className="absolute inset-0 bg-grid opacity-10" />
 
-      {/* Floating tech orbs */}
+      {/* Floating orbs */}
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={`dark-orb-${i}`}
@@ -124,9 +407,7 @@ const DarkModeBackground = () => {
             height: `${40 + i * 10}px`,
             left: `${10 + i * 15}%`,
             top: `${20 + ((i * 12) % 80)}%`,
-            background: `radial-gradient(circle, rgba(${16 + i * 8}, ${
-              185 + i * 3
-            }, ${129 + i * 4}, 0.1), transparent 70%)`,
+            background: `radial-gradient(circle, rgba(var(--primary) / 0.1), transparent 70%)`,
             animationDuration: `${15 + i * 5}s`,
             animationDelay: `${i * 1.5}s`,
             filter: "blur(12px)",
@@ -134,184 +415,11 @@ const DarkModeBackground = () => {
         />
       ))}
 
-      {/* Hexagon grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='hexagons' width='100' height='100' patternUnits='userSpaceOnUse' patternTransform='scale(0.5)'%3E%3Cpath d='M50 0L93.3 25V75L50 100L6.7 75V25L50 0Z' fill='none' stroke='%2310b981' stroke-width='1' opacity='0.1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23hexagons)'/%3E%3C/svg%3E")`,
-          backgroundSize: "200px 200px",
-        }}
-      />
-
-      {/* Corner accents */}
-      <div className="absolute top-0 left-0 w-96 h-96">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent blur-3xl" />
-      </div>
-      <div className="absolute bottom-0 right-0 w-96 h-96">
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-amber-500/10 via-transparent to-transparent blur-3xl" />
-      </div>
+      {/* Noise texture */}
+      <div className="absolute inset-0 bg-noise opacity-5" />
     </div>
   );
 };
-
-// Mock projects data
-const PROJECTS_DATA = [
-  {
-    id: "project-1",
-    title: "E-Commerce Platform",
-    description:
-      "Full-stack e-commerce solution with real-time inventory management",
-    longDescription:
-      "A scalable e-commerce platform built with Next.js, Node.js, and MongoDB. Features include real-time inventory management, payment processing, admin dashboard, and advanced search functionality.",
-    technologies: [
-      "Next.js",
-      "Node.js",
-      "MongoDB",
-      "Stripe",
-      "Redis",
-      "Docker",
-    ],
-    categories: ["Full-Stack", "E-commerce"],
-    year: 2024,
-    liveUrl: "https://example.com",
-    githubUrl: "https://github.com/example",
-    image: "/projects/ecommerce.jpg",
-    featured: true,
-    stats: [
-      { label: "Performance", value: "Lighthouse 98" },
-      { label: "Users", value: "50K+" },
-      { label: "Revenue", value: "$2M+" },
-      { label: "Uptime", value: "99.9%" },
-    ],
-    color: "emerald",
-  },
-  {
-    id: "project-2",
-    title: "AI Content Generator",
-    description: "AI-powered content creation platform with GPT integration",
-    longDescription:
-      "Advanced AI content generation platform that uses GPT-4 to create high-quality articles, social media posts, and marketing copy. Features include template system, team collaboration, and analytics dashboard.",
-    technologies: ["React", "Python", "FastAPI", "PostgreSQL", "Redis", "AWS"],
-    categories: ["AI/ML", "SaaS"],
-    year: 2024,
-    liveUrl: "https://ai.example.com",
-    githubUrl: "https://github.com/ai-example",
-    image: "/projects/ai-platform.jpg",
-    featured: true,
-    stats: [
-      { label: "AI Models", value: "5+" },
-      { label: "Users", value: "10K+" },
-      { label: "Content Generated", value: "1M+" },
-      { label: "Accuracy", value: "95%" },
-    ],
-    color: "amber",
-  },
-  {
-    id: "project-3",
-    title: "Enterprise Dashboard",
-    description: "Real-time analytics dashboard for enterprise clients",
-    longDescription:
-      "Comprehensive analytics dashboard for enterprise clients with real-time data visualization, custom reporting, and team collaboration features. Built with microservices architecture for scalability.",
-    technologies: ["Vue.js", "Go", "Kafka", "ClickHouse", "Kubernetes", "GCP"],
-    categories: ["Enterprise", "Data Visualization"],
-    year: 2023,
-    liveUrl: "https://dashboard.example.com",
-    githubUrl: "https://github.com/dashboard-example",
-    image: "/projects/dashboard.jpg",
-    featured: true,
-    stats: [
-      { label: "Data Points", value: "1B+" },
-      { label: "Queries/Day", value: "10M+" },
-      { label: "Response Time", value: "<100ms" },
-      { label: "Clients", value: "50+" },
-    ],
-    color: "orange",
-  },
-  {
-    id: "project-4",
-    title: "Mobile Fitness App",
-    description: "Cross-platform fitness tracking application",
-    longDescription:
-      "Feature-rich fitness tracking app with workout plans, nutrition tracking, and social features. Built with React Native for both iOS and Android with offline capabilities.",
-    technologies: [
-      "React Native",
-      "Firebase",
-      "GraphQL",
-      "Redux",
-      "Jest",
-      "AppCenter",
-    ],
-    categories: ["Mobile", "Health"],
-    year: 2023,
-    liveUrl: "https://apps.apple.com/app",
-    githubUrl: "https://github.com/fitness-app",
-    image: "/projects/fitness-app.jpg",
-    featured: false,
-    stats: [
-      { label: "Downloads", value: "100K+" },
-      { label: "Workouts", value: "1M+" },
-      { label: "Rating", value: "4.8/5" },
-      { label: "Active Users", value: "20K+" },
-    ],
-    color: "emerald",
-  },
-  {
-    id: "project-5",
-    title: "IoT Smart Home System",
-    description: "Complete IoT solution for smart home automation",
-    longDescription:
-      "End-to-end IoT solution for smart home automation with device management, real-time monitoring, and automation rules. Includes mobile app, web dashboard, and cloud backend.",
-    technologies: [
-      "React",
-      "Node.js",
-      "MQTT",
-      "MongoDB",
-      "Raspberry Pi",
-      "AWS IoT",
-    ],
-    categories: ["IoT", "Full-Stack"],
-    year: 2023,
-    liveUrl: "https://smart-home.example.com",
-    githubUrl: "https://github.com/iot-smart-home",
-    image: "/projects/iot-system.jpg",
-    featured: false,
-    stats: [
-      { label: "Devices", value: "100+" },
-      { label: "Automations", value: "500+" },
-      { label: "Uptime", value: "99.99%" },
-      { label: "Energy Saved", value: "30%" },
-    ],
-    color: "amber",
-  },
-  {
-    id: "project-6",
-    title: "Open Source Library",
-    description: "Popular open-source UI component library",
-    longDescription:
-      "Comprehensive UI component library built with React and TypeScript. Features include accessibility compliance, theming system, and extensive documentation. Used by thousands of developers worldwide.",
-    technologies: [
-      "React",
-      "TypeScript",
-      "Storybook",
-      "Jest",
-      "Rollup",
-      "GitHub Actions",
-    ],
-    categories: ["Open Source", "UI/UX"],
-    year: 2023,
-    liveUrl: "https://ui-library.example.com",
-    githubUrl: "https://github.com/ui-library",
-    image: "/projects/ui-library.jpg",
-    featured: false,
-    stats: [
-      { label: "Stars", value: "5K+" },
-      { label: "Downloads", value: "1M+" },
-      { label: "Components", value: "50+" },
-      { label: "Contributors", value: "100+" },
-    ],
-    color: "orange",
-  },
-];
 
 export const ProjectsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -322,59 +430,34 @@ export const ProjectsSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredProject, setHoveredProject] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [currentProjectIndex, setCurrentProjectIndex] = useState(0);
 
-  // Intersection Observer for reveal animation
+  // Initialize Intersection Observer
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    observerRef.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsVisible(true);
-            if (observerRef.current && sectionRef.current) {
-              observerRef.current.unobserve(sectionRef.current);
-            }
+            observer.unobserve(entry.target);
           }
         });
       },
-      {
-        threshold: 0.1,
-        rootMargin: "50px",
-      }
+      { threshold: 0.1, rootMargin: "50px" }
     );
 
-    observerRef.current.observe(sectionRef.current);
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
 
-  // Debounced search filter
-  const handleSearchChange = useCallback((value: string) => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      setSearchQuery(value);
-    }, 300);
-  }, []);
-
-  // Filter projects with useMemo for performance
+  // Filter projects
   const filteredProjects = useMemo(() => {
     return PROJECTS_DATA.filter((project) => {
       const matchesCategory =
-        selectedCategory === "All" ||
-        project.categories.includes(selectedCategory);
-
+        selectedCategory === "All" || project.category === selectedCategory;
       if (!matchesCategory) return false;
-
       if (!searchQuery.trim()) return true;
 
       const query = searchQuery.toLowerCase();
@@ -388,83 +471,61 @@ export const ProjectsSection = () => {
 
   // Get selected project data
   const selectedProjectData = useMemo(() => {
-    return selectedProject
-      ? PROJECTS_DATA.find((project) => project.id === selectedProject)
-      : null;
+    if (!selectedProject) return null;
+    const index = PROJECTS_DATA.findIndex((p) => p.id === selectedProject);
+    setCurrentProjectIndex(index);
+    return PROJECTS_DATA[index];
   }, [selectedProject]);
 
-  // Animation for project cards
-  const getCardAnimationDelay = (index: number) => {
-    return `${index * 100}ms`;
-  };
+  // Navigation functions
+  const handleNextProject = useCallback(() => {
+    const nextIndex = (currentProjectIndex + 1) % PROJECTS_DATA.length;
+    setSelectedProject(PROJECTS_DATA[nextIndex].id);
+  }, [currentProjectIndex]);
 
-  // Technology icon mapping with memoization
-  const getTechIcon = useCallback((tech: string) => {
-    const iconMap: Record<string, React.ElementType> = {
-      "Next.js": Globe,
-      React: Code2,
-      "Vue.js": Code2,
-      "Node.js": Server,
-      Python: Server,
-      Go: Cpu,
-      MongoDB: Database,
-      PostgreSQL: Database,
-      Redis: Database,
-      AWS: Cloud,
-      GCP: Cloud,
-      Docker: Server,
-      Kubernetes: Server,
-      TypeScript: Code2,
-      GraphQL: Server,
-      Firebase: Cloud,
-      "React Native": Smartphone,
-    };
-    return iconMap[tech] || Code2;
-  }, []);
+  const handlePrevProject = useCallback(() => {
+    const prevIndex =
+      (currentProjectIndex - 1 + PROJECTS_DATA.length) % PROJECTS_DATA.length;
+    setSelectedProject(PROJECTS_DATA[prevIndex].id);
+  }, [currentProjectIndex]);
 
-  // Get color classes based on project color (light mode friendly)
+  // Get color classes based on theme variables
   const getColorClasses = useCallback((color: string) => {
-    const lightModeColors = {
-      emerald: {
-        gradient: "from-emerald-500 to-emerald-600",
-        bg: "bg-emerald-500",
-        text: "text-emerald-600 dark:text-emerald-500",
-        border: "border-emerald-500",
-        shadow: "shadow-emerald-500/20 dark:shadow-emerald-500/20",
-        hoverShadow:
-          "hover:shadow-emerald-500/30 dark:hover:shadow-emerald-500/30",
-        glow: "shadow-emerald-500/10 dark:shadow-emerald-500/10",
-        lightBg: "bg-emerald-50",
-        lightBorder: "border-emerald-200",
-      },
-      amber: {
-        gradient: "from-amber-500 to-amber-600",
-        bg: "bg-amber-500",
-        text: "text-amber-600 dark:text-amber-500",
-        border: "border-amber-500",
-        shadow: "shadow-amber-500/20 dark:shadow-amber-500/20",
-        hoverShadow: "hover:shadow-amber-500/30 dark:hover:shadow-amber-500/30",
-        glow: "shadow-amber-500/10 dark:shadow-amber-500/10",
-        lightBg: "bg-amber-50",
-        lightBorder: "border-amber-200",
-      },
-      orange: {
-        gradient: "from-orange-500 to-orange-600",
-        bg: "bg-orange-500",
-        text: "text-orange-600 dark:text-orange-500",
-        border: "border-orange-500",
-        shadow: "shadow-orange-500/20 dark:shadow-orange-500/20",
-        hoverShadow:
-          "hover:shadow-orange-500/30 dark:hover:shadow-orange-500/30",
-        glow: "shadow-orange-500/10 dark:shadow-orange-500/10",
-        lightBg: "bg-orange-50",
-        lightBorder: "border-orange-200",
-      },
-    };
-    return (
-      lightModeColors[color as keyof typeof lightModeColors] ||
-      lightModeColors.emerald
-    );
+    switch (color) {
+      case "primary":
+        return {
+          bg: "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent",
+          border: "border-primary/20",
+          text: "text-primary",
+          button: "bg-primary text-primary-foreground hover:bg-primary/90",
+          hover: "hover:border-primary/40",
+        };
+      case "secondary":
+        return {
+          bg: "bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent",
+          border: "border-secondary/20",
+          text: "text-secondary",
+          button:
+            "bg-secondary text-secondary-foreground hover:bg-secondary/90",
+          hover: "hover:border-secondary/40",
+        };
+      case "accent":
+        return {
+          bg: "bg-gradient-to-br from-accent/10 via-accent/5 to-transparent",
+          border: "border-accent/20",
+          text: "text-accent",
+          button: "bg-accent text-accent-foreground hover:bg-accent/90",
+          hover: "hover:border-accent/40",
+        };
+      default:
+        return {
+          bg: "bg-gradient-to-br from-card/50 to-background",
+          border: "border-border",
+          text: "text-muted",
+          button: "bg-muted text-muted-foreground hover:bg-muted/90",
+          hover: "hover:border-border",
+        };
+    }
   }, []);
 
   // Handle scroll to contact
@@ -478,45 +539,40 @@ export const ProjectsSection = () => {
   return (
     <>
       {/* Project Modal */}
-      {selectedProjectData && (
-        <ProjectModal
-          project={selectedProjectData}
-          isOpen={!!selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedProjectData && (
+          <ProjectModal
+            project={selectedProjectData}
+            onClose={() => setSelectedProject(null)}
+            onNext={handleNextProject}
+            onPrev={handlePrevProject}
+          />
+        )}
+      </AnimatePresence>
 
+      {/* Main Section */}
       <section
         ref={sectionRef}
         id="projects"
-        className="section-padding relative overflow-hidden bg-white dark:bg-gray-950"
+        className="section-padding relative overflow-hidden bg-background"
         aria-labelledby="projects-heading"
       >
-        {/* Adaptive Backgrounds */}
+        {/* Backgrounds */}
         <LightModeBackground />
         <DarkModeBackground />
 
         <div className="container-wide relative z-10">
-          {/* Section header with adaptive colors */}
-          <div
-            className={cn(
-              "text-center mb-16 md:mb-20 transition-all duration-700 ease-out",
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            )}
+          {/* Section Header */}
+          <motion.div
+            className="text-center mb-16 md:mb-20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
           >
             <MagneticElement strength={0.1}>
-              <div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 dark:from-emerald-500/10 dark:to-amber-500/10 border border-emerald-200 dark:border-emerald-500/20 mb-6 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10 backdrop-blur-sm"
-                role="note"
-                aria-label="Portfolio Showcase Section"
-              >
-                <Code2
-                  className="w-4 h-4 text-emerald-600 dark:text-emerald-500"
-                  aria-hidden="true"
-                />
-                <span className="text-sm font-medium text-emerald-600 dark:text-emerald-500">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 dark:border-primary/20 mb-6 shadow-lg shadow-primary/5 dark:shadow-primary/10 glass-effect">
+                <Code2 className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
                   Portfolio Showcase
                 </span>
               </div>
@@ -524,53 +580,48 @@ export const ProjectsSection = () => {
 
             <h2
               id="projects-heading"
-              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6"
+              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
             >
               Featured{" "}
-              <span className="bg-gradient-to-r from-emerald-600 to-amber-600 dark:from-emerald-500 dark:to-amber-500 bg-clip-text text-transparent relative inline-block">
+              <span className="text-gradient-primary relative inline-block">
                 Projects
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-amber-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/30" />
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse shadow-lg shadow-primary/30" />
               </span>
             </h2>
 
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               A collection of my recent work, showcasing expertise across
               different domains and technologies. Each project represents unique
               challenges and innovative solutions.
             </p>
-          </div>
+          </motion.div>
 
-          {/* Filters and controls - Light mode optimized */}
-          <div
-            className={cn(
-              "mb-12 transition-all duration-700 ease-out delay-100",
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            )}
+          {/* Filters and Controls */}
+          <motion.div
+            className="mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-black/20">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-3xl glass-effect border border-border shadow-xl">
               {/* Search */}
               <div className="relative flex-1 w-full">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                  <Search
-                    className="w-5 h-5 text-gray-400 dark:text-gray-400"
-                    aria-hidden="true"
-                  />
+                  <Search className="w-5 h-5 text-muted" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search projects or technologies..."
-                  defaultValue={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 transition-all duration-300 shadow-inner"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-card/60 border border-border focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground placeholder:text-muted transition-all duration-300 shadow-inner"
                   aria-label="Search projects"
                 />
               </div>
 
-              {/* Category filters */}
+              {/* Category Filters */}
               <div className="flex flex-wrap gap-3">
-                {PROJECT_CATEGORIES.map((category) => (
+                {PROJECT_CATEGORIES.slice(0, 6).map((category) => (
                   <MagneticElement key={category} strength={0.1}>
                     <Button
                       onClick={() => setSelectedCategory(category)}
@@ -581,7 +632,7 @@ export const ProjectsSection = () => {
                       className={cn(
                         "font-medium transition-all duration-300",
                         selectedCategory === category &&
-                          "shadow-lg shadow-emerald-500/20"
+                          "shadow-lg shadow-primary/20"
                       )}
                       aria-pressed={selectedCategory === category}
                     >
@@ -591,33 +642,31 @@ export const ProjectsSection = () => {
                 ))}
               </div>
 
-              {/* View controls */}
+              {/* View Controls */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-100 dark:bg-gray-900/60 backdrop-blur-sm">
+                <div className="flex items-center gap-2 p-1 rounded-xl bg-card/60 backdrop-blur-sm">
                   <IconButton
                     onClick={() => setViewMode("grid")}
-                    icon={<Grid className="w-5 h-5" aria-hidden="true" />}
+                    icon={<Grid className="w-5 h-5" />}
                     label="Grid view"
                     variant={viewMode === "grid" ? "primary" : "ghost"}
                     size="sm"
                   />
                   <IconButton
                     onClick={() => setViewMode("list")}
-                    icon={<List className="w-5 h-5" aria-hidden="true" />}
+                    icon={<List className="w-5 h-5" />}
                     label="List view"
                     variant={viewMode === "list" ? "primary" : "ghost"}
                     size="sm"
                   />
                 </div>
-
-                {/* Animation toggle */}
                 <IconButton
                   onClick={() => setIsPlaying(!isPlaying)}
                   icon={
                     isPlaying ? (
-                      <Pause className="w-5 h-5" aria-hidden="true" />
+                      <Pause className="w-5 h-5" />
                     ) : (
-                      <Play className="w-5 h-5" aria-hidden="true" />
+                      <Play className="w-5 h-5" />
                     )
                   }
                   label={isPlaying ? "Pause animations" : "Play animations"}
@@ -626,282 +675,47 @@ export const ProjectsSection = () => {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Projects grid/list - Light mode optimized */}
-          <div
+          {/* Projects Grid */}
+          <motion.div
             className={cn(
               viewMode === "grid"
                 ? "grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-                : "space-y-8",
-              "transition-all duration-700 ease-out delay-200",
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
+                : "space-y-8"
             )}
+            initial={{ opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            {filteredProjects.map((project, index) => {
-              const TechIcon = getTechIcon(project.technologies[0]);
-              const isHovered = hoveredProject === project.id;
-              const colorClasses = getColorClasses(project.color);
+            {filteredProjects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                index={index}
+                isHovered={hoveredProject === project.id}
+                onHover={() => setHoveredProject(project.id)}
+                onLeave={() => setHoveredProject(null)}
+                onClick={() => setSelectedProject(project.id)}
+              />
+            ))}
+          </motion.div>
 
-              return (
-                <MagneticElement key={project.id} strength={0.05}>
-                  <article
-                    className={cn(
-                      "group relative overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/80 backdrop-blur-sm",
-                      "transition-all duration-500 hover:scale-[1.02] hover:border-emerald-500 dark:hover:border-emerald-500",
-                      "cursor-pointer transform-gpu",
-                      viewMode === "list" && "flex items-stretch",
-                      "shadow-xl shadow-gray-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/10"
-                    )}
-                    style={{
-                      transitionDelay: getCardAnimationDelay(index),
-                      willChange: "transform, box-shadow",
-                    }}
-                    onMouseEnter={() => setHoveredProject(project.id)}
-                    onMouseLeave={() => setHoveredProject(null)}
-                    onClick={() => setSelectedProject(project.id)}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View details for ${project.title}`}
-                  >
-                    {/* Featured badge */}
-                    {project.featured && (
-                      <div className="absolute top-4 left-4 z-20">
-                        <div
-                          className={cn(
-                            "px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-amber-500 text-white text-xs font-medium flex items-center gap-1 shadow-lg shadow-emerald-500/30",
-                            "animate-pulse-slow"
-                          )}
-                        >
-                          <Star className="w-3 h-3" aria-hidden="true" />
-                          Featured
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Project image/thumbnail */}
-                    <div
-                      className={cn(
-                        "relative aspect-video overflow-hidden",
-                        viewMode === "list" && "w-64 flex-shrink-0"
-                      )}
-                    >
-                      {/* Gradient overlay - lighter for light mode */}
-                      <div
-                        className={cn(
-                          "absolute inset-0 transition-opacity duration-500",
-                          isHovered ? "opacity-90" : "opacity-50"
-                        )}
-                        style={{
-                          background:
-                            project.color === "emerald"
-                              ? "linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(245, 158, 11, 0.1))"
-                              : project.color === "amber"
-                              ? "linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 146, 60, 0.1))"
-                              : "linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(16, 185, 129, 0.1))",
-                        }}
-                        aria-hidden="true"
-                      />
-
-                      {/* Tech icon */}
-                      <div className="absolute top-4 right-4 z-10">
-                        <div className="w-10 h-10 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-gray-300 dark:border-gray-700">
-                          <TechIcon
-                            className="w-5 h-5 text-gray-700 dark:text-white"
-                            aria-hidden="true"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Year badge */}
-                      <div className="absolute bottom-4 left-4 z-10">
-                        <div className="px-3 py-1 rounded-full bg-white/80 dark:bg-black/70 backdrop-blur-sm text-gray-900 dark:text-white text-sm shadow-lg">
-                          {project.year}
-                        </div>
-                      </div>
-
-                      {/* Hover overlay */}
-                      <div
-                        className={cn(
-                          "absolute inset-0 flex items-center justify-center transition-all duration-500",
-                          isHovered
-                            ? "opacity-100 scale-100"
-                            : "opacity-0 scale-90"
-                        )}
-                        aria-hidden="true"
-                      >
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-500 flex items-center justify-center shadow-2xl shadow-emerald-500/40 animate-pulse-slow">
-                          <Maximize2
-                            className="w-8 h-8 text-white"
-                            aria-hidden="true"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Animated border */}
-                      <div
-                        className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-500 rounded-3xl transition-all duration-500"
-                        aria-hidden="true"
-                      />
-                    </div>
-
-                    {/* Project content */}
-                    <div className={cn("p-6", viewMode === "list" && "flex-1")}>
-                      <div className="mb-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-heading text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
-                            {project.title}
-                          </h3>
-                          <ArrowUpRight
-                            className={cn(
-                              "w-5 h-5 text-gray-400 transition-all duration-300",
-                              isHovered &&
-                                "text-emerald-500 translate-x-1 -translate-y-1"
-                            )}
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
-                          {project.description}
-                        </p>
-                      </div>
-
-                      {/* Technologies */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {project.technologies.slice(0, 3).map((tech) => (
-                          <span
-                            key={tech}
-                            className="px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all duration-300"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                        {project.technologies.length > 3 && (
-                          <span className="px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                            +{project.technologies.length - 3}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Categories */}
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {project.categories.map((category) => (
-                          <span
-                            key={category}
-                            className={cn(
-                              "px-3 py-1 text-xs rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 dark:from-emerald-500/10 dark:to-amber-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20"
-                            )}
-                          >
-                            {category}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Stats */}
-                      <div className="grid grid-cols-2 gap-3">
-                        {project.stats?.slice(0, 2).map((stat) => (
-                          <div
-                            key={stat.label}
-                            className="p-2 rounded-xl bg-gray-50 dark:bg-gray-800/30 backdrop-blur-sm border border-gray-200 dark:border-gray-700"
-                          >
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {stat.label}
-                            </div>
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {stat.value}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedProject(project.id);
-                          }}
-                          variant="outline"
-                          size="sm"
-                          icon={<Eye className="w-4 h-4" aria-hidden="true" />}
-                          iconPosition="left"
-                          className="flex-1 shadow-sm hover:shadow-emerald-500/20"
-                        >
-                          View Details
-                        </Button>
-
-                        <div className="flex items-center gap-2">
-                          {project.githubUrl && (
-                            <IconButton
-                              href={project.githubUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              icon={
-                                <Github
-                                  className="w-5 h-5"
-                                  aria-hidden="true"
-                                />
-                              }
-                              label="View source code on GitHub"
-                              variant="ghost"
-                              size="sm"
-                            />
-                          )}
-                          {project.liveUrl && (
-                            <IconButton
-                              href={project.liveUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              icon={
-                                <ExternalLink
-                                  className="w-5 h-5"
-                                  aria-hidden="true"
-                                />
-                              }
-                              label="Visit live site"
-                              variant="ghost"
-                              size="sm"
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Subtle inner shadow for light mode */}
-                    <div
-                      className="absolute inset-0 rounded-3xl shadow-inner shadow-gray-100 dark:shadow-black/20"
-                      aria-hidden="true"
-                    />
-                  </article>
-                </MagneticElement>
-              );
-            })}
-          </div>
-
-          {/* Empty state */}
+          {/* Empty State */}
           {filteredProjects.length === 0 && (
-            <div
-              className={cn(
-                "text-center py-20 transition-all duration-700 ease-out",
-                isVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
-              )}
+            <motion.div
+              className="text-center py-20"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6 }}
             >
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Search
-                  className="w-10 h-10 text-emerald-500"
-                  aria-hidden="true"
-                />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 flex items-center justify-center mx-auto mb-6 shadow-lg glass-effect">
+                <Search className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-heading text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
                 No projects found
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+              <p className="text-muted-foreground max-w-md mx-auto">
                 Try adjusting your search or filter to find what you're looking
                 for.
               </p>
@@ -911,22 +725,19 @@ export const ProjectsSection = () => {
                   setSelectedCategory("All");
                 }}
                 variant="primary"
-                className="mt-6 shadow-lg shadow-emerald-500/20"
+                className="mt-6 shadow-lg shadow-primary/20"
               >
                 Clear filters
               </Button>
-            </div>
+            </motion.div>
           )}
 
-          {/* Stats summary */}
-          <div
-            className={cn(
-              "mt-16 grid grid-cols-2 md:grid-cols-4 gap-8",
-              "transition-all duration-700 ease-out delay-300",
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            )}
+          {/* Stats Summary */}
+          <motion.div
+            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.3 }}
           >
             {[
               { icon: TrendingUp, label: "Projects Completed", value: "150+" },
@@ -937,22 +748,16 @@ export const ProjectsSection = () => {
               const Icon = stat.icon;
               return (
                 <MagneticElement key={stat.label} strength={0.1}>
-                  <div
-                    className="p-6 rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 hover:border-emerald-500 transition-all duration-300 shadow-xl shadow-gray-200/50 dark:shadow-black/20"
-                    style={{ transitionDelay: `${index * 100 + 300}ms` }}
-                  >
+                  <div className="p-6 rounded-3xl glass-effect border border-border hover:border-primary/30 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-primary/10">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center shadow-lg">
-                        <Icon
-                          className="w-6 h-6 text-emerald-500"
-                          aria-hidden="true"
-                        />
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 flex items-center justify-center shadow-lg">
+                        <Icon className="w-6 h-6 text-primary" />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <div className="text-2xl font-bold text-foreground">
                           {stat.value}
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm text-muted-foreground">
                           {stat.label}
                         </div>
                       </div>
@@ -961,34 +766,28 @@ export const ProjectsSection = () => {
                 </MagneticElement>
               );
             })}
-          </div>
+          </motion.div>
 
-          {/* Call to action */}
-          <div
-            className={cn(
-              "mt-20 text-center",
-              "transition-all duration-700 ease-out delay-400",
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            )}
+          {/* Call to Action */}
+          <motion.div
+            className="mt-20 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <div className="inline-flex flex-col items-center gap-6 p-8 rounded-3xl bg-gradient-to-br from-emerald-50/80 to-amber-50/80 dark:from-gray-900/80 dark:to-gray-950/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 shadow-2xl shadow-emerald-500/10 dark:shadow-black/30 relative overflow-hidden">
+            <div className="inline-flex flex-col items-center gap-6 p-8 rounded-3xl glass-effect border border-border shadow-2xl shadow-primary/10 dark:shadow-black/30 relative overflow-hidden">
               {/* Background glow */}
-              <div
-                className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-amber-500/5 blur-3xl"
-                aria-hidden="true"
-              />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 blur-3xl" />
 
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-500 flex items-center justify-center shadow-2xl shadow-emerald-500/40 z-10">
-                <Code2 className="w-8 h-8 text-white" aria-hidden="true" />
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-2xl shadow-primary/40 z-10">
+                <Code2 className="w-8 h-8 text-primary-foreground" />
               </div>
 
               <div className="z-10">
-                <h3 className="font-heading text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
                   Have a Project in Mind?
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
+                <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
                   Let's collaborate to bring your ideas to life. I'm always
                   excited to work on challenging projects and deliver
                   exceptional results.
@@ -1001,19 +800,13 @@ export const ProjectsSection = () => {
                   variant="primary"
                   size="lg"
                   icon={
-                    <Zap
-                      className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
-                      aria-hidden="true"
-                    />
+                    <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
                   }
                   iconPosition="left"
-                  className="group bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-600 hover:to-amber-600 shadow-2xl shadow-emerald-500/30"
+                  className="group bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark shadow-2xl shadow-primary/30"
                 >
                   Start a Project
-                  <div
-                    className="w-2 h-2 rounded-full bg-white/50 animate-pulse ml-2"
-                    aria-hidden="true"
-                  />
+                  <div className="w-2 h-2 rounded-full bg-primary-foreground/50 animate-pulse ml-2" />
                 </Button>
 
                 <Button
@@ -1021,82 +814,25 @@ export const ProjectsSection = () => {
                   variant="outline"
                   size="lg"
                   icon={
-                    <Eye
-                      className="w-5 h-5 group-hover:translate-y-1 transition-transform duration-300"
-                      aria-hidden="true"
-                    />
+                    <Eye className="w-5 h-5 group-hover:translate-y-1 transition-transform duration-300" />
                   }
                   iconPosition="left"
-                  className="group shadow-lg hover:shadow-emerald-500/20"
+                  className="group shadow-lg hover:shadow-primary/20"
                 >
                   View Case Studies
                 </Button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Floating icons - adaptive colors */}
+        {/* Floating Icons */}
         <div className="absolute top-20 left-20 opacity-10">
-          <Globe className="w-40 h-40 text-emerald-500" aria-hidden="true" />
+          <Globe className="w-40 h-40 text-primary" />
         </div>
         <div className="absolute bottom-20 right-20 opacity-10">
-          <Cpu className="w-40 h-40 text-amber-500" aria-hidden="true" />
+          <Cpu className="w-40 h-40 text-secondary" />
         </div>
-
-        {/* Add custom animations */}
-        <style jsx global>{`
-          @keyframes float {
-            0%,
-            100% {
-              transform: translateY(0) rotate(0deg);
-            }
-            33% {
-              transform: translateY(-20px) rotate(120deg);
-            }
-            66% {
-              transform: translateY(10px) rotate(240deg);
-            }
-          }
-
-          @keyframes float-light {
-            0%,
-            100% {
-              transform: translateY(0) rotate(0deg);
-            }
-            50% {
-              transform: translateY(-10px) rotate(180deg);
-            }
-          }
-
-          .animate-float {
-            animation: float ease-in-out infinite;
-          }
-
-          .animate-float-light {
-            animation: float-light ease-in-out infinite;
-          }
-
-          .animate-pulse-slow {
-            animation: pulse 3s ease-in-out infinite;
-          }
-
-          @keyframes pulse {
-            0%,
-            100% {
-              opacity: 1;
-              transform: scale(1);
-            }
-            50% {
-              opacity: 0.8;
-              transform: scale(0.98);
-            }
-          }
-
-          .transform-gpu {
-            transform: translateZ(0);
-          }
-        `}</style>
       </section>
     </>
   );

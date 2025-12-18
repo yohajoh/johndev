@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Mail,
   Phone,
@@ -13,10 +13,6 @@ import {
   Users,
   MessageSquare,
   Zap,
-  Linkedin,
-  Github,
-  Twitter,
-  Instagram,
   ExternalLink,
 } from "lucide-react";
 import { MagneticElement } from "../Cursor/CustomCursor";
@@ -24,9 +20,237 @@ import { InteractiveButton } from "../Cursor/CustomCursor";
 import { CONTACT_INFO, SOCIAL_LINKS, WORKING_HOURS } from "@/lib/constants";
 import { cn, isValidEmail } from "@/lib/utils";
 
+// Gradient border wrapper component
+const GradientBorderCard = ({
+  children,
+  className = "",
+  innerClassName = "",
+  intensity = "normal",
+}: {
+  children: React.ReactNode;
+  className?: string;
+  innerClassName?: string;
+  intensity?: "normal" | "high";
+}) => {
+  const borderIntensity = intensity === "high" ? "0.3" : "0.15";
+
+  return (
+    <div className={cn("relative rounded-3xl p-[2px]", className)}>
+      {/* Gradient border */}
+      <div
+        className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary via-secondary to-accent"
+        style={{
+          opacity: borderIntensity,
+          filter: `blur(${intensity === "high" ? "8px" : "4px"})`,
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Glowing shadow effect */}
+      <div
+        className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary via-secondary to-accent"
+        style={{
+          opacity: `${intensity === "high" ? "0.1" : "0.05"}`,
+          filter: `blur(${intensity === "high" ? "40px" : "20px"})`,
+          transform: "translateZ(0)",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Inner content */}
+      <div
+        className={cn(
+          "relative rounded-3xl bg-gradient-to-br from-card/90 via-background/90 to-card/90",
+          "backdrop-blur-sm border border-white/5",
+          innerClassName
+        )}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// Optimized background effects component
+const ContactBackground = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+      {/* Base gradient with shadow */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-gray-900/10 shadow-2xl" />
+
+      {/* Subtle animated mesh gradient */}
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: `
+            radial-gradient(at 40% 20%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+            radial-gradient(at 80% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+            radial-gradient(at 0% 50%, rgba(14, 165, 233, 0.1) 0px, transparent 50%)
+          `,
+          backgroundAttachment: "fixed",
+        }}
+      />
+
+      {/* Glowing orbs with proper shadows */}
+      <div className="absolute bottom-0 right-0 w-96 h-96">
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-secondary/10 to-accent/10 rounded-full blur-3xl"
+          style={{
+            animation: "pulse 8s ease-in-out infinite",
+            boxShadow: "0 0 100px 50px rgba(168, 85, 247, 0.1)",
+          }}
+        />
+      </div>
+
+      {/* Animated lines (CSS-only) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute h-px w-full bg-gradient-to-r from-transparent via-primary/5 to-transparent"
+            style={{
+              top: `${i * 10}%`,
+              animation: `lineFloat ${20 + i * 2}s linear infinite`,
+              animationDelay: `${i * 0.5}s`,
+              willChange: "transform",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Reusable form field component with gradient focus effect
+const GradientFormField = ({
+  id,
+  label,
+  icon: Icon,
+  type = "text",
+  value,
+  error,
+  activeField,
+  onChange,
+  onFocus,
+  onBlur,
+  placeholder,
+  rows,
+}: {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  type?: string;
+  value: string;
+  error?: string;
+  activeField: string | null;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  onFocus: () => void;
+  onBlur: () => void;
+  placeholder: string;
+  rows?: number;
+}) => {
+  const isTextArea = type === "textarea";
+  const hasError = !!error;
+  const isActive = activeField === id;
+
+  const fieldProps = {
+    id,
+    name: id,
+    value,
+    onChange,
+    onFocus,
+    onBlur,
+    placeholder,
+    className: cn(
+      "w-full px-4 py-3 rounded-xl bg-white/5 border transition-all duration-300",
+      "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:shadow-lg focus:shadow-primary/20",
+      "placeholder:text-muted-foreground/50 backdrop-blur-sm",
+      hasError
+        ? "border-red-500/50 focus:border-red-500"
+        : isActive
+        ? "border-primary/50"
+        : "border-white/10 hover:border-white/20 hover:shadow-md"
+    ),
+    "aria-invalid": hasError,
+    "aria-describedby": hasError ? `${id}-error` : undefined,
+  };
+
+  return (
+    <div className="space-y-2 relative">
+      <label
+        htmlFor={id}
+        className="text-sm font-medium text-foreground flex items-center gap-2"
+      >
+        <div className="relative">
+          <Icon className="w-4 h-4 text-primary relative z-10" />
+          {isActive && (
+            <div
+              className="absolute -inset-1 bg-primary/20 rounded-full blur-md animate-pulse"
+              aria-hidden="true"
+            />
+          )}
+        </div>
+        {label}
+      </label>
+
+      {/* Gradient border effect on focus */}
+      {isActive && !hasError && (
+        <div
+          className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 animate-pulse"
+          aria-hidden="true"
+        />
+      )}
+
+      <div className="relative">
+        {isTextArea ? (
+          <textarea {...fieldProps} rows={rows} />
+        ) : (
+          <input {...fieldProps} type={type} />
+        )}
+
+        {/* Error indicator */}
+        {hasError && (
+          <div
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            aria-hidden="true"
+          >
+            <div className="relative">
+              <AlertCircle className="w-5 h-5 text-red-500 relative z-10" />
+              <div
+                className="absolute inset-0 bg-red-500/20 rounded-full blur-sm"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Active field glow */}
+        {isActive && !hasError && (
+          <div
+            className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 pointer-events-none"
+            aria-hidden="true"
+          />
+        )}
+      </div>
+
+      {hasError && (
+        <p
+          id={`${id}-error`}
+          className="text-sm text-red-500 animate-fade-in flex items-center gap-2"
+        >
+          <AlertCircle className="w-4 h-4" />
+          {error}
+        </p>
+      )}
+    </div>
+  );
+};
+
 export const ContactSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [formState, setFormState] = useState({
     name: "",
@@ -40,171 +264,247 @@ export const ContactSection = () => {
   const [isError, setIsError] = useState(false);
   const [activeField, setActiveField] = useState<string | null>(null);
 
-  // Intersection Observer for reveal animation
+  // Memoize constants
+  const memoizedContactInfo = useMemo(() => CONTACT_INFO || [], []);
+  const memoizedSocialLinks = useMemo(() => SOCIAL_LINKS || [], []);
+  const memoizedWorkingHours = useMemo(() => WORKING_HOURS || [], []);
+
+  // Intersection Observer with cleanup
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.unobserve(entry.target);
-          }
-        });
+    if (!sectionRef.current) return;
+
+    observerRef.current = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observerRef.current?.unobserve(entry.target);
+        }
       },
-      { threshold: 0.1 }
+      {
+        threshold: 0.1,
+        rootMargin: "50px",
+      }
     );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+    observerRef.current.observe(sectionRef.current);
 
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
+      if (observerRef.current) {
+        observerRef.current.disconnect();
       }
     };
   }, []);
 
-  // Form validation
-  const validateForm = () => {
+  // Form validation with memoization
+  const validateForm = useCallback(() => {
     const newErrors: Record<string, string> = {};
 
     if (!formState.name.trim()) {
       newErrors.name = "Name is required";
+    } else if (formState.name.length < 2) {
+      newErrors.name = "Name must be at least 2 characters";
     }
 
     if (!formState.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!isValidEmail(formState.email)) {
-      newErrors.email = "Please enter a valid email";
+      newErrors.email = "Please enter a valid email address";
     }
 
     if (!formState.subject.trim()) {
       newErrors.subject = "Subject is required";
+    } else if (formState.subject.length < 3) {
+      newErrors.subject = "Subject must be at least 3 characters";
     }
 
     if (!formState.message.trim()) {
       newErrors.message = "Message is required";
     } else if (formState.message.length < 10) {
       newErrors.message = "Message must be at least 10 characters";
+    } else if (formState.message.length > 1000) {
+      newErrors.message = "Message must be less than 1000 characters";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formState]);
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!validateForm()) {
-      setIsError(true);
-      setTimeout(() => setIsError(false), 3000);
-      return;
-    }
+      if (!validateForm()) {
+        setIsError(true);
+        setTimeout(() => setIsError(false), 3000);
+        return;
+      }
 
-    setIsSubmitting(true);
-    setIsError(false);
+      setIsSubmitting(true);
+      setIsError(false);
 
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      setIsSuccess(true);
-      setFormState({ name: "", email: "", subject: "", message: "" });
+        setIsSuccess(true);
+        setFormState({ name: "", email: "", subject: "", message: "" });
+        setErrors({});
 
-      // Reset success message after 5 seconds
-      setTimeout(() => setIsSuccess(false), 5000);
-    } catch (error) {
-      setIsError(true);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+        // Reset success message after 5 seconds
+        setTimeout(() => setIsSuccess(false), 5000);
+      } catch (error) {
+        setIsError(true);
+        console.error("Form submission error:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [formState, validateForm]
+  );
 
   // Handle input change
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormState((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
+      // Clear error for this field if exists
+      if (errors[name]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
 
-  // Animation for contact items
-  const getAnimationDelay = (index: number) => {
+  // Handle field focus
+  const handleFieldFocus = useCallback((fieldId: string) => {
+    setActiveField(fieldId);
+  }, []);
+
+  // Handle field blur
+  const handleFieldBlur = useCallback(() => {
+    setActiveField(null);
+  }, []);
+
+  // Animation delay calculator
+  const getAnimationDelay = useCallback((index: number) => {
     return `${index * 100}ms`;
-  };
+  }, []);
+
+  // Schedule a call handler
+  const handleScheduleCall = useCallback(() => {
+    window.open(
+      "https://calendly.com/your-link",
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }, []);
+
+  // Field definitions for reusable rendering
+  const formFields = useMemo(
+    () => [
+      {
+        id: "name",
+        label: "Your Name",
+        icon: Users,
+        type: "text",
+        placeholder: "John Doe",
+      },
+      {
+        id: "email",
+        label: "Email Address",
+        icon: Mail,
+        type: "email",
+        placeholder: "john@example.com",
+      },
+      {
+        id: "subject",
+        label: "Subject",
+        icon: MessageSquare,
+        type: "text",
+        placeholder: "Project Inquiry",
+      },
+      {
+        id: "message",
+        label: "Your Message",
+        icon: MessageSquare,
+        type: "textarea",
+        placeholder: "Tell me about your project...",
+        rows: 5,
+      },
+    ],
+    []
+  );
 
   return (
     <section
       ref={sectionRef}
       id="contact"
-      className="section-padding relative overflow-hidden bg-gradient-to-b from-background via-background to-gray-900/10"
+      className="relative min-h-screen py-24 overflow-hidden bg-background"
       aria-labelledby="contact-heading"
+      itemScope
+      itemType="https://schema.org/ContactPage"
     >
-      {/* Background effects */}
-      <div className="absolute inset-0">
-        <div
-          className="absolute inset-0 opacity-10 dot-pattern"
-          aria-hidden="true"
-        />
-        <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-r from-secondary/5 to-accent/5 rounded-full blur-3xl" />
-      </div>
+      {/* SEO Metadata */}
+      <meta itemProp="name" content="Contact Yohannes Belete" />
+      <meta
+        itemProp="description"
+        content="Get in touch with Yohannes Belete for project inquiries, collaboration opportunities, or technical consultations."
+      />
+      <link itemProp="url" href="https://yourdomain.com/#contact" />
 
-      {/* Animated lines */}
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        aria-hidden="true"
-      >
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute h-px w-full bg-gradient-to-r from-transparent via-primary/10 to-transparent"
-            style={{
-              top: `${i * 10}%`,
-              transform: `translateX(${
-                Math.sin(Date.now() / 3000 + i) * 50
-              }px)`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Optimized Background */}
+      <ContactBackground />
 
-      <div className="container-wide relative z-10">
+      <div className="container-wide relative z-10 px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div
           className={cn(
-            "text-center mb-16 transition-all duration-1000 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            "text-center mb-16 transition-all duration-700 ease-out",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
+          role="banner"
         >
           <MagneticElement strength={0.1}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 mb-6">
-              <MessageSquare className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">
-                Get In Touch
-              </span>
-            </div>
+            <GradientBorderCard
+              className="inline-block mb-6 shadow-2xl shadow-primary/20"
+              intensity="high"
+            >
+              <div className="px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">
+                    Get In Touch
+                  </span>
+                </div>
+              </div>
+            </GradientBorderCard>
           </MagneticElement>
 
-          <h2
+          <h1
             id="contact-heading"
             className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
+            itemProp="headline"
           >
             Let's{" "}
             <span className="text-gradient-primary relative">
               Connect
-              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse" />
+              <div
+                className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse shadow-lg shadow-primary/50"
+                aria-hidden="true"
+              />
             </span>
-          </h2>
+          </h1>
 
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p
+            className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed"
+            itemProp="description"
+          >
             Have a project in mind or want to discuss potential collaboration?
             I'm always open to new opportunities and interesting conversations.
           </p>
@@ -214,262 +514,166 @@ export const ContactSection = () => {
           {/* Left column - Contact form */}
           <div
             className={cn(
-              "transition-all duration-1000 ease-out delay-100",
+              "transition-all duration-700 ease-out delay-150",
               isVisible
                 ? "opacity-100 translate-x-0"
-                : "opacity-0 -translate-x-10"
+                : "opacity-0 -translate-x-8"
             )}
           >
-            <div className="p-8 rounded-3xl gradient-border backdrop-blur-sm bg-gradient-to-br from-card/80 to-background/80">
-              <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+            <GradientBorderCard
+              className="shadow-2xl shadow-primary/20 hover:shadow-primary/30 transition-shadow duration-500"
+              intensity="high"
+              innerClassName="p-8"
+            >
+              <h2 className="font-heading text-2xl font-bold text-foreground mb-2">
                 Send a Message
-              </h3>
+              </h2>
               <p className="text-muted-foreground mb-8">
                 Fill out the form below and I'll get back to you as soon as
                 possible.
               </p>
 
-              <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-                {/* Name field */}
-                <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="text-sm font-medium text-foreground flex items-center gap-2"
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-6"
+                noValidate
+                aria-label="Contact form"
+              >
+                {formFields.map((field) => (
+                  <GradientFormField
+                    key={field.id}
+                    id={field.id}
+                    label={field.label}
+                    icon={field.icon}
+                    type={field.type}
+                    value={formState[field.id as keyof typeof formState]}
+                    error={errors[field.id]}
+                    activeField={activeField}
+                    onChange={handleChange}
+                    onFocus={() => handleFieldFocus(field.id)}
+                    onBlur={handleFieldBlur}
+                    placeholder={field.placeholder}
+                    rows={field.rows}
+                  />
+                ))}
+
+                {/* Submit button with enhanced gradient */}
+                <div className="pt-4">
+                  <InteractiveButton
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    className="w-full group relative overflow-hidden shadow-xl shadow-primary/30 hover:shadow-primary/40"
+                    disabled={isSubmitting}
+                    aria-label={
+                      isSubmitting ? "Sending message..." : "Send message"
+                    }
                   >
-                    <Users className="w-4 h-4 text-primary" />
-                    Your Name
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formState.name}
-                      onChange={handleChange}
-                      onFocus={() => setActiveField("name")}
-                      onBlur={() => setActiveField(null)}
-                      className={cn(
-                        "w-full px-4 py-3 rounded-xl bg-white/5 border transition-all duration-300",
-                        "focus:outline-none focus:ring-2 focus:ring-primary/50",
-                        errors.name
-                          ? "border-red-500/50 focus:border-red-500"
-                          : activeField === "name"
-                          ? "border-primary/50"
-                          : "border-white/10 hover:border-white/20"
-                      )}
-                      placeholder="John Doe"
-                      aria-invalid={!!errors.name}
-                      aria-describedby={errors.name ? "name-error" : undefined}
-                    />
-                    {errors.name && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <AlertCircle className="w-5 h-5 text-red-500" />
-                      </div>
-                    )}
-                  </div>
-                  {errors.name && (
-                    <p id="name-error" className="text-sm text-red-500">
-                      {errors.name}
-                    </p>
-                  )}
-                </div>
-
-                {/* Email field */}
-                <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-foreground flex items-center gap-2"
-                  >
-                    <Mail className="w-4 h-4 text-primary" />
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formState.email}
-                      onChange={handleChange}
-                      onFocus={() => setActiveField("email")}
-                      onBlur={() => setActiveField(null)}
-                      className={cn(
-                        "w-full px-4 py-3 rounded-xl bg-white/5 border transition-all duration-300",
-                        "focus:outline-none focus:ring-2 focus:ring-primary/50",
-                        errors.email
-                          ? "border-red-500/50 focus:border-red-500"
-                          : activeField === "email"
-                          ? "border-primary/50"
-                          : "border-white/10 hover:border-white/20"
-                      )}
-                      placeholder="john@example.com"
-                      aria-invalid={!!errors.email}
-                      aria-describedby={
-                        errors.email ? "email-error" : undefined
-                      }
-                    />
-                    {errors.email && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <AlertCircle className="w-5 h-5 text-red-500" />
-                      </div>
-                    )}
-                  </div>
-                  {errors.email && (
-                    <p id="email-error" className="text-sm text-red-500">
-                      {errors.email}
-                    </p>
-                  )}
-                </div>
-
-                {/* Subject field */}
-                <div className="space-y-2">
-                  <label
-                    htmlFor="subject"
-                    className="text-sm font-medium text-foreground flex items-center gap-2"
-                  >
-                    <MessageSquare className="w-4 h-4 text-primary" />
-                    Subject
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="subject"
-                      name="subject"
-                      value={formState.subject}
-                      onChange={handleChange}
-                      onFocus={() => setActiveField("subject")}
-                      onBlur={() => setActiveField(null)}
-                      className={cn(
-                        "w-full px-4 py-3 rounded-xl bg-white/5 border transition-all duration-300",
-                        "focus:outline-none focus:ring-2 focus:ring-primary/50",
-                        errors.subject
-                          ? "border-red-500/50 focus:border-red-500"
-                          : activeField === "subject"
-                          ? "border-primary/50"
-                          : "border-white/10 hover:border-white/20"
-                      )}
-                      placeholder="Project Inquiry"
-                      aria-invalid={!!errors.subject}
-                      aria-describedby={
-                        errors.subject ? "subject-error" : undefined
-                      }
-                    />
-                    {errors.subject && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <AlertCircle className="w-5 h-5 text-red-500" />
-                      </div>
-                    )}
-                  </div>
-                  {errors.subject && (
-                    <p id="subject-error" className="text-sm text-red-500">
-                      {errors.subject}
-                    </p>
-                  )}
-                </div>
-
-                {/* Message field */}
-                <div className="space-y-2">
-                  <label
-                    htmlFor="message"
-                    className="text-sm font-medium text-foreground flex items-center gap-2"
-                  >
-                    <MessageSquare className="w-4 h-4 text-primary" />
-                    Your Message
-                  </label>
-                  <div className="relative">
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formState.message}
-                      onChange={handleChange}
-                      onFocus={() => setActiveField("message")}
-                      onBlur={() => setActiveField(null)}
-                      rows={5}
-                      className={cn(
-                        "w-full px-4 py-3 rounded-xl bg-white/5 border transition-all duration-300 resize-none",
-                        "focus:outline-none focus:ring-2 focus:ring-primary/50",
-                        errors.message
-                          ? "border-red-500/50 focus:border-red-500"
-                          : activeField === "message"
-                          ? "border-primary/50"
-                          : "border-white/10 hover:border-white/20"
-                      )}
-                      placeholder="Tell me about your project..."
-                      aria-invalid={!!errors.message}
-                      aria-describedby={
-                        errors.message ? "message-error" : undefined
-                      }
-                    />
-                    {errors.message && (
-                      <div className="absolute right-3 top-3">
-                        <AlertCircle className="w-5 h-5 text-red-500" />
-                      </div>
-                    )}
-                  </div>
-                  {errors.message && (
-                    <p id="message-error" className="text-sm text-red-500">
-                      {errors.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Submit button */}
-                <InteractiveButton
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  className="w-full group"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                      Send Message
-                      <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse" />
-                    </>
-                  )}
-                </InteractiveButton>
-
-                {/* Success/Error messages */}
-                <div className="transition-all duration-300">
-                  {isSuccess && (
+                    {/* Button gradient background */}
                     <div
-                      className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500"
-                      role="alert"
-                    >
-                      <CheckCircle className="w-5 h-5" />
-                      <div>
-                        <p className="font-medium">
-                          Message sent successfully!
-                        </p>
-                        <p className="text-sm opacity-80">
-                          I'll get back to you soon.
-                        </p>
-                      </div>
+                      className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      aria-hidden="true"
+                    />
+
+                    {/* Button glow effect */}
+                    <div
+                      className="absolute -inset-2 bg-gradient-to-r from-primary/30 via-secondary/30 to-accent/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      aria-hidden="true"
+                    />
+
+                    {/* Button content */}
+                    <div className="relative z-10 flex items-center justify-center gap-3">
+                      {isSubmitting ? (
+                        <>
+                          <div
+                            className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                            aria-hidden="true"
+                          />
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send
+                            className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
+                            aria-hidden="true"
+                          />
+                          <span>Send Message</span>
+                          <div
+                            className="w-2 h-2 rounded-full bg-white/50 animate-pulse"
+                            aria-hidden="true"
+                          />
+                        </>
+                      )}
                     </div>
+                  </InteractiveButton>
+                </div>
+
+                {/* Success/Error messages with gradient borders */}
+                <div className="transition-all duration-300 min-h-[80px]">
+                  {isSuccess && (
+                    <GradientBorderCard
+                      className="shadow-lg shadow-green-500/20 animate-fade-in"
+                      innerClassName="p-4"
+                    >
+                      <div
+                        className="flex items-center gap-3 text-green-500"
+                        role="alert"
+                        aria-live="polite"
+                      >
+                        <div className="relative">
+                          <CheckCircle
+                            className="w-5 h-5 relative z-10"
+                            aria-hidden="true"
+                          />
+                          <div
+                            className="absolute inset-0 bg-green-500/20 rounded-full blur-sm"
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium">
+                            Message sent successfully!
+                          </p>
+                          <p className="text-sm opacity-80">
+                            I'll get back to you soon.
+                          </p>
+                        </div>
+                      </div>
+                    </GradientBorderCard>
                   )}
 
                   {isError && (
-                    <div
-                      className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500"
-                      role="alert"
+                    <GradientBorderCard
+                      className="shadow-lg shadow-red-500/20 animate-fade-in"
+                      innerClassName="p-4"
                     >
-                      <AlertCircle className="w-5 h-5" />
-                      <div>
-                        <p className="font-medium">Something went wrong!</p>
-                        <p className="text-sm opacity-80">
-                          Please try again later.
-                        </p>
+                      <div
+                        className="flex items-center gap-3 text-red-500"
+                        role="alert"
+                        aria-live="assertive"
+                      >
+                        <div className="relative">
+                          <AlertCircle
+                            className="w-5 h-5 relative z-10"
+                            aria-hidden="true"
+                          />
+                          <div
+                            className="absolute inset-0 bg-red-500/20 rounded-full blur-sm"
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium">Submission failed!</p>
+                          <p className="text-sm opacity-80">
+                            Please check the form and try again.
+                          </p>
+                        </div>
                       </div>
-                    </div>
+                    </GradientBorderCard>
                   )}
                 </div>
               </form>
-            </div>
+            </GradientBorderCard>
           </div>
 
           {/* Right column - Contact info */}
@@ -477,55 +681,81 @@ export const ContactSection = () => {
             {/* Contact information */}
             <div
               className={cn(
-                "transition-all duration-1000 ease-out delay-200",
+                "transition-all duration-700 ease-out delay-300",
                 isVisible
                   ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-10"
+                  : "opacity-0 translate-x-8"
               )}
             >
-              <h3 className="font-heading text-2xl font-bold text-foreground mb-6">
+              <h2 className="font-heading text-2xl font-bold text-foreground mb-6">
                 Contact Information
-              </h3>
+              </h2>
 
               <div className="space-y-4">
-                {CONTACT_INFO.map((info, index) => {
+                {memoizedContactInfo.map((info, index) => {
                   const Icon = info.icon;
                   return (
                     <MagneticElement key={info.type} strength={0.1}>
-                      <a
-                        href={info.href}
-                        target={
-                          info.href?.startsWith("http") ? "_blank" : undefined
-                        }
-                        rel={
-                          info.href?.startsWith("http")
-                            ? "noopener noreferrer"
-                            : undefined
-                        }
-                        className={cn(
-                          "group flex items-center gap-4 p-4 rounded-2xl",
-                          "bg-gradient-to-br from-card/50 to-background/50 border border-white/10",
-                          "hover:border-primary/30 transition-all duration-300",
-                          "reveal-up"
-                        )}
-                        style={{ transitionDelay: getAnimationDelay(index) }}
-                        aria-label={info.label}
+                      <GradientBorderCard
+                        className="shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 transform hover:-translate-y-1"
+                        innerClassName="p-4"
                       >
-                        <div
-                          className={`w-12 h-12 rounded-xl ${info.color} flex items-center justify-center`}
+                        <a
+                          href={info.href}
+                          target={
+                            info.href?.startsWith("http") ? "_blank" : undefined
+                          }
+                          rel={
+                            info.href?.startsWith("http")
+                              ? "noopener noreferrer"
+                              : undefined
+                          }
+                          className="group flex items-center gap-4"
+                          aria-label={info.label}
+                          itemProp={
+                            info.type === "email"
+                              ? "email"
+                              : info.type === "telephone"
+                              ? "telephone"
+                              : "url"
+                          }
                         >
-                          <Icon className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm text-muted-foreground">
-                            {info.label}
+                          <div className="relative">
+                            <div
+                              className={`w-12 h-12 rounded-xl ${info.color} flex items-center justify-center shadow-lg`}
+                              aria-hidden="true"
+                            >
+                              <Icon className="w-6 h-6 text-white" />
+                            </div>
+                            {/* Icon glow effect */}
+                            <div
+                              className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                              aria-hidden="true"
+                            />
                           </div>
-                          <div className="font-medium text-foreground group-hover:text-primary transition-colors duration-300">
-                            {info.value}
+                          <div className="flex-1">
+                            <div className="text-sm text-muted-foreground">
+                              {info.label}
+                            </div>
+                            <div
+                              className="font-medium text-foreground group-hover:text-primary transition-colors duration-300"
+                              itemProp={
+                                info.type === "email"
+                                  ? "email"
+                                  : info.type === "telephone"
+                                  ? "telephone"
+                                  : "name"
+                              }
+                            >
+                              {info.value}
+                            </div>
                           </div>
-                        </div>
-                        <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-300" />
-                      </a>
+                          <ExternalLink
+                            className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-300 group-hover:translate-x-1"
+                            aria-hidden="true"
+                          />
+                        </a>
+                      </GradientBorderCard>
                     </MagneticElement>
                   );
                 })}
@@ -535,73 +765,87 @@ export const ContactSection = () => {
             {/* Working hours */}
             <div
               className={cn(
-                "p-6 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 border border-white/10",
-                "transition-all duration-1000 ease-out delay-300",
+                "transition-all duration-700 ease-out delay-450",
                 isVisible
                   ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-10"
+                  : "opacity-0 translate-x-8"
               )}
             >
-              <h3 className="font-heading text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-primary" />
-                Working Hours
-              </h3>
+              <GradientBorderCard className="shadow-xl" innerClassName="p-6">
+                <h3 className="font-heading text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  Working Hours
+                </h3>
 
-              <div className="space-y-3">
-                {WORKING_HOURS.map((schedule, index) => (
-                  <div
-                    key={schedule.day}
-                    className={cn(
-                      "flex items-center justify-between p-3 rounded-xl transition-all duration-300",
-                      schedule.available
-                        ? "bg-white/5 hover:bg-white/10"
-                        : "bg-white/5 opacity-60"
-                    )}
-                    style={{ transitionDelay: `${index * 50 + 300}ms` }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">
-                        {schedule.day}
-                      </span>
-                    </div>
+                <div className="space-y-3">
+                  {memoizedWorkingHours.map((schedule, index) => (
                     <div
+                      key={schedule.day}
                       className={cn(
-                        "text-sm",
+                        "flex items-center justify-between p-3 rounded-xl transition-all duration-300",
+                        "hover:bg-white/5 hover:shadow-md",
                         schedule.available
-                          ? "text-primary"
-                          : "text-muted-foreground"
+                          ? "bg-white/5"
+                          : "bg-white/5 opacity-60"
                       )}
+                      style={{ transitionDelay: `${index * 50 + 450}ms` }}
                     >
-                      {schedule.hours}
+                      <div className="flex items-center gap-2">
+                        <Calendar
+                          className="w-4 h-4 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                        <span className="text-sm font-medium text-foreground">
+                          {schedule.day}
+                        </span>
+                      </div>
+                      <div
+                        className={cn(
+                          "text-sm font-medium",
+                          schedule.available
+                            ? "text-primary"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {schedule.hours}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              {/* Response time */}
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <div className="flex items-center gap-3">
-                  <Zap className="w-5 h-5 text-secondary" />
-                  <div>
-                    <div className="text-sm font-medium text-foreground">
-                      Average Response Time
+                {/* Response time */}
+                <div className="mt-6 pt-6 border-t border-white/10">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Zap
+                        className="w-5 h-5 text-secondary relative z-10"
+                        aria-hidden="true"
+                      />
+                      <div
+                        className="absolute inset-0 bg-secondary/20 rounded-full blur-sm"
+                        aria-hidden="true"
+                      />
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Within 24 hours on business days
+                    <div>
+                      <div className="text-sm font-medium text-foreground">
+                        Average Response Time
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Within 24 hours on business days
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </GradientBorderCard>
             </div>
 
             {/* Social links */}
             <div
               className={cn(
-                "transition-all duration-1000 ease-out delay-400",
+                "transition-all duration-700 ease-out delay-600",
                 isVisible
                   ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-10"
+                  : "opacity-0 translate-x-8"
               )}
             >
               <h3 className="font-heading text-xl font-bold text-foreground mb-4">
@@ -609,38 +853,49 @@ export const ContactSection = () => {
               </h3>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {SOCIAL_LINKS.map((social, index) => {
+                {memoizedSocialLinks.map((social, index) => {
                   const Icon = social.icon;
                   return (
                     <MagneticElement key={social.platform} strength={0.2}>
-                      <a
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={cn(
-                          "group flex flex-col items-center justify-center p-4 rounded-2xl",
-                          "bg-gradient-to-br from-card/50 to-background/50 border border-white/10",
-                          "hover:border-primary/30 transition-all duration-300",
-                          "reveal-up"
-                        )}
-                        style={{
-                          transitionDelay: getAnimationDelay(index + 3),
-                        }}
-                        aria-label={social.label}
+                      <GradientBorderCard
+                        className="shadow-md hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 transform hover:-translate-y-1"
+                        innerClassName="p-4"
                       >
-                        <div
-                          className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center mb-2",
-                            social.color,
-                            "group-hover:scale-110 transition-transform duration-300"
-                          )}
+                        <a
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex flex-col items-center justify-center"
+                          style={{
+                            transitionDelay: getAnimationDelay(index + 3),
+                          }}
+                          aria-label={`Follow me on ${social.platform}`}
+                          itemProp="sameAs"
                         >
-                          <Icon className={cn("w-5 h-5", social.textColor)} />
-                        </div>
-                        <span className="text-xs font-medium text-foreground">
-                          {social.platform}
-                        </span>
-                      </a>
+                          <div className="relative mb-2">
+                            <div
+                              className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center shadow-lg",
+                                social.color,
+                                "group-hover:scale-110 transition-transform duration-300"
+                              )}
+                              aria-hidden="true"
+                            >
+                              <Icon
+                                className={cn("w-5 h-5", social.textColor)}
+                              />
+                            </div>
+                            {/* Hover glow effect */}
+                            <div
+                              className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                              aria-hidden="true"
+                            />
+                          </div>
+                          <span className="text-xs font-medium text-foreground">
+                            {social.platform}
+                          </span>
+                        </a>
+                      </GradientBorderCard>
                     </MagneticElement>
                   );
                 })}
@@ -650,14 +905,17 @@ export const ContactSection = () => {
             {/* Call to action */}
             <div
               className={cn(
-                "p-6 rounded-3xl bg-gradient-to-r from-primary/10 via-transparent to-secondary/10 border border-white/10",
-                "transition-all duration-1000 ease-out delay-500",
+                "transition-all duration-700 ease-out delay-750",
                 isVisible
                   ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
+                  : "opacity-0 translate-y-8"
               )}
             >
-              <div className="text-center">
+              <GradientBorderCard
+                className="shadow-2xl shadow-primary/20"
+                intensity="high"
+                innerClassName="p-6 text-center"
+              >
                 <h3 className="font-heading text-xl font-bold text-foreground mb-2">
                   Ready to Start Your Project?
                 </h3>
@@ -665,93 +923,146 @@ export const ContactSection = () => {
                   Let's schedule a call to discuss your requirements in detail.
                 </p>
                 <InteractiveButton
-                  onClick={() =>
-                    window.open("https://calendly.com/your-link", "_blank")
-                  }
+                  onClick={handleScheduleCall}
                   variant="primary"
-                  className="group"
+                  className="group shadow-lg shadow-primary/30 hover:shadow-primary/40"
+                  aria-label="Schedule a call on Calendly"
                 >
-                  <Calendar className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+                  <Calendar
+                    className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
+                    aria-hidden="true"
+                  />
                   Schedule a Call
-                  <div className="w-2 h-2 rounded-full bg-white/50 animate-pulse" />
+                  <div
+                    className="w-2 h-2 rounded-full bg-white/50 animate-pulse"
+                    aria-hidden="true"
+                  />
                 </InteractiveButton>
-              </div>
+              </GradientBorderCard>
             </div>
           </div>
         </div>
 
-        {/* Map placeholder */}
+        {/* Location section */}
         <div
           className={cn(
-            "mt-16 rounded-3xl overflow-hidden gradient-border",
-            "transition-all duration-1000 ease-out delay-600",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            "mt-16 transition-all duration-700 ease-out delay-900",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
         >
-          <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-gray-800">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="w-10 h-10 text-primary" />
+          <GradientBorderCard
+            className="shadow-2xl shadow-primary/20"
+            intensity="high"
+          >
+            <div
+              className="relative aspect-video bg-gradient-to-br from-gray-900 to-gray-800"
+              itemScope
+              itemType="https://schema.org/Place"
+            >
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <GradientBorderCard
+                    className="inline-block mb-4 shadow-2xl shadow-primary/20"
+                    intensity="high"
+                    innerClassName="p-4"
+                  >
+                    <div className="w-12 h-12 flex items-center justify-center">
+                      <MapPin className="w-8 h-8 text-primary" />
+                    </div>
+                  </GradientBorderCard>
+                  <h4
+                    className="font-heading text-xl font-bold text-foreground mb-2"
+                    itemProp="name"
+                  >
+                    San Francisco, CA
+                  </h4>
+                  <p className="text-muted-foreground" itemProp="description">
+                    Based in the heart of Silicon Valley
+                  </p>
                 </div>
-                <h4 className="font-heading text-xl font-bold text-foreground mb-2">
-                  San Francisco, CA
-                </h4>
-                <p className="text-muted-foreground">
-                  Based in the heart of Silicon Valley
-                </p>
+              </div>
+
+              {/* Decorative map grid */}
+              <div className="absolute inset-0 opacity-5 pointer-events-none">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div
+                    key={`h-${i}`}
+                    className="absolute h-px w-full bg-gradient-to-r from-transparent via-white to-transparent"
+                    style={{ top: `${i * 10}%` }}
+                  />
+                ))}
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div
+                    key={`v-${i}`}
+                    className="absolute w-px h-full bg-gradient-to-b from-transparent via-white to-transparent"
+                    style={{ left: `${i * 10}%` }}
+                  />
+                ))}
               </div>
             </div>
-
-            {/* Map grid */}
-            <div className="absolute inset-0 opacity-10">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute h-px w-full bg-gradient-to-r from-transparent via-white to-transparent"
-                  style={{ top: `${i * 10}%` }}
-                />
-              ))}
-              {Array.from({ length: 10 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-px h-full bg-gradient-to-b from-transparent via-white to-transparent"
-                  style={{ left: `${i * 10}%` }}
-                />
-              ))}
-            </div>
-          </div>
+          </GradientBorderCard>
         </div>
       </div>
 
-      {/* Floating elements */}
-      <div className="absolute top-10 right-10 opacity-10">
-        <div className="w-40 h-40 rounded-full bg-gradient-to-r from-primary to-secondary blur-3xl" />
-      </div>
-      <div className="absolute bottom-10 left-10 opacity-10">
-        <div className="w-40 h-40 rounded-full bg-gradient-to-r from-secondary to-accent blur-3xl" />
-      </div>
-
-      {/* Animated particles */}
+      {/* Performance optimized particles */}
       <div
         className="absolute inset-0 overflow-hidden pointer-events-none"
         aria-hidden="true"
       >
-        {Array.from({ length: 20 }).map((_, i) => (
+        {Array.from({ length: 15 }).map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-primary/20"
+            className="absolute w-1 h-1 rounded-full bg-primary/10"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
-              animation: `float ${
-                Math.random() * 10 + 5
-              }s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`,
+              animation: `float ${Math.random() * 15 + 10}s linear infinite`,
+              animationDelay: `${Math.random() * 5}s`,
+              willChange: "transform, opacity",
             }}
           />
         ))}
       </div>
+
+      {/* CSS Animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0) translateX(0) rotate(0deg);
+            opacity: 0.1;
+          }
+          33% {
+            transform: translateY(-30px) translateX(15px) rotate(120deg);
+            opacity: 0.3;
+          }
+          66% {
+            transform: translateY(15px) translateX(-15px) rotate(240deg);
+            opacity: 0.2;
+          }
+        }
+
+        @keyframes lineFloat {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 0.1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.3;
+            transform: scale(1.05);
+          }
+        }
+      `}</style>
     </section>
   );
 };
