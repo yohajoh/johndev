@@ -35,11 +35,66 @@ import { PROJECT_CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ProjectModal } from "../UI/ProjectModal";
 
-// Unique Background Component
-const UniqueProjectBackground = () => {
+// Light Mode Background Component
+const LightModeBackground = () => {
   return (
     <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
+      className="absolute inset-0 overflow-hidden pointer-events-none dark:hidden"
+      aria-hidden="true"
+    >
+      {/* Light gradient base */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-emerald-50/30" />
+
+      {/* Subtle geometric pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(90deg, transparent 50%, rgba(16, 185, 129, 0.05) 100%),
+            linear-gradient(0deg, transparent 50%, rgba(245, 158, 11, 0.05) 100%),
+            radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.02) 0%, transparent 50%),
+            radial-gradient(circle at 70% 80%, rgba(245, 158, 11, 0.02) 0%, transparent 50%)
+          `,
+          backgroundSize: "80px 80px, 80px 80px, 300px 300px, 300px 300px",
+        }}
+      />
+
+      {/* Floating orbs - lighter for light mode */}
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={`light-orb-${i}`}
+          className="absolute rounded-full animate-float-light"
+          style={{
+            width: `${30 + i * 8}px`,
+            height: `${30 + i * 8}px`,
+            left: `${15 + i * 20}%`,
+            top: `${20 + ((i * 15) % 80)}%`,
+            background: `radial-gradient(circle, rgba(${16 + i * 8}, ${
+              185 + i * 3
+            }, ${129 + i * 4}, 0.05), transparent 70%)`,
+            animationDuration: `${20 + i * 5}s`,
+            animationDelay: `${i * 2}s`,
+            filter: "blur(10px)",
+          }}
+        />
+      ))}
+
+      {/* Corner accents - lighter */}
+      <div className="absolute top-0 left-0 w-96 h-96">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-100 via-transparent to-transparent blur-3xl" />
+      </div>
+      <div className="absolute bottom-0 right-0 w-96 h-96">
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-amber-100 via-transparent to-transparent blur-3xl" />
+      </div>
+    </div>
+  );
+};
+
+// Dark Mode Background Component
+const DarkModeBackground = () => {
+  return (
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none hidden dark:block"
       aria-hidden="true"
     >
       {/* Base gradient */}
@@ -62,7 +117,7 @@ const UniqueProjectBackground = () => {
       {/* Floating tech orbs */}
       {Array.from({ length: 8 }).map((_, i) => (
         <div
-          key={`orb-${i}`}
+          key={`dark-orb-${i}`}
           className="absolute rounded-full animate-float"
           style={{
             width: `${40 + i * 10}px`,
@@ -87,17 +142,6 @@ const UniqueProjectBackground = () => {
           backgroundSize: "200px 200px",
         }}
       />
-
-      {/* Animated scan lines */}
-      <div className="absolute inset-0">
-        <div
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(16, 185, 129, 0.1) 3px, rgba(16, 185, 129, 0.1) 4px)`,
-            animation: "scan 15s linear infinite",
-          }}
-        />
-      </div>
 
       {/* Corner accents */}
       <div className="absolute top-0 left-0 w-96 h-96">
@@ -378,38 +422,49 @@ export const ProjectsSection = () => {
     return iconMap[tech] || Code2;
   }, []);
 
-  // Get color classes based on project color
+  // Get color classes based on project color (light mode friendly)
   const getColorClasses = useCallback((color: string) => {
-    const colorMap = {
+    const lightModeColors = {
       emerald: {
         gradient: "from-emerald-500 to-emerald-600",
         bg: "bg-emerald-500",
-        text: "text-emerald-500",
+        text: "text-emerald-600 dark:text-emerald-500",
         border: "border-emerald-500",
-        shadow: "shadow-emerald-500/20",
-        hoverShadow: "hover:shadow-emerald-500/30",
-        glow: "shadow-emerald-500/10",
+        shadow: "shadow-emerald-500/20 dark:shadow-emerald-500/20",
+        hoverShadow:
+          "hover:shadow-emerald-500/30 dark:hover:shadow-emerald-500/30",
+        glow: "shadow-emerald-500/10 dark:shadow-emerald-500/10",
+        lightBg: "bg-emerald-50",
+        lightBorder: "border-emerald-200",
       },
       amber: {
         gradient: "from-amber-500 to-amber-600",
         bg: "bg-amber-500",
-        text: "text-amber-500",
+        text: "text-amber-600 dark:text-amber-500",
         border: "border-amber-500",
-        shadow: "shadow-amber-500/20",
-        hoverShadow: "hover:shadow-amber-500/30",
-        glow: "shadow-amber-500/10",
+        shadow: "shadow-amber-500/20 dark:shadow-amber-500/20",
+        hoverShadow: "hover:shadow-amber-500/30 dark:hover:shadow-amber-500/30",
+        glow: "shadow-amber-500/10 dark:shadow-amber-500/10",
+        lightBg: "bg-amber-50",
+        lightBorder: "border-amber-200",
       },
       orange: {
         gradient: "from-orange-500 to-orange-600",
         bg: "bg-orange-500",
-        text: "text-orange-500",
+        text: "text-orange-600 dark:text-orange-500",
         border: "border-orange-500",
-        shadow: "shadow-orange-500/20",
-        hoverShadow: "hover:shadow-orange-500/30",
-        glow: "shadow-orange-500/10",
+        shadow: "shadow-orange-500/20 dark:shadow-orange-500/20",
+        hoverShadow:
+          "hover:shadow-orange-500/30 dark:hover:shadow-orange-500/30",
+        glow: "shadow-orange-500/10 dark:shadow-orange-500/10",
+        lightBg: "bg-orange-50",
+        lightBorder: "border-orange-200",
       },
     };
-    return colorMap[color as keyof typeof colorMap] || colorMap.emerald;
+    return (
+      lightModeColors[color as keyof typeof lightModeColors] ||
+      lightModeColors.emerald
+    );
   }, []);
 
   // Handle scroll to contact
@@ -434,14 +489,15 @@ export const ProjectsSection = () => {
       <section
         ref={sectionRef}
         id="projects"
-        className="section-padding relative overflow-hidden bg-gray-950"
+        className="section-padding relative overflow-hidden bg-white dark:bg-gray-950"
         aria-labelledby="projects-heading"
       >
-        {/* Unique Background */}
-        <UniqueProjectBackground />
+        {/* Adaptive Backgrounds */}
+        <LightModeBackground />
+        <DarkModeBackground />
 
         <div className="container-wide relative z-10">
-          {/* Section header with enhanced shadows */}
+          {/* Section header with adaptive colors */}
           <div
             className={cn(
               "text-center mb-16 md:mb-20 transition-all duration-700 ease-out",
@@ -452,15 +508,15 @@ export const ProjectsSection = () => {
           >
             <MagneticElement strength={0.1}>
               <div
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 border border-emerald-500/20 mb-6 shadow-xl shadow-emerald-500/10 backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 dark:from-emerald-500/10 dark:to-amber-500/10 border border-emerald-200 dark:border-emerald-500/20 mb-6 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10 backdrop-blur-sm"
                 role="note"
                 aria-label="Portfolio Showcase Section"
               >
                 <Code2
-                  className="w-4 h-4 text-emerald-500"
+                  className="w-4 h-4 text-emerald-600 dark:text-emerald-500"
                   aria-hidden="true"
                 />
-                <span className="text-sm font-medium text-emerald-500">
+                <span className="text-sm font-medium text-emerald-600 dark:text-emerald-500">
                   Portfolio Showcase
                 </span>
               </div>
@@ -468,23 +524,23 @@ export const ProjectsSection = () => {
 
             <h2
               id="projects-heading"
-              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.5)]"
+              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6"
             >
               Featured{" "}
-              <span className="bg-gradient-to-r from-emerald-500 to-amber-500 bg-clip-text text-transparent relative inline-block [text-shadow:0_2px_8px_rgba(16,185,129,0.3)]">
+              <span className="bg-gradient-to-r from-emerald-600 to-amber-600 dark:from-emerald-500 dark:to-amber-500 bg-clip-text text-transparent relative inline-block">
                 Projects
                 <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-amber-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/30" />
               </span>
             </h2>
 
-            <p className="text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed [text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
               A collection of my recent work, showcasing expertise across
               different domains and technologies. Each project represents unique
               challenges and innovative solutions.
             </p>
           </div>
 
-          {/* Filters and controls with shadows */}
+          {/* Filters and controls - Light mode optimized */}
           <div
             className={cn(
               "mb-12 transition-all duration-700 ease-out delay-100",
@@ -493,12 +549,12 @@ export const ProjectsSection = () => {
                 : "opacity-0 translate-y-10"
             )}
           >
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-white/10 backdrop-blur-xl shadow-2xl shadow-black/20">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-black/20">
               {/* Search */}
               <div className="relative flex-1 w-full">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2">
                   <Search
-                    className="w-5 h-5 text-gray-400"
+                    className="w-5 h-5 text-gray-400 dark:text-gray-400"
                     aria-hidden="true"
                   />
                 </div>
@@ -507,7 +563,7 @@ export const ProjectsSection = () => {
                   placeholder="Search projects or technologies..."
                   defaultValue={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-900/60 border border-gray-700/50 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-white placeholder:text-gray-400 transition-all duration-300 shadow-lg shadow-black/10"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-400 transition-all duration-300 shadow-inner"
                   aria-label="Search projects"
                 />
               </div>
@@ -537,7 +593,7 @@ export const ProjectsSection = () => {
 
               {/* View controls */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-900/60 backdrop-blur-sm shadow-inner shadow-black/10">
+                <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-100 dark:bg-gray-900/60 backdrop-blur-sm">
                   <IconButton
                     onClick={() => setViewMode("grid")}
                     icon={<Grid className="w-5 h-5" aria-hidden="true" />}
@@ -572,7 +628,7 @@ export const ProjectsSection = () => {
             </div>
           </div>
 
-          {/* Projects grid/list with enhanced shadows */}
+          {/* Projects grid/list - Light mode optimized */}
           <div
             className={cn(
               viewMode === "grid"
@@ -593,11 +649,11 @@ export const ProjectsSection = () => {
                 <MagneticElement key={project.id} strength={0.05}>
                   <article
                     className={cn(
-                      "group relative overflow-hidden rounded-3xl border border-gray-800 bg-gradient-to-br from-gray-900/80 to-gray-950/80 backdrop-blur-sm",
-                      "transition-all duration-500 hover:scale-[1.02] hover:border-emerald-500/30",
+                      "group relative overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/80 backdrop-blur-sm",
+                      "transition-all duration-500 hover:scale-[1.02] hover:border-emerald-500 dark:hover:border-emerald-500",
                       "cursor-pointer transform-gpu",
                       viewMode === "list" && "flex items-stretch",
-                      "shadow-2xl shadow-black/20 hover:shadow-3xl hover:shadow-emerald-500/10"
+                      "shadow-xl shadow-gray-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/10"
                     )}
                     style={{
                       transitionDelay: getCardAnimationDelay(index),
@@ -610,7 +666,7 @@ export const ProjectsSection = () => {
                     tabIndex={0}
                     aria-label={`View details for ${project.title}`}
                   >
-                    {/* Featured badge with glow */}
+                    {/* Featured badge */}
                     {project.featured && (
                       <div className="absolute top-4 left-4 z-20">
                         <div
@@ -632,7 +688,7 @@ export const ProjectsSection = () => {
                         viewMode === "list" && "w-64 flex-shrink-0"
                       )}
                     >
-                      {/* Gradient overlay */}
+                      {/* Gradient overlay - lighter for light mode */}
                       <div
                         className={cn(
                           "absolute inset-0 transition-opacity duration-500",
@@ -641,19 +697,19 @@ export const ProjectsSection = () => {
                         style={{
                           background:
                             project.color === "emerald"
-                              ? "linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(245, 158, 11, 0.2))"
+                              ? "linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(245, 158, 11, 0.1))"
                               : project.color === "amber"
-                              ? "linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(251, 146, 60, 0.2))"
-                              : "linear-gradient(135deg, rgba(251, 146, 60, 0.4), rgba(16, 185, 129, 0.2))",
+                              ? "linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 146, 60, 0.1))"
+                              : "linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(16, 185, 129, 0.1))",
                         }}
                         aria-hidden="true"
                       />
 
-                      {/* Tech icon with shadow */}
+                      {/* Tech icon */}
                       <div className="absolute top-4 right-4 z-10">
-                        <div className="w-10 h-10 rounded-xl bg-gray-900/80 backdrop-blur-sm flex items-center justify-center shadow-lg shadow-black/20 border border-gray-700/50">
+                        <div className="w-10 h-10 rounded-xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm flex items-center justify-center shadow-lg border border-gray-300 dark:border-gray-700">
                           <TechIcon
-                            className="w-5 h-5 text-white"
+                            className="w-5 h-5 text-gray-700 dark:text-white"
                             aria-hidden="true"
                           />
                         </div>
@@ -661,12 +717,12 @@ export const ProjectsSection = () => {
 
                       {/* Year badge */}
                       <div className="absolute bottom-4 left-4 z-10">
-                        <div className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-sm text-white text-sm shadow-lg shadow-black/20">
+                        <div className="px-3 py-1 rounded-full bg-white/80 dark:bg-black/70 backdrop-blur-sm text-gray-900 dark:text-white text-sm shadow-lg">
                           {project.year}
                         </div>
                       </div>
 
-                      {/* Hover overlay with glow */}
+                      {/* Hover overlay */}
                       <div
                         className={cn(
                           "absolute inset-0 flex items-center justify-center transition-all duration-500",
@@ -684,9 +740,9 @@ export const ProjectsSection = () => {
                         </div>
                       </div>
 
-                      {/* Animated border glow */}
+                      {/* Animated border */}
                       <div
-                        className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-500/50 rounded-3xl transition-all duration-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
+                        className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-500 rounded-3xl transition-all duration-500"
                         aria-hidden="true"
                       />
                     </div>
@@ -695,48 +751,47 @@ export const ProjectsSection = () => {
                     <div className={cn("p-6", viewMode === "list" && "flex-1")}>
                       <div className="mb-4">
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-heading text-xl font-bold text-white group-hover:text-emerald-400 transition-colors duration-300 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
+                          <h3 className="font-heading text-xl font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
                             {project.title}
                           </h3>
                           <ArrowUpRight
                             className={cn(
                               "w-5 h-5 text-gray-400 transition-all duration-300",
                               isHovered &&
-                                "text-emerald-400 translate-x-1 -translate-y-1"
+                                "text-emerald-500 translate-x-1 -translate-y-1"
                             )}
                             aria-hidden="true"
                           />
                         </div>
-                        <p className="text-gray-300 text-sm line-clamp-2 [text-shadow:0_1px_1px_rgba(0,0,0,0.3)]">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
                           {project.description}
                         </p>
                       </div>
 
-                      {/* Technologies with subtle shadows */}
+                      {/* Technologies */}
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.technologies.slice(0, 3).map((tech) => (
                           <span
                             key={tech}
-                            className="px-3 py-1 text-xs rounded-full bg-gray-800/50 text-gray-300 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all duration-300 shadow-sm shadow-black/10"
+                            className="px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all duration-300"
                           >
                             {tech}
                           </span>
                         ))}
                         {project.technologies.length > 3 && (
-                          <span className="px-3 py-1 text-xs rounded-full bg-gray-800/50 text-gray-300 shadow-sm shadow-black/10">
+                          <span className="px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                             +{project.technologies.length - 3}
                           </span>
                         )}
                       </div>
 
-                      {/* Categories with gradient */}
+                      {/* Categories */}
                       <div className="flex flex-wrap gap-2 mb-6">
                         {project.categories.map((category) => (
                           <span
                             key={category}
                             className={cn(
-                              "px-3 py-1 text-xs rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 text-emerald-300 border border-emerald-500/20",
-                              "shadow-sm shadow-emerald-500/10"
+                              "px-3 py-1 text-xs rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 dark:from-emerald-500/10 dark:to-amber-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/20"
                             )}
                           >
                             {category}
@@ -744,17 +799,17 @@ export const ProjectsSection = () => {
                         ))}
                       </div>
 
-                      {/* Stats with glass effect */}
+                      {/* Stats */}
                       <div className="grid grid-cols-2 gap-3">
                         {project.stats?.slice(0, 2).map((stat) => (
                           <div
                             key={stat.label}
-                            className="p-2 rounded-xl bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 shadow-inner shadow-black/10"
+                            className="p-2 rounded-xl bg-gray-50 dark:bg-gray-800/30 backdrop-blur-sm border border-gray-200 dark:border-gray-700"
                           >
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
                               {stat.label}
                             </div>
-                            <div className="text-sm font-semibold text-white">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
                               {stat.value}
                             </div>
                           </div>
@@ -762,7 +817,7 @@ export const ProjectsSection = () => {
                       </div>
 
                       {/* Action buttons */}
-                      <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-800">
+                      <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-800">
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -772,7 +827,7 @@ export const ProjectsSection = () => {
                           size="sm"
                           icon={<Eye className="w-4 h-4" aria-hidden="true" />}
                           iconPosition="left"
-                          className="flex-1 shadow-lg shadow-black/10 hover:shadow-emerald-500/20"
+                          className="flex-1 shadow-sm hover:shadow-emerald-500/20"
                         >
                           View Details
                         </Button>
@@ -816,17 +871,9 @@ export const ProjectsSection = () => {
                       </div>
                     </div>
 
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
-                      <div
-                        className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-orange-500/10 blur-3xl"
-                        aria-hidden="true"
-                      />
-                    </div>
-
-                    {/* Subtle inner shadow */}
+                    {/* Subtle inner shadow for light mode */}
                     <div
-                      className="absolute inset-0 rounded-3xl shadow-inner shadow-black/20"
+                      className="absolute inset-0 rounded-3xl shadow-inner shadow-gray-100 dark:shadow-black/20"
                       aria-hidden="true"
                     />
                   </article>
@@ -845,16 +892,16 @@ export const ProjectsSection = () => {
                   : "opacity-0 translate-y-10"
               )}
             >
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <Search
                   className="w-10 h-10 text-emerald-500"
                   aria-hidden="true"
                 />
               </div>
-              <h3 className="font-heading text-2xl font-bold text-white mb-2 [text-shadow:0_2px_4px_rgba(0,0,0,0.3)]">
+              <h3 className="font-heading text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 No projects found
               </h3>
-              <p className="text-gray-400 max-w-md mx-auto [text-shadow:0_1px_2px_rgba(0,0,0,0.2)]">
+              <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
                 Try adjusting your search or filter to find what you're looking
                 for.
               </p>
@@ -864,14 +911,14 @@ export const ProjectsSection = () => {
                   setSelectedCategory("All");
                 }}
                 variant="primary"
-                className="mt-6 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+                className="mt-6 shadow-lg shadow-emerald-500/20"
               >
                 Clear filters
               </Button>
             </div>
           )}
 
-          {/* Stats summary with glass effect */}
+          {/* Stats summary */}
           <div
             className={cn(
               "mt-16 grid grid-cols-2 md:grid-cols-4 gap-8",
@@ -891,21 +938,21 @@ export const ProjectsSection = () => {
               return (
                 <MagneticElement key={stat.label} strength={0.1}>
                   <div
-                    className="p-6 rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-gray-800 hover:border-emerald-500/30 transition-all duration-300 backdrop-blur-sm shadow-2xl shadow-black/20 hover:shadow-3xl hover:shadow-emerald-500/10"
+                    className="p-6 rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 hover:border-emerald-500 transition-all duration-300 shadow-xl shadow-gray-200/50 dark:shadow-black/20"
                     style={{ transitionDelay: `${index * 100 + 300}ms` }}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center shadow-lg">
                         <Icon
-                          className="w-6 h-6 text-emerald-400"
+                          className="w-6 h-6 text-emerald-500"
                           aria-hidden="true"
                         />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
                           {stat.value}
                         </div>
-                        <div className="text-sm text-gray-400">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
                           {stat.label}
                         </div>
                       </div>
@@ -916,7 +963,7 @@ export const ProjectsSection = () => {
             })}
           </div>
 
-          {/* Call to action with glow */}
+          {/* Call to action */}
           <div
             className={cn(
               "mt-20 text-center",
@@ -926,7 +973,7 @@ export const ProjectsSection = () => {
                 : "opacity-0 translate-y-10"
             )}
           >
-            <div className="inline-flex flex-col items-center gap-6 p-8 rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-gray-800 backdrop-blur-xl shadow-3xl shadow-black/30 relative overflow-hidden">
+            <div className="inline-flex flex-col items-center gap-6 p-8 rounded-3xl bg-gradient-to-br from-emerald-50/80 to-amber-50/80 dark:from-gray-900/80 dark:to-gray-950/80 backdrop-blur-xl border border-gray-200 dark:border-gray-800 shadow-2xl shadow-emerald-500/10 dark:shadow-black/30 relative overflow-hidden">
               {/* Background glow */}
               <div
                 className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-amber-500/5 blur-3xl"
@@ -938,10 +985,10 @@ export const ProjectsSection = () => {
               </div>
 
               <div className="z-10">
-                <h3 className="font-heading text-2xl font-bold text-white mb-2 [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">
+                <h3 className="font-heading text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   Have a Project in Mind?
                 </h3>
-                <p className="text-gray-300 max-w-2xl mx-auto mb-6 [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
+                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
                   Let's collaborate to bring your ideas to life. I'm always
                   excited to work on challenging projects and deliver
                   exceptional results.
@@ -960,7 +1007,7 @@ export const ProjectsSection = () => {
                     />
                   }
                   iconPosition="left"
-                  className="group bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-600 hover:to-amber-600 shadow-2xl shadow-emerald-500/30 hover:shadow-3xl hover:shadow-emerald-500/40"
+                  className="group bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-600 hover:to-amber-600 shadow-2xl shadow-emerald-500/30"
                 >
                   Start a Project
                   <div
@@ -980,7 +1027,7 @@ export const ProjectsSection = () => {
                     />
                   }
                   iconPosition="left"
-                  className="group shadow-lg shadow-black/10 hover:shadow-emerald-500/20"
+                  className="group shadow-lg hover:shadow-emerald-500/20"
                 >
                   View Case Studies
                 </Button>
@@ -989,21 +1036,15 @@ export const ProjectsSection = () => {
           </div>
         </div>
 
-        {/* Floating tech icons with glow */}
+        {/* Floating icons - adaptive colors */}
         <div className="absolute top-20 left-20 opacity-10">
-          <Globe
-            className="w-40 h-40 text-emerald-500 drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]"
-            aria-hidden="true"
-          />
+          <Globe className="w-40 h-40 text-emerald-500" aria-hidden="true" />
         </div>
         <div className="absolute bottom-20 right-20 opacity-10">
-          <Cpu
-            className="w-40 h-40 text-amber-500 drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]"
-            aria-hidden="true"
-          />
+          <Cpu className="w-40 h-40 text-amber-500" aria-hidden="true" />
         </div>
 
-        {/* Add custom animations to globals */}
+        {/* Add custom animations */}
         <style jsx global>{`
           @keyframes float {
             0%,
@@ -1018,17 +1059,22 @@ export const ProjectsSection = () => {
             }
           }
 
-          @keyframes scan {
-            0% {
-              transform: translateY(-100%);
-            }
+          @keyframes float-light {
+            0%,
             100% {
-              transform: translateY(100%);
+              transform: translateY(0) rotate(0deg);
+            }
+            50% {
+              transform: translateY(-10px) rotate(180deg);
             }
           }
 
           .animate-float {
             animation: float ease-in-out infinite;
+          }
+
+          .animate-float-light {
+            animation: float-light ease-in-out infinite;
           }
 
           .animate-pulse-slow {
@@ -1045,10 +1091,6 @@ export const ProjectsSection = () => {
               opacity: 0.8;
               transform: scale(0.98);
             }
-          }
-
-          .shadow-3xl {
-            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.5);
           }
 
           .transform-gpu {
