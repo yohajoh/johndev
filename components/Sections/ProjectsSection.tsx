@@ -35,7 +35,82 @@ import { PROJECT_CATEGORIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { ProjectModal } from "../UI/ProjectModal";
 
-// Mock projects data - you would replace this with actual data
+// Unique Background Component
+const UniqueProjectBackground = () => {
+  return (
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      aria-hidden="true"
+    >
+      {/* Base gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-950" />
+
+      {/* Animated geometric grid */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(90deg, transparent 50%, rgba(16, 185, 129, 0.1) 100%),
+            linear-gradient(0deg, transparent 50%, rgba(245, 158, 11, 0.1) 100%),
+            radial-gradient(circle at 30% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 70% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 50%)
+          `,
+          backgroundSize: "100px 100px, 100px 100px, 400px 400px, 400px 400px",
+        }}
+      />
+
+      {/* Floating tech orbs */}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={`orb-${i}`}
+          className="absolute rounded-full animate-float"
+          style={{
+            width: `${40 + i * 10}px`,
+            height: `${40 + i * 10}px`,
+            left: `${10 + i * 15}%`,
+            top: `${20 + ((i * 12) % 80)}%`,
+            background: `radial-gradient(circle, rgba(${16 + i * 8}, ${
+              185 + i * 3
+            }, ${129 + i * 4}, 0.1), transparent 70%)`,
+            animationDuration: `${15 + i * 5}s`,
+            animationDelay: `${i * 1.5}s`,
+            filter: "blur(12px)",
+          }}
+        />
+      ))}
+
+      {/* Hexagon grid pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='hexagons' width='100' height='100' patternUnits='userSpaceOnUse' patternTransform='scale(0.5)'%3E%3Cpath d='M50 0L93.3 25V75L50 100L6.7 75V25L50 0Z' fill='none' stroke='%2310b981' stroke-width='1' opacity='0.1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23hexagons)'/%3E%3C/svg%3E")`,
+          backgroundSize: "200px 200px",
+        }}
+      />
+
+      {/* Animated scan lines */}
+      <div className="absolute inset-0">
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(16, 185, 129, 0.1) 3px, rgba(16, 185, 129, 0.1) 4px)`,
+            animation: "scan 15s linear infinite",
+          }}
+        />
+      </div>
+
+      {/* Corner accents */}
+      <div className="absolute top-0 left-0 w-96 h-96">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent blur-3xl" />
+      </div>
+      <div className="absolute bottom-0 right-0 w-96 h-96">
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-amber-500/10 via-transparent to-transparent blur-3xl" />
+      </div>
+    </div>
+  );
+};
+
+// Mock projects data
 const PROJECTS_DATA = [
   {
     id: "project-1",
@@ -64,7 +139,7 @@ const PROJECTS_DATA = [
       { label: "Revenue", value: "$2M+" },
       { label: "Uptime", value: "99.9%" },
     ],
-    color: "primary",
+    color: "emerald",
   },
   {
     id: "project-2",
@@ -85,7 +160,7 @@ const PROJECTS_DATA = [
       { label: "Content Generated", value: "1M+" },
       { label: "Accuracy", value: "95%" },
     ],
-    color: "secondary",
+    color: "amber",
   },
   {
     id: "project-3",
@@ -106,7 +181,7 @@ const PROJECTS_DATA = [
       { label: "Response Time", value: "<100ms" },
       { label: "Clients", value: "50+" },
     ],
-    color: "accent",
+    color: "orange",
   },
   {
     id: "project-4",
@@ -134,7 +209,7 @@ const PROJECTS_DATA = [
       { label: "Rating", value: "4.8/5" },
       { label: "Active Users", value: "20K+" },
     ],
-    color: "primary",
+    color: "emerald",
   },
   {
     id: "project-5",
@@ -162,7 +237,7 @@ const PROJECTS_DATA = [
       { label: "Uptime", value: "99.99%" },
       { label: "Energy Saved", value: "30%" },
     ],
-    color: "secondary",
+    color: "amber",
   },
   {
     id: "project-6",
@@ -190,7 +265,7 @@ const PROJECTS_DATA = [
       { label: "Components", value: "50+" },
       { label: "Contributors", value: "100+" },
     ],
-    color: "accent",
+    color: "orange",
   },
 ];
 
@@ -303,6 +378,40 @@ export const ProjectsSection = () => {
     return iconMap[tech] || Code2;
   }, []);
 
+  // Get color classes based on project color
+  const getColorClasses = useCallback((color: string) => {
+    const colorMap = {
+      emerald: {
+        gradient: "from-emerald-500 to-emerald-600",
+        bg: "bg-emerald-500",
+        text: "text-emerald-500",
+        border: "border-emerald-500",
+        shadow: "shadow-emerald-500/20",
+        hoverShadow: "hover:shadow-emerald-500/30",
+        glow: "shadow-emerald-500/10",
+      },
+      amber: {
+        gradient: "from-amber-500 to-amber-600",
+        bg: "bg-amber-500",
+        text: "text-amber-500",
+        border: "border-amber-500",
+        shadow: "shadow-amber-500/20",
+        hoverShadow: "hover:shadow-amber-500/30",
+        glow: "shadow-amber-500/10",
+      },
+      orange: {
+        gradient: "from-orange-500 to-orange-600",
+        bg: "bg-orange-500",
+        text: "text-orange-500",
+        border: "border-orange-500",
+        shadow: "shadow-orange-500/20",
+        hoverShadow: "hover:shadow-orange-500/30",
+        glow: "shadow-orange-500/10",
+      },
+    };
+    return colorMap[color as keyof typeof colorMap] || colorMap.emerald;
+  }, []);
+
   // Handle scroll to contact
   const scrollToContact = useCallback(() => {
     const contactSection = document.getElementById("contact");
@@ -325,52 +434,33 @@ export const ProjectsSection = () => {
       <section
         ref={sectionRef}
         id="projects"
-        className="section-padding relative overflow-hidden bg-gradient-to-b from-background via-background/95 to-background"
+        className="section-padding relative overflow-hidden bg-gray-950"
         aria-labelledby="projects-heading"
       >
-        {/* Background effects */}
-        <div className="absolute inset-0">
-          <div
-            className="absolute inset-0 opacity-10 noise-texture"
-            aria-hidden="true"
-          />
-          <div className="absolute top-1/4 -right-40 w-96 h-96 bg-gradient-to-r from-primary/5 to-accent/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 -left-40 w-96 h-96 bg-gradient-to-r from-secondary/5 to-primary/5 rounded-full blur-3xl" />
-        </div>
-
-        {/* Optimized particles with reduced count */}
-        <div
-          className="absolute inset-0 overflow-hidden pointer-events-none"
-          aria-hidden="true"
-        >
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 rounded-full bg-primary/20"
-              style={{
-                left: `${10 + i * 8}%`,
-                top: `${Math.sin(performance.now() / 1000 + i) * 20 + 50}%`,
-                animation: `float ${10 + i * 2}s ease-in-out infinite`,
-                animationDelay: `${i * 0.5}s`,
-              }}
-            />
-          ))}
-        </div>
+        {/* Unique Background */}
+        <UniqueProjectBackground />
 
         <div className="container-wide relative z-10">
-          {/* Section header */}
+          {/* Section header with enhanced shadows */}
           <div
             className={cn(
-              "text-center mb-12 transition-all duration-1000 ease-out",
+              "text-center mb-16 md:mb-20 transition-all duration-700 ease-out",
               isVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
             )}
           >
             <MagneticElement strength={0.1}>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 mb-6">
-                <Code2 className="w-4 h-4 text-primary" aria-hidden="true" />
-                <span className="text-sm font-medium text-primary">
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 border border-emerald-500/20 mb-6 shadow-xl shadow-emerald-500/10 backdrop-blur-sm"
+                role="note"
+                aria-label="Portfolio Showcase Section"
+              >
+                <Code2
+                  className="w-4 h-4 text-emerald-500"
+                  aria-hidden="true"
+                />
+                <span className="text-sm font-medium text-emerald-500">
                   Portfolio Showcase
                 </span>
               </div>
@@ -378,37 +468,37 @@ export const ProjectsSection = () => {
 
             <h2
               id="projects-heading"
-              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
+              className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.5)]"
             >
               Featured{" "}
-              <span className="text-gradient-primary relative">
+              <span className="bg-gradient-to-r from-emerald-500 to-amber-500 bg-clip-text text-transparent relative inline-block [text-shadow:0_2px_8px_rgba(16,185,129,0.3)]">
                 Projects
-                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse" />
+                <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-amber-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/30" />
               </span>
             </h2>
 
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed [text-shadow:0_1px_3px_rgba(0,0,0,0.3)]">
               A collection of my recent work, showcasing expertise across
               different domains and technologies. Each project represents unique
               challenges and innovative solutions.
             </p>
           </div>
 
-          {/* Filters and controls */}
+          {/* Filters and controls with shadows */}
           <div
             className={cn(
-              "mb-12 transition-all duration-1000 ease-out delay-100",
+              "mb-12 transition-all duration-700 ease-out delay-100",
               isVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
             )}
           >
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-3xl bg-gradient-to-br from-card/80 to-background/80 border border-white/10 backdrop-blur-sm">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 p-6 rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-white/10 backdrop-blur-xl shadow-2xl shadow-black/20">
               {/* Search */}
               <div className="relative flex-1 w-full">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2">
                   <Search
-                    className="w-5 h-5 text-muted-foreground"
+                    className="w-5 h-5 text-gray-400"
                     aria-hidden="true"
                   />
                 </div>
@@ -417,13 +507,13 @@ export const ProjectsSection = () => {
                   placeholder="Search projects or technologies..."
                   defaultValue={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground placeholder:text-muted-foreground transition-all duration-300"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-900/60 border border-gray-700/50 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-white placeholder:text-gray-400 transition-all duration-300 shadow-lg shadow-black/10"
                   aria-label="Search projects"
                 />
               </div>
 
               {/* Category filters */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {PROJECT_CATEGORIES.map((category) => (
                   <MagneticElement key={category} strength={0.1}>
                     <Button
@@ -432,7 +522,11 @@ export const ProjectsSection = () => {
                         selectedCategory === category ? "primary" : "outline"
                       }
                       size="sm"
-                      className="font-medium"
+                      className={cn(
+                        "font-medium transition-all duration-300",
+                        selectedCategory === category &&
+                          "shadow-lg shadow-emerald-500/20"
+                      )}
                       aria-pressed={selectedCategory === category}
                     >
                       {category}
@@ -443,7 +537,7 @@ export const ProjectsSection = () => {
 
               {/* View controls */}
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 p-1 rounded-xl bg-white/5">
+                <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-900/60 backdrop-blur-sm shadow-inner shadow-black/10">
                   <IconButton
                     onClick={() => setViewMode("grid")}
                     icon={<Grid className="w-5 h-5" aria-hidden="true" />}
@@ -478,13 +572,13 @@ export const ProjectsSection = () => {
             </div>
           </div>
 
-          {/* Projects grid/list */}
+          {/* Projects grid/list with enhanced shadows */}
           <div
             className={cn(
               viewMode === "grid"
-                ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-                : "space-y-6",
-              "transition-all duration-1000 ease-out delay-200",
+                ? "grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                : "space-y-8",
+              "transition-all duration-700 ease-out delay-200",
               isVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
@@ -493,17 +587,22 @@ export const ProjectsSection = () => {
             {filteredProjects.map((project, index) => {
               const TechIcon = getTechIcon(project.technologies[0]);
               const isHovered = hoveredProject === project.id;
+              const colorClasses = getColorClasses(project.color);
 
               return (
                 <MagneticElement key={project.id} strength={0.05}>
                   <article
                     className={cn(
-                      "group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-card/80 to-background/80 backdrop-blur-sm",
-                      "transition-all duration-500 hover:scale-[1.02] hover:border-primary/30",
-                      "reveal-up cursor-pointer",
-                      viewMode === "list" && "flex items-stretch"
+                      "group relative overflow-hidden rounded-3xl border border-gray-800 bg-gradient-to-br from-gray-900/80 to-gray-950/80 backdrop-blur-sm",
+                      "transition-all duration-500 hover:scale-[1.02] hover:border-emerald-500/30",
+                      "cursor-pointer transform-gpu",
+                      viewMode === "list" && "flex items-stretch",
+                      "shadow-2xl shadow-black/20 hover:shadow-3xl hover:shadow-emerald-500/10"
                     )}
-                    style={{ transitionDelay: getCardAnimationDelay(index) }}
+                    style={{
+                      transitionDelay: getCardAnimationDelay(index),
+                      willChange: "transform, box-shadow",
+                    }}
                     onMouseEnter={() => setHoveredProject(project.id)}
                     onMouseLeave={() => setHoveredProject(null)}
                     onClick={() => setSelectedProject(project.id)}
@@ -511,10 +610,15 @@ export const ProjectsSection = () => {
                     tabIndex={0}
                     aria-label={`View details for ${project.title}`}
                   >
-                    {/* Featured badge */}
+                    {/* Featured badge with glow */}
                     {project.featured && (
-                      <div className="absolute top-4 left-4 z-10">
-                        <div className="px-3 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-xs font-medium flex items-center gap-1">
+                      <div className="absolute top-4 left-4 z-20">
+                        <div
+                          className={cn(
+                            "px-3 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-amber-500 text-white text-xs font-medium flex items-center gap-1 shadow-lg shadow-emerald-500/30",
+                            "animate-pulse-slow"
+                          )}
+                        >
                           <Star className="w-3 h-3" aria-hidden="true" />
                           Featured
                         </div>
@@ -528,7 +632,7 @@ export const ProjectsSection = () => {
                         viewMode === "list" && "w-64 flex-shrink-0"
                       )}
                     >
-                      {/* Color overlay */}
+                      {/* Gradient overlay */}
                       <div
                         className={cn(
                           "absolute inset-0 transition-opacity duration-500",
@@ -536,18 +640,18 @@ export const ProjectsSection = () => {
                         )}
                         style={{
                           background:
-                            project.color === "primary"
-                              ? "linear-gradient(135deg, rgba(22, 163, 74, 0.3), rgba(245, 158, 11, 0.2))"
-                              : project.color === "secondary"
-                              ? "linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(139, 92, 246, 0.2))"
-                              : "linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(22, 163, 74, 0.2))",
+                            project.color === "emerald"
+                              ? "linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(245, 158, 11, 0.2))"
+                              : project.color === "amber"
+                              ? "linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(251, 146, 60, 0.2))"
+                              : "linear-gradient(135deg, rgba(251, 146, 60, 0.4), rgba(16, 185, 129, 0.2))",
                         }}
                         aria-hidden="true"
                       />
 
-                      {/* Tech icon */}
+                      {/* Tech icon with shadow */}
                       <div className="absolute top-4 right-4 z-10">
-                        <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-gray-900/80 backdrop-blur-sm flex items-center justify-center shadow-lg shadow-black/20 border border-gray-700/50">
                           <TechIcon
                             className="w-5 h-5 text-white"
                             aria-hidden="true"
@@ -555,22 +659,24 @@ export const ProjectsSection = () => {
                         </div>
                       </div>
 
-                      {/* Year */}
+                      {/* Year badge */}
                       <div className="absolute bottom-4 left-4 z-10">
-                        <div className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-sm">
+                        <div className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-sm text-white text-sm shadow-lg shadow-black/20">
                           {project.year}
                         </div>
                       </div>
 
-                      {/* Hover overlay */}
+                      {/* Hover overlay with glow */}
                       <div
                         className={cn(
-                          "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
-                          isHovered ? "opacity-100" : "opacity-0"
+                          "absolute inset-0 flex items-center justify-center transition-all duration-500",
+                          isHovered
+                            ? "opacity-100 scale-100"
+                            : "opacity-0 scale-90"
                         )}
                         aria-hidden="true"
                       >
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-500 flex items-center justify-center shadow-2xl shadow-emerald-500/40 animate-pulse-slow">
                           <Maximize2
                             className="w-8 h-8 text-white"
                             aria-hidden="true"
@@ -578,9 +684,9 @@ export const ProjectsSection = () => {
                         </div>
                       </div>
 
-                      {/* Animated border */}
+                      {/* Animated border glow */}
                       <div
-                        className="absolute inset-0 border-2 border-transparent group-hover:border-primary/50 rounded-3xl transition-all duration-500"
+                        className="absolute inset-0 border-2 border-transparent group-hover:border-emerald-500/50 rounded-3xl transition-all duration-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
                         aria-hidden="true"
                       />
                     </div>
@@ -589,63 +695,66 @@ export const ProjectsSection = () => {
                     <div className={cn("p-6", viewMode === "list" && "flex-1")}>
                       <div className="mb-4">
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300">
+                          <h3 className="font-heading text-xl font-bold text-white group-hover:text-emerald-400 transition-colors duration-300 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
                             {project.title}
                           </h3>
                           <ArrowUpRight
                             className={cn(
-                              "w-5 h-5 text-muted-foreground transition-all duration-300",
+                              "w-5 h-5 text-gray-400 transition-all duration-300",
                               isHovered &&
-                                "text-primary translate-x-1 -translate-y-1"
+                                "text-emerald-400 translate-x-1 -translate-y-1"
                             )}
                             aria-hidden="true"
                           />
                         </div>
-                        <p className="text-muted-foreground text-sm line-clamp-2">
+                        <p className="text-gray-300 text-sm line-clamp-2 [text-shadow:0_1px_1px_rgba(0,0,0,0.3)]">
                           {project.description}
                         </p>
                       </div>
 
-                      {/* Technologies */}
+                      {/* Technologies with subtle shadows */}
                       <div className="flex flex-wrap gap-2 mb-4">
                         {project.technologies.slice(0, 3).map((tech) => (
                           <span
                             key={tech}
-                            className="px-3 py-1 text-xs rounded-full bg-white/5 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300"
+                            className="px-3 py-1 text-xs rounded-full bg-gray-800/50 text-gray-300 hover:bg-emerald-500/20 hover:text-emerald-300 transition-all duration-300 shadow-sm shadow-black/10"
                           >
                             {tech}
                           </span>
                         ))}
                         {project.technologies.length > 3 && (
-                          <span className="px-3 py-1 text-xs rounded-full bg-white/5 text-muted-foreground">
+                          <span className="px-3 py-1 text-xs rounded-full bg-gray-800/50 text-gray-300 shadow-sm shadow-black/10">
                             +{project.technologies.length - 3}
                           </span>
                         )}
                       </div>
 
-                      {/* Categories */}
+                      {/* Categories with gradient */}
                       <div className="flex flex-wrap gap-2 mb-6">
                         {project.categories.map((category) => (
                           <span
                             key={category}
-                            className="px-3 py-1 text-xs rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 text-primary border border-primary/20"
+                            className={cn(
+                              "px-3 py-1 text-xs rounded-full bg-gradient-to-r from-emerald-500/10 to-amber-500/10 text-emerald-300 border border-emerald-500/20",
+                              "shadow-sm shadow-emerald-500/10"
+                            )}
                           >
                             {category}
                           </span>
                         ))}
                       </div>
 
-                      {/* Stats */}
+                      {/* Stats with glass effect */}
                       <div className="grid grid-cols-2 gap-3">
                         {project.stats?.slice(0, 2).map((stat) => (
                           <div
                             key={stat.label}
-                            className="p-2 rounded-xl bg-white/5"
+                            className="p-2 rounded-xl bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 shadow-inner shadow-black/10"
                           >
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs text-gray-400">
                               {stat.label}
                             </div>
-                            <div className="text-sm font-semibold text-foreground">
+                            <div className="text-sm font-semibold text-white">
                               {stat.value}
                             </div>
                           </div>
@@ -653,7 +762,7 @@ export const ProjectsSection = () => {
                       </div>
 
                       {/* Action buttons */}
-                      <div className="flex items-center gap-3 mt-6 pt-6 border-t border-white/10">
+                      <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-800">
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -663,7 +772,7 @@ export const ProjectsSection = () => {
                           size="sm"
                           icon={<Eye className="w-4 h-4" aria-hidden="true" />}
                           iconPosition="left"
-                          className="flex-1"
+                          className="flex-1 shadow-lg shadow-black/10 hover:shadow-emerald-500/20"
                         >
                           View Details
                         </Button>
@@ -710,10 +819,16 @@ export const ProjectsSection = () => {
                     {/* Glow effect */}
                     <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                       <div
-                        className="absolute inset-0 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 blur-xl"
+                        className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-amber-500/10 to-orange-500/10 blur-3xl"
                         aria-hidden="true"
                       />
                     </div>
+
+                    {/* Subtle inner shadow */}
+                    <div
+                      className="absolute inset-0 rounded-3xl shadow-inner shadow-black/20"
+                      aria-hidden="true"
+                    />
                   </article>
                 </MagneticElement>
               );
@@ -724,19 +839,22 @@ export const ProjectsSection = () => {
           {filteredProjects.length === 0 && (
             <div
               className={cn(
-                "text-center py-20 transition-all duration-1000 ease-out",
+                "text-center py-20 transition-all duration-700 ease-out",
                 isVisible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-10"
               )}
             >
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 flex items-center justify-center mx-auto mb-6">
-                <Search className="w-10 h-10 text-primary" aria-hidden="true" />
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/10">
+                <Search
+                  className="w-10 h-10 text-emerald-500"
+                  aria-hidden="true"
+                />
               </div>
-              <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+              <h3 className="font-heading text-2xl font-bold text-white mb-2 [text-shadow:0_2px_4px_rgba(0,0,0,0.3)]">
                 No projects found
               </h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
+              <p className="text-gray-400 max-w-md mx-auto [text-shadow:0_1px_2px_rgba(0,0,0,0.2)]">
                 Try adjusting your search or filter to find what you're looking
                 for.
               </p>
@@ -746,18 +864,18 @@ export const ProjectsSection = () => {
                   setSelectedCategory("All");
                 }}
                 variant="primary"
-                className="mt-6"
+                className="mt-6 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
               >
                 Clear filters
               </Button>
             </div>
           )}
 
-          {/* Stats summary */}
+          {/* Stats summary with glass effect */}
           <div
             className={cn(
-              "mt-16 grid grid-cols-2 md:grid-cols-4 gap-6",
-              "transition-all duration-1000 ease-out delay-300",
+              "mt-16 grid grid-cols-2 md:grid-cols-4 gap-8",
+              "transition-all duration-700 ease-out delay-300",
               isVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
@@ -773,21 +891,21 @@ export const ProjectsSection = () => {
               return (
                 <MagneticElement key={stat.label} strength={0.1}>
                   <div
-                    className="p-6 rounded-3xl bg-gradient-to-br from-card/80 to-background/80 border border-white/10 hover:border-primary/30 transition-all duration-300"
+                    className="p-6 rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-gray-800 hover:border-emerald-500/30 transition-all duration-300 backdrop-blur-sm shadow-2xl shadow-black/20 hover:shadow-3xl hover:shadow-emerald-500/10"
                     style={{ transitionDelay: `${index * 100 + 300}ms` }}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-emerald-500/10 to-amber-500/10 flex items-center justify-center shadow-lg shadow-emerald-500/10">
                         <Icon
-                          className="w-6 h-6 text-primary"
+                          className="w-6 h-6 text-emerald-400"
                           aria-hidden="true"
                         />
                       </div>
                       <div>
-                        <div className="text-2xl font-bold text-foreground">
+                        <div className="text-2xl font-bold text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
                           {stat.value}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-gray-400">
                           {stat.label}
                         </div>
                       </div>
@@ -798,33 +916,39 @@ export const ProjectsSection = () => {
             })}
           </div>
 
-          {/* Call to action */}
+          {/* Call to action with glow */}
           <div
             className={cn(
-              "mt-16 text-center",
-              "transition-all duration-1000 ease-out delay-400",
+              "mt-20 text-center",
+              "transition-all duration-700 ease-out delay-400",
               isVisible
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-10"
             )}
           >
-            <div className="inline-flex flex-col items-center gap-6 p-8 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 border border-white/10">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+            <div className="inline-flex flex-col items-center gap-6 p-8 rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 border border-gray-800 backdrop-blur-xl shadow-3xl shadow-black/30 relative overflow-hidden">
+              {/* Background glow */}
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-amber-500/5 blur-3xl"
+                aria-hidden="true"
+              />
+
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-amber-500 flex items-center justify-center shadow-2xl shadow-emerald-500/40 z-10">
                 <Code2 className="w-8 h-8 text-white" aria-hidden="true" />
               </div>
 
-              <div>
-                <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+              <div className="z-10">
+                <h3 className="font-heading text-2xl font-bold text-white mb-2 [text-shadow:0_2px_4px_rgba(0,0,0,0.5)]">
                   Have a Project in Mind?
                 </h3>
-                <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
+                <p className="text-gray-300 max-w-2xl mx-auto mb-6 [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]">
                   Let's collaborate to bring your ideas to life. I'm always
                   excited to work on challenging projects and deliver
                   exceptional results.
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-wrap gap-4 justify-center z-10">
                 <Button
                   onClick={scrollToContact}
                   variant="primary"
@@ -836,7 +960,7 @@ export const ProjectsSection = () => {
                     />
                   }
                   iconPosition="left"
-                  className="group"
+                  className="group bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-600 hover:to-amber-600 shadow-2xl shadow-emerald-500/30 hover:shadow-3xl hover:shadow-emerald-500/40"
                 >
                   Start a Project
                   <div
@@ -856,7 +980,7 @@ export const ProjectsSection = () => {
                     />
                   }
                   iconPosition="left"
-                  className="group"
+                  className="group shadow-lg shadow-black/10 hover:shadow-emerald-500/20"
                 >
                   View Case Studies
                 </Button>
@@ -865,13 +989,72 @@ export const ProjectsSection = () => {
           </div>
         </div>
 
-        {/* Floating tech icons */}
-        <div className="absolute top-20 left-20 opacity-5">
-          <Globe className="w-40 h-40" aria-hidden="true" />
+        {/* Floating tech icons with glow */}
+        <div className="absolute top-20 left-20 opacity-10">
+          <Globe
+            className="w-40 h-40 text-emerald-500 drop-shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+            aria-hidden="true"
+          />
         </div>
-        <div className="absolute bottom-20 right-20 opacity-5">
-          <Cpu className="w-40 h-40" aria-hidden="true" />
+        <div className="absolute bottom-20 right-20 opacity-10">
+          <Cpu
+            className="w-40 h-40 text-amber-500 drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]"
+            aria-hidden="true"
+          />
         </div>
+
+        {/* Add custom animations to globals */}
+        <style jsx global>{`
+          @keyframes float {
+            0%,
+            100% {
+              transform: translateY(0) rotate(0deg);
+            }
+            33% {
+              transform: translateY(-20px) rotate(120deg);
+            }
+            66% {
+              transform: translateY(10px) rotate(240deg);
+            }
+          }
+
+          @keyframes scan {
+            0% {
+              transform: translateY(-100%);
+            }
+            100% {
+              transform: translateY(100%);
+            }
+          }
+
+          .animate-float {
+            animation: float ease-in-out infinite;
+          }
+
+          .animate-pulse-slow {
+            animation: pulse 3s ease-in-out infinite;
+          }
+
+          @keyframes pulse {
+            0%,
+            100% {
+              opacity: 1;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.8;
+              transform: scale(0.98);
+            }
+          }
+
+          .shadow-3xl {
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.5);
+          }
+
+          .transform-gpu {
+            transform: translateZ(0);
+          }
+        `}</style>
       </section>
     </>
   );
