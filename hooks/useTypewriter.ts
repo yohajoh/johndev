@@ -298,7 +298,7 @@ export const useTypewriter = ({
       }
     },
   };
-
+  // hello any one
   return {
     text: state.text,
     isTyping: state.isTyping,
@@ -335,7 +335,7 @@ export const useMultiLineTypewriter = ({
       return [...prev, index];
     });
   }, []);
-
+  //  helo ne
   const completeLine = useCallback((index: number) => {
     setCompletedLines((prev) => {
       if (prev.includes(index)) return prev;

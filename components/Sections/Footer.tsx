@@ -291,154 +291,55 @@ export const Footer = () => {
               </div>
             </div>
           </div>
-
-          {/* Newsletter & CTA */}
-          <div
-            className={cn(
-              "mt-16 p-8 rounded-3xl bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 border border-white/10",
-              "transition-all duration-1000 ease-out delay-400",
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-10"
-            )}
-          >
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
-                  Stay Updated
-                </h3>
-                <p className="text-muted-foreground">
-                  Subscribe to my newsletter for the latest updates, tech
-                  insights, and exclusive content.
-                </p>
-              </div>
-
-              <form className="space-y-4">
-                <div className="flex gap-3">
-                  <input
-                    type="email"
-                    placeholder="Your email address"
-                    className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground placeholder:text-muted-foreground transition-all duration-300"
-                    aria-label="Email address for newsletter"
-                  />
-                  <InteractiveButton
-                    type="submit"
-                    variant="primary"
-                    className="group"
-                  >
-                    <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                    Subscribe
-                  </InteractiveButton>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  No spam ever. Unsubscribe anytime.
-                </p>
-              </form>
-            </div>
-          </div>
         </div>
-
-        {/* Bottom bar */}
-        <div className="py-8 border-t border-white/10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Copyright */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Copyright className="w-4 h-4" />
-              <span>{currentYear} Yohannes Belete. All rights reserved.</span>
-            </div>
-
-            {/* Made with love */}
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <span>Made with</span>
-                <Heart className="w-4 h-4 text-red-500 animate-pulse" />
-                <span>and</span>
-                <Coffee className="w-4 h-4 text-amber-600" />
-                <span>in San Francisco</span>
-              </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center gap-4">
-              {/* Theme toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300"
-                aria-label={`Switch to ${
-                  theme === "dark" ? "light" : "dark"
-                } theme`}
-              >
-                {theme === "dark" ? (
-                  <Sun className="w-5 h-5 text-yellow-400" />
-                ) : (
-                  <Moon className="w-5 h-5 text-blue-400" />
-                )}
-              </button>
-
-              {/* Back to top */}
-              <InteractiveButton
-                onClick={scrollToTop}
-                variant="outline"
-                size="sm"
-                className="group"
-                aria-label="Scroll to top"
-              >
-                <ArrowUp className="w-4 h-4 group-hover:-translate-y-1 transition-transform duration-300" />
-                Back to Top
-              </InteractiveButton>
-            </div>
-          </div>
-
-          {/* Privacy links */}
-          <div className="flex flex-wrap justify-center gap-6 mt-8 pt-8 border-t border-white/10">
-            {[
-              "Privacy Policy",
-              "Terms of Service",
-              "Cookie Policy",
-              "Disclaimer",
-            ].map((link) => (
-              <a
-                key={link}
-                href="#"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
-              >
-                {link}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Floating elements */}
-      <div className="absolute bottom-20 left-10 opacity-5">
-        <Sparkles className="w-20 h-20" />
-      </div>
-      <div className="absolute top-20 right-10 opacity-5">
-        <Rocket className="w-20 h-20" />
-      </div>
-
-      {/* Animated particles */}
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        aria-hidden="true"
-      >
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-primary/10"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${
-                Math.random() * 10 + 5
-              }s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`,
-            }}
-          />
-        ))}
       </div>
     </footer>
   );
 };
 
 export default Footer;
+
+// {/* Newsletter & CTA */}
+// <div
+//   className={cn(
+//     "mt-16 p-8 rounded-3xl bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 border border-white/10",
+//     "transition-all duration-1000 ease-out delay-400",
+//     isVisible
+//       ? "opacity-100 translate-y-0"
+//       : "opacity-0 translate-y-10"
+//   )}
+// >
+//   <div className="grid md:grid-cols-2 gap-8 items-center">
+//     <div>
+//       <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
+//         Stay Updated
+//       </h3>
+//       <p className="text-muted-foreground">
+//         Subscribe to my newsletter for the latest updates, tech
+//         insights, and exclusive content.
+//       </p>
+//     </div>
+
+//     <form className="space-y-4">
+//       <div className="flex gap-3">
+//         <input
+//           type="email"
+//           placeholder="Your email address"
+//           className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground placeholder:text-muted-foreground transition-all duration-300"
+//           aria-label="Email address for newsletter"
+//         />
+//         <InteractiveButton
+//           type="submit"
+//           variant="primary"
+//           className="group"
+//         >
+//           <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
+//           Subscribe
+//         </InteractiveButton>
+//       </div>
+//       <p className="text-xs text-muted-foreground">
+//         No spam ever. Unsubscribe anytime.
+//       </p>
+//     </form>
+//   </div>
+// </div>

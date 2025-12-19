@@ -3,18 +3,12 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import {
   Award,
-  Calendar,
   Briefcase,
   GraduationCap,
-  Users,
   Target,
   CheckCircle,
-  TrendingUp,
   Globe,
   Code,
-  Cloud,
-  Zap,
-  ChevronRight,
 } from "lucide-react";
 import { MagneticElement } from "../Cursor/CustomCursor";
 import { Button } from "@/components/UI/Button";
@@ -52,207 +46,6 @@ const SKILLS_DATA = [
 ];
 
 // Amazing Gradient Background with Fluid Animation
-const AmazingBackground = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-      setMousePosition({ x, y });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      {/* Base Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-gray-900 to-background" />
-
-      {/* Animated Fluid Gradient Layers */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          background: `
-            radial-gradient(circle at ${20 + mousePosition.x * 10}% ${
-            20 + mousePosition.y * 10
-          }%, 
-              rgba(59, 130, 246, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at ${80 - mousePosition.x * 10}% ${
-            80 - mousePosition.y * 10
-          }%, 
-              rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at ${50 + mousePosition.x * 5}% ${
-            50 - mousePosition.y * 5
-          }%, 
-              rgba(14, 165, 233, 0.1) 0%, transparent 50%)
-          `,
-          transition: "background 0.3s ease-out",
-        }}
-      />
-
-      {/* Subtle Gradient Mesh */}
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `
-            linear-gradient(45deg, transparent 49%, rgba(59, 130, 246, 0.1) 50%, transparent 51%),
-            linear-gradient(135deg, transparent 49%, rgba(168, 85, 247, 0.1) 50%, transparent 51%)
-          `,
-          backgroundSize: "80px 80px",
-          backgroundPosition: "0 0",
-          animation: "meshMove 20s linear infinite",
-        }}
-      />
-
-      {/* Glowing Orbs */}
-      <div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
-          filter: "blur(60px)",
-          transform: `translate(${mousePosition.x * 20}px, ${
-            mousePosition.y * 20
-          }px)`,
-          animation: "pulseGlow 8s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%)",
-          filter: "blur(50px)",
-          transform: `translate(${-mousePosition.x * 15}px, ${
-            -mousePosition.y * 15
-          }px)`,
-          animation: "pulseGlow 10s ease-in-out infinite 1s",
-        }}
-      />
-
-      {/* Subtle Scan Lines */}
-      <div
-        className="absolute inset-0 opacity-5"
-        style={{
-          background:
-            "linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%)",
-          backgroundSize: "100% 4px",
-          animation: "scan 15s linear infinite",
-        }}
-      />
-
-      {/* CSS Animations */}
-      <style jsx>{`
-        @keyframes meshMove {
-          0% {
-            background-position: 0 0;
-          }
-          100% {
-            background-position: 80px 80px;
-          }
-        }
-
-        @keyframes pulseGlow {
-          0%,
-          100% {
-            opacity: 0.3;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: scale(1.05);
-          }
-        }
-
-        @keyframes scan {
-          0% {
-            transform: translateY(-100%);
-          }
-          100% {
-            transform: translateY(100%);
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
-
-// Floating Code Particles
-const CodeParticles = () => {
-  const particles = useMemo(
-    () =>
-      Array.from({ length: 15 }).map((_, i) => ({
-        id: i,
-        content: [
-          "{",
-          "}",
-          "<",
-          "/>",
-          "();",
-          "=>",
-          "[]",
-          "{}",
-          "=",
-          "==",
-          "===",
-          "||",
-          "&&",
-        ][i % 13],
-        size: Math.random() * 16 + 12,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        speed: Math.random() * 20 + 10,
-      })),
-    []
-  );
-
-  return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      aria-hidden="true"
-    >
-      {particles.map((particle) => (
-        <div
-          key={particle.id}
-          className="absolute text-primary/10 font-mono font-bold"
-          style={{
-            fontSize: `${particle.size}px`,
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-            animation: `floatParticle ${particle.speed}s ease-in-out infinite`,
-            animationDelay: `${particle.id * 0.5}s`,
-          }}
-        >
-          {particle.content}
-        </div>
-      ))}
-      <style jsx>{`
-        @keyframes floatParticle {
-          0%,
-          100% {
-            transform: translate(0, 0) rotate(0deg);
-            opacity: 0.1;
-          }
-          25% {
-            transform: translate(20px, -40px) rotate(90deg);
-            opacity: 0.3;
-          }
-          50% {
-            transform: translate(0, -80px) rotate(180deg);
-            opacity: 0.1;
-          }
-          75% {
-            transform: translate(-20px, -40px) rotate(270deg);
-            opacity: 0.3;
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
 
 export const AboutSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -362,8 +155,9 @@ export const AboutSection = () => {
     <section
       id="about"
       ref={sectionRef}
-      className="section-padding relative overflow-hidden bg-background"
+      className="section-padding relative overflow-hidden bg-gradient-to-b from-background via-gray-900/20 to-background"
       aria-labelledby="about-heading"
+      style={{ backgroundColor: "rgba(59, 130, 246, 0.2) 0%, transparent 50%" }}
       itemScope
       itemType="https://schema.org/Person"
     >
@@ -380,10 +174,6 @@ export const AboutSection = () => {
         itemProp="knowsAbout"
         content="Full-Stack Development, Cloud Architecture, System Design, DevOps, React, Next.js, TypeScript, Node.js, AWS"
       />
-
-      {/* Amazing Background */}
-      <AmazingBackground />
-      <CodeParticles />
 
       <div className="container-wide relative z-10">
         {/* Section header */}
@@ -474,26 +264,13 @@ export const AboutSection = () => {
                         San Francisco, CA
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
-                      <Calendar
-                        className="w-3 h-3 sm:w-4 sm:h-4 text-secondary"
-                        aria-hidden="true"
-                      />
-                      <span className="text-xs sm:text-sm">6+ Years Exp.</span>
-                    </div>
+
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
                       <Code
                         className="w-3 h-3 sm:w-4 sm:h-4 text-accent"
                         aria-hidden="true"
                       />
                       <span className="text-xs sm:text-sm">Full-Stack</span>
-                    </div>
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
-                      <Cloud
-                        className="w-3 h-3 sm:w-4 sm:h-4 text-primary"
-                        aria-hidden="true"
-                      />
-                      <span className="text-xs sm:text-sm">Cloud Expert</span>
                     </div>
                   </div>
                 </div>
@@ -502,10 +279,10 @@ export const AboutSection = () => {
               {/* Bio */}
               <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-white/10">
                 <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
-                  I'm passionate about creating digital solutions that make a
-                  real impact. With expertise spanning frontend, backend, and
+                  I&#39;m passionate about creating digital solutions that make
+                  a real impact. With expertise spanning frontend, backend, and
                   DevOps, I approach each project with attention to detail and a
-                  focus on performance. When I'm not coding, you can find me
+                  focus on performance. When I&#39;m not coding, you can find me
                   contributing to open-source projects, mentoring junior
                   developers, or exploring new technologies.
                 </p>
@@ -785,56 +562,6 @@ export const AboutSection = () => {
             </div>
           </div>
         </div>
-
-        {/* Call to action */}
-        <footer
-          className={cn(
-            "mt-16 text-center",
-            isVisible ? "animate-fade-in-up" : "opacity-0"
-          )}
-          style={{ animationDelay: "500ms" }}
-        >
-          <div className="inline-flex flex-col items-center gap-6 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 backdrop-blur-md border border-white/10 shadow-2xl">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-xl">
-              <Zap
-                className="w-8 h-8 sm:w-10 sm:h-10 text-white"
-                aria-hidden="true"
-              />
-            </div>
-
-            <div>
-              <h3 className="font-heading text-2xl sm:text-3xl font-bold text-foreground mb-3">
-                Ready to Build Something Amazing?
-              </h3>
-              <p className="text-muted-foreground max-w-2xl mx-auto mb-6 text-base">
-                Let's discuss your project and create something exceptional
-                together. I'm always excited to take on new challenges and
-                deliver outstanding results.
-              </p>
-            </div>
-
-            <Button
-              onClick={scrollToContact}
-              variant="primary"
-              size="lg"
-              icon={
-                <TrendingUp
-                  className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
-                  aria-hidden="true"
-                />
-              }
-              iconPosition="left"
-              className="group px-8 py-4 text-base"
-              aria-label="Start a conversation about your project"
-            >
-              Start a Conversation
-              <div
-                className="w-2 h-2 rounded-full bg-white/50 animate-pulse ml-3"
-                aria-hidden="true"
-              />
-            </Button>
-          </div>
-        </footer>
       </div>
     </section>
   );

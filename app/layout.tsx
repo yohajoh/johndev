@@ -5,6 +5,7 @@ import { Navigation } from "@/components/Navigation/Navigation";
 import { CustomCursor } from "@/components/Cursor/CustomCursor";
 import { ScrollToTop } from "@/components/UI/ScrollToTop";
 import "./globals.css";
+import ParticleBackground from "@/components/Effects/ParticleBackground";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -163,6 +164,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="relative">
+            <ParticleBackground />
             <CustomCursor />
             <Navigation />
             <main id="main-content" className="relative z-10">

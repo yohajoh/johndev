@@ -33,7 +33,7 @@ export const ProjectModal = ({
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
+        className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}

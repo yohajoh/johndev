@@ -423,13 +423,6 @@ export const ContactSection = () => {
         placeholder: "john@example.com",
       },
       {
-        id: "subject",
-        label: "Subject",
-        icon: MessageSquare,
-        type: "text",
-        placeholder: "Project Inquiry",
-      },
-      {
         id: "message",
         label: "Your Message",
         icon: MessageSquare,
@@ -762,83 +755,6 @@ export const ContactSection = () => {
               </div>
             </div>
 
-            {/* Working hours */}
-            <div
-              className={cn(
-                "transition-all duration-700 ease-out delay-450",
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-8"
-              )}
-            >
-              <GradientBorderCard className="shadow-xl" innerClassName="p-6">
-                <h3 className="font-heading text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-primary" />
-                  Working Hours
-                </h3>
-
-                <div className="space-y-3">
-                  {memoizedWorkingHours.map((schedule, index) => (
-                    <div
-                      key={schedule.day}
-                      className={cn(
-                        "flex items-center justify-between p-3 rounded-xl transition-all duration-300",
-                        "hover:bg-white/5 hover:shadow-md",
-                        schedule.available
-                          ? "bg-white/5"
-                          : "bg-white/5 opacity-60"
-                      )}
-                      style={{ transitionDelay: `${index * 50 + 450}ms` }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Calendar
-                          className="w-4 h-4 text-muted-foreground"
-                          aria-hidden="true"
-                        />
-                        <span className="text-sm font-medium text-foreground">
-                          {schedule.day}
-                        </span>
-                      </div>
-                      <div
-                        className={cn(
-                          "text-sm font-medium",
-                          schedule.available
-                            ? "text-primary"
-                            : "text-muted-foreground"
-                        )}
-                      >
-                        {schedule.hours}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Response time */}
-                <div className="mt-6 pt-6 border-t border-white/10">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Zap
-                        className="w-5 h-5 text-secondary relative z-10"
-                        aria-hidden="true"
-                      />
-                      <div
-                        className="absolute inset-0 bg-secondary/20 rounded-full blur-sm"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-foreground">
-                        Average Response Time
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        Within 24 hours on business days
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </GradientBorderCard>
-            </div>
-
             {/* Social links */}
             <div
               className={cn(
@@ -901,107 +817,10 @@ export const ContactSection = () => {
                 })}
               </div>
             </div>
-
-            {/* Call to action */}
-            <div
-              className={cn(
-                "transition-all duration-700 ease-out delay-750",
-                isVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              )}
-            >
-              <GradientBorderCard
-                className="shadow-2xl shadow-primary/20"
-                intensity="high"
-                innerClassName="p-6 text-center"
-              >
-                <h3 className="font-heading text-xl font-bold text-foreground mb-2">
-                  Ready to Start Your Project?
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  Let's schedule a call to discuss your requirements in detail.
-                </p>
-                <InteractiveButton
-                  onClick={handleScheduleCall}
-                  variant="primary"
-                  className="group shadow-lg shadow-primary/30 hover:shadow-primary/40"
-                  aria-label="Schedule a call on Calendly"
-                >
-                  <Calendar
-                    className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
-                    aria-hidden="true"
-                  />
-                  Schedule a Call
-                  <div
-                    className="w-2 h-2 rounded-full bg-white/50 animate-pulse"
-                    aria-hidden="true"
-                  />
-                </InteractiveButton>
-              </GradientBorderCard>
-            </div>
           </div>
         </div>
 
         {/* Location section */}
-        <div
-          className={cn(
-            "mt-16 transition-all duration-700 ease-out delay-900",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          )}
-        >
-          <GradientBorderCard
-            className="shadow-2xl shadow-primary/20"
-            intensity="high"
-          >
-            <div
-              className="relative aspect-video bg-gradient-to-br from-gray-900 to-gray-800"
-              itemScope
-              itemType="https://schema.org/Place"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <GradientBorderCard
-                    className="inline-block mb-4 shadow-2xl shadow-primary/20"
-                    intensity="high"
-                    innerClassName="p-4"
-                  >
-                    <div className="w-12 h-12 flex items-center justify-center">
-                      <MapPin className="w-8 h-8 text-primary" />
-                    </div>
-                  </GradientBorderCard>
-                  <h4
-                    className="font-heading text-xl font-bold text-foreground mb-2"
-                    itemProp="name"
-                  >
-                    San Francisco, CA
-                  </h4>
-                  <p className="text-muted-foreground" itemProp="description">
-                    Based in the heart of Silicon Valley
-                  </p>
-                </div>
-              </div>
-
-              {/* Decorative map grid */}
-              <div className="absolute inset-0 opacity-5 pointer-events-none">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div
-                    key={`h-${i}`}
-                    className="absolute h-px w-full bg-gradient-to-r from-transparent via-white to-transparent"
-                    style={{ top: `${i * 10}%` }}
-                  />
-                ))}
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div
-                    key={`v-${i}`}
-                    className="absolute w-px h-full bg-gradient-to-b from-transparent via-white to-transparent"
-                    style={{ left: `${i * 10}%` }}
-                  />
-                ))}
-              </div>
-            </div>
-          </GradientBorderCard>
-        </div>
       </div>
 
       {/* Performance optimized particles */}
@@ -1023,48 +842,67 @@ export const ContactSection = () => {
           />
         ))}
       </div>
-
-      {/* CSS Animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0) translateX(0) rotate(0deg);
-            opacity: 0.1;
-          }
-          33% {
-            transform: translateY(-30px) translateX(15px) rotate(120deg);
-            opacity: 0.3;
-          }
-          66% {
-            transform: translateY(15px) translateX(-15px) rotate(240deg);
-            opacity: 0.2;
-          }
-        }
-
-        @keyframes lineFloat {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-
-        @keyframes pulse {
-          0%,
-          100% {
-            opacity: 0.1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.3;
-            transform: scale(1.05);
-          }
-        }
-      `}</style>
     </section>
   );
 };
 
 export default ContactSection;
+
+// <div
+//           className={cn(
+//             "mt-16 transition-all duration-700 ease-out delay-900",
+//             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+//           )}
+//         >
+//           <GradientBorderCard
+//             className="shadow-2xl shadow-primary/20"
+//             intensity="high"
+//           >
+//             <div
+//               className="relative aspect-video bg-gradient-to-br from-gray-900 to-gray-800"
+//               itemScope
+//               itemType="https://schema.org/Place"
+//             >
+//               <div className="absolute inset-0 flex items-center justify-center">
+//                 <div className="text-center">
+//                   <GradientBorderCard
+//                     className="inline-block mb-4 shadow-2xl shadow-primary/20"
+//                     intensity="high"
+//                     innerClassName="p-4"
+//                   >
+//                     <div className="w-12 h-12 flex items-center justify-center">
+//                       <MapPin className="w-8 h-8 text-primary" />
+//                     </div>
+//                   </GradientBorderCard>
+//                   <h4
+//                     className="font-heading text-xl font-bold text-foreground mb-2"
+//                     itemProp="name"
+//                   >
+//                     San Francisco, CA
+//                   </h4>
+//                   <p className="text-muted-foreground" itemProp="description">
+//                     Based in the heart of Silicon Valley
+//                   </p>
+//                 </div>
+//               </div>
+
+//               {/* Decorative map grid */}
+//               <div className="absolute inset-0 opacity-5 pointer-events-none">
+//                 {Array.from({ length: 10 }).map((_, i) => (
+//                   <div
+//                     key={`h-${i}`}
+//                     className="absolute h-px w-full bg-gradient-to-r from-transparent via-white to-transparent"
+//                     style={{ top: `${i * 10}%` }}
+//                   />
+//                 ))}
+//                 {Array.from({ length: 10 }).map((_, i) => (
+//                   <div
+//                     key={`v-${i}`}
+//                     className="absolute w-px h-full bg-gradient-to-b from-transparent via-white to-transparent"
+//                     style={{ left: `${i * 10}%` }}
+//                   />
+//                 ))}
+//               </div>
+//             </div>
+//           </GradientBorderCard>
+//         </div>

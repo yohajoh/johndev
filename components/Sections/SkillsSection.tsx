@@ -1,28 +1,12 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/purity */
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
-  Code2,
-  Database,
-  Cloud,
   Layers,
-  Terminal,
-  Cpu,
-  Globe,
-  Server,
-  Lock,
-  Zap,
-  GitBranch,
-  Box,
   Brain,
-  Palette,
-  Smartphone,
-  LineChart,
-  Shield,
   Rocket,
-  Users,
-  MessageSquare,
   ChevronRight,
   Award,
   Star,
@@ -37,111 +21,6 @@ import {
   FEATURE_HIGHLIGHTS,
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-// Professional background component with performance optimizations
-const ProfessionalBackground = () => {
-  const backgroundRef = useRef<HTMLDivElement>(null);
-
-  // Memoize static background elements to prevent re-renders
-  const staticBackground = useMemo(
-    () => (
-      <>
-        {/* Optimized gradient background using CSS only - green/gold/orange theme */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `
-              radial-gradient(circle at 20% 30%, rgba(22, 163, 74, 0.08) 0%, transparent 50%),
-              radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
-              radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.05) 0%, transparent 70%),
-              linear-gradient(180deg, rgba(10, 10, 10, 0) 0%, rgba(3, 7, 18, 0.95) 100%)
-            `,
-          }}
-          aria-hidden="true"
-        />
-
-        {/* Subtle grid pattern using CSS gradients (lightweight) */}
-        <div
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: "60px 60px",
-            backgroundPosition: "center center",
-          }}
-          aria-hidden="true"
-        />
-
-        {/* Fixed corner accents - green/gold theme */}
-        <div className="absolute top-0 left-0 w-64 h-64">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-emerald-500/5 to-transparent blur-3xl" />
-        </div>
-        <div className="absolute bottom-0 right-0 w-64 h-64">
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-amber-500/5 to-transparent blur-3xl" />
-        </div>
-
-        {/* Dark overlay for bottom section in dark mode */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-gray-900 via-gray-900/90 to-transparent dark:from-gray-950 dark:via-gray-950/95 dark:to-transparent" />
-      </>
-    ),
-    []
-  );
-
-  // Minimal floating elements with reduced count
-  const floatingElements = useMemo(
-    () => (
-      <>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div
-            key={`floating-${i}`}
-            className="absolute rounded-full"
-            style={{
-              width: `${20 + i * 10}px`,
-              height: `${20 + i * 10}px`,
-              left: `${15 + i * 20}%`,
-              top: `${20 + ((i * 15) % 70)}%`,
-              background: `radial-gradient(circle, rgba(${22 + i * 10}, ${
-                163 + i * 5
-              }, ${74 + i * 10}, 0.05), transparent 70%)`,
-              animation: `float ${15 + i * 5}s ease-in-out infinite`,
-              animationDelay: `${i * 2}s`,
-            }}
-            aria-hidden="true"
-          />
-        ))}
-      </>
-    ),
-    []
-  );
-
-  return (
-    <div
-      ref={backgroundRef}
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      aria-hidden="true"
-    >
-      {staticBackground}
-      {floatingElements}
-
-      {/* Subtle animated orbs with reduced movement */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96">
-        <div className="absolute inset-0 animate-pulse-slow opacity-10">
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-emerald-500/5 to-transparent rounded-full" />
-        </div>
-      </div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96">
-        <div
-          className="absolute inset-0 animate-pulse-slow opacity-10"
-          style={{ animationDelay: "1s" }}
-        >
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-l from-amber-500/5 to-transparent rounded-full" />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const SkillsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -262,7 +141,7 @@ export const SkillsSection = () => {
   );
 
   const avgProficiency = useMemo(() => {
-    if (currentSkills.length === 0) return 0;
+    // if (currentSkills.length === 0) return 0;
     const total = currentSkills.reduce((acc, skill) => acc + skill.level, 0);
     return Math.round(total / currentSkills.length);
   }, [currentSkills]);
@@ -317,12 +196,11 @@ export const SkillsSection = () => {
     <section
       ref={sectionRef}
       id="skills"
-      className="section-padding relative overflow-hidden bg-background"
+      className="section-padding relative overflow-hidden bg-gradient-to-b from-background via-gray-900/20 to-background"
       aria-labelledby="skills-heading"
       role="region"
     >
       {/* Professional background - optimized for performance */}
-      <ProfessionalBackground />
 
       <div className="container-wide relative z-10">
         {/* Section header with text shadow */}
@@ -802,170 +680,7 @@ export const SkillsSection = () => {
                 </div>
               </div>
             </div>
-
-            {/* Skill highlights with shadows */}
-            <div
-              className={cn(
-                "grid grid-cols-1 md:grid-cols-3 gap-6 mt-8",
-                "transition-all duration-700 ease-out delay-400",
-                isVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
-              )}
-              role="complementary"
-              aria-label="Skill highlights"
-            >
-              {FEATURE_HIGHLIGHTS.slice(0, 3).map((highlight, index) => {
-                const Icon = highlight.icon;
-                // Map gradients to green/amber theme
-                const gradientMap: Record<string, string> = {
-                  "from-primary to-secondary": "from-emerald-500 to-amber-500",
-                  "from-secondary to-accent": "from-amber-500 to-orange-500",
-                  "from-accent to-primary": "from-orange-500 to-emerald-500",
-                };
-                const gradient =
-                  gradientMap[highlight.gradient] ||
-                  "from-emerald-500 to-amber-500";
-
-                return (
-                  <MagneticElement key={highlight.title} strength={0.1}>
-                    <div
-                      className={cn(
-                        "p-6 rounded-2xl gradient-border backdrop-blur-sm bg-gradient-to-br from-card/80 to-background/80 shadow-lg shadow-black/5 dark:shadow-black/15",
-                        "hover:border-emerald-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10",
-                        "focus-within:ring-2 focus-within:ring-emerald-500/50 focus-within:ring-offset-2 focus-within:ring-offset-background focus-within:outline-none focus-within:shadow-xl focus-within:shadow-emerald-500/10"
-                      )}
-                      style={{ transitionDelay: `${index * 100 + 400}ms` }}
-                      tabIndex={0}
-                    >
-                      <div
-                        className={`w-12 h-12 rounded-xl bg-gradient-to-r ${gradient} flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20`}
-                      >
-                        <Icon
-                          className="w-6 h-6 text-white drop-shadow-md"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <h4 className="font-heading text-lg font-semibold text-foreground mb-2 [text-shadow:0_1px_2px_rgba(0,0,0,0.1)]">
-                        {highlight.title}
-                      </h4>
-                      <p className="text-sm text-muted-foreground [text-shadow:0_1px_1px_rgba(0,0,0,0.05)]">
-                        {highlight.description}
-                      </p>
-
-                      {/* Progress indicator - FIXED */}
-                      <div className="mt-4">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-muted-foreground [text-shadow:0_1px_1px_rgba(0,0,0,0.05)]">
-                            Mastery
-                          </span>
-                          <span className="text-emerald-500 [text-shadow:0_1px_2px_rgba(16,185,129,0.2)]">
-                            95%
-                          </span>
-                        </div>
-                        <div className="h-1 rounded-full bg-white/5 overflow-hidden shadow-inner">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-amber-500 transition-all duration-1000 ease-out shadow-md shadow-emerald-500/20"
-                            style={{
-                              width: isVisible ? "95%" : "0%",
-                              transitionDelay: `${index * 100 + 600}ms`,
-                            }}
-                            aria-hidden="true"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </MagneticElement>
-                );
-              })}
-            </div>
-
-            {/* Additional info with shadow */}
-            <div
-              className={cn(
-                "mt-8 p-6 rounded-3xl bg-gradient-to-r from-emerald-500/5 via-transparent to-amber-500/5 border border-white/10 shadow-lg shadow-emerald-500/5 dark:shadow-black/20",
-                "transition-all duration-700 ease-out delay-500",
-                isVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
-              )}
-              role="contentinfo"
-            >
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-heading text-lg font-semibold text-foreground mb-3 [text-shadow:0_1px_2px_rgba(0,0,0,0.1)]">
-                    Continuous Learning
-                  </h4>
-                  <p className="text-sm text-muted-foreground [text-shadow:0_1px_1px_rgba(0,0,0,0.05)]">
-                    I dedicate 10+ hours weekly to learning new technologies,
-                    contributing to open source, and staying updated with
-                    industry trends.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-heading text-lg font-semibold text-foreground mb-3 [text-shadow:0_1px_2px_rgba(0,0,0,0.1)]">
-                    Certifications
-                  </h4>
-                  <div
-                    className="flex flex-wrap gap-2"
-                    role="list"
-                    aria-label="Certifications"
-                  >
-                    {[
-                      "AWS Solutions Architect",
-                      "Google Cloud Professional",
-                      "React Advanced",
-                      "Node.js Certified",
-                    ].map((cert) => (
-                      <span
-                        key={cert}
-                        className="px-3 py-1 text-xs rounded-full bg-white/5 text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-500 transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-emerald-500/10"
-                        role="listitem"
-                      >
-                        {cert}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
-
-        {/* Call to action with shadow */}
-        <div
-          className={cn(
-            "mt-16 text-center",
-            "transition-all duration-700 ease-out delay-600",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          )}
-        >
-          <Button
-            onClick={scrollToContact}
-            variant="primary"
-            size="lg"
-            icon={
-              <Rocket
-                className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300 drop-shadow-md"
-                aria-hidden="true"
-              />
-            }
-            iconPosition="left"
-            className="group bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-600 hover:to-amber-600 shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30"
-            aria-label="Contact me for development projects"
-          >
-            Need a Skilled Developer?
-            <span className="sr-only">Contact me</span>
-            <div
-              className="w-2 h-2 rounded-full bg-white/50 animate-pulse ml-2 drop-shadow-md"
-              aria-hidden="true"
-            />
-          </Button>
-
-          <p className="text-sm text-muted-foreground mt-4 [text-shadow:0_1px_2px_rgba(0,0,0,0.1)]">
-            Let&#39;s discuss how my skills can contribute to your project&#39;s
-            success.
-          </p>
         </div>
       </div>
     </section>

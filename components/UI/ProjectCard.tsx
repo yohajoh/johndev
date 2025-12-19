@@ -1,16 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  ExternalLink,
-  Github,
-  Star,
-  Eye,
-  ArrowUpRight,
-  Zap,
-  Users,
-  TrendingUp,
-} from "lucide-react";
+import { ExternalLink, Github, Star, Eye, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
@@ -210,33 +201,6 @@ export const ProjectCard = ({
               </span>
             )}
           </div>
-
-          {/* Metrics */}
-          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border/50">
-            {project.metrics.slice(0, 2).map((metric, i) => (
-              <motion.div
-                key={metric.label}
-                className="flex items-center gap-3"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div
-                  className={`w-10 h-10 rounded-xl ${colors.bg} flex items-center justify-center border ${colors.border} glass-effect`}
-                >
-                  <metric.icon className={`w-5 h-5 ${colors.text}`} />
-                </div>
-                <div>
-                  <div className="font-heading text-lg font-bold text-foreground">
-                    {metric.value}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {metric.label}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </div>
 
         {/* Decorative Corner */}
@@ -298,7 +262,12 @@ export const CompactProjectCard = ({
   project,
   onClick,
 }: {
-  project: any;
+  project: {
+    image: string;
+    category: string;
+    title: string;
+    description: string;
+  };
   onClick: () => void;
 }) => {
   return (

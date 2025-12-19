@@ -1,240 +1,16 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/purity */
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { ChevronDown, Download, Rocket } from "lucide-react";
 import { TypewriterEffect } from "@/components/UI/TypewriterEffect";
-import {
-  InteractiveButton,
-  MagneticElement,
-} from "@/components/Cursor/CustomCursor";
+import { MagneticElement } from "@/components/Cursor/CustomCursor";
 import { TYPEWRITER_TEXTS, METRICS, SOCIAL_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import John from "@/public/john.jpg";
 import Image from "next/image";
 import { Button } from "@/components/UI/Button";
-
-// Optimized background component using CSS
-const OptimizedBackground = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      {/* Base Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-background to-gray-900" />
-
-      {/* Subtle animated mesh gradient using CSS */}
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `
-            radial-gradient(at 40% 20%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-            radial-gradient(at 80% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-            radial-gradient(at 0% 50%, rgba(14, 165, 233, 0.1) 0px, transparent 50%),
-            radial-gradient(at 80% 50%, rgba(236, 72, 153, 0.1) 0px, transparent 50%)
-          `,
-          transform: `translate(${mousePosition.x * 20}px, ${
-            mousePosition.y * 20
-          }px)`,
-          transition: "transform 0.3s linear",
-        }}
-      />
-
-      {/* Performance-optimized particles using pure CSS */}
-      <div className="absolute inset-0">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-gradient-to-r from-primary/10 to-secondary/10"
-            style={{
-              width: `${Math.random() * 4 + 1}px`,
-              height: `${Math.random() * 4 + 1}px`,
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 20 + 10}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-              opacity: Math.random() * 0.3 + 0.1,
-              filter: "blur(1px)",
-              transform: "translateZ(0)", // GPU acceleration
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Animated grid lines with minimal opacity */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, #ffffff 1px, transparent 1px),
-            linear-gradient(to bottom, #ffffff 1px, transparent 1px)
-          `,
-          backgroundSize: "50px 50px",
-          animation: "gridMove 20s linear infinite",
-          transform: "translateZ(0)",
-        }}
-      />
-
-      {/* Glowing orbs with CSS animations */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-full blur-3xl"
-          style={{
-            animation: "pulse 8s ease-in-out infinite",
-            transform: "translateZ(0)",
-          }}
-        />
-      </div>
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-secondary/5 to-accent/5 rounded-full blur-3xl"
-          style={{
-            animation: "pulse 12s ease-in-out infinite",
-            animationDelay: "1s",
-            transform: "translateZ(0)",
-          }}
-        />
-      </div>
-
-      {/* Subtle scan line effect */}
-      <div
-        className="absolute inset-0 opacity-5"
-        style={{
-          background: `linear-gradient(
-            to bottom,
-            transparent 0%,
-            rgba(255, 255, 255, 0.1) 50%,
-            transparent 100%
-          )`,
-          backgroundSize: "100% 4px",
-          animation: "scan 15s linear infinite",
-          transform: "translateZ(0)",
-        }}
-      />
-
-      {/* CSS for animations */}
-      <style jsx>{`
-        @keyframes float {
-          0% {
-            transform: translateY(0px) translateX(0px) rotate(0deg);
-            opacity: 0.1;
-          }
-          25% {
-            transform: translateY(-20px) translateX(10px) rotate(90deg);
-            opacity: 0.2;
-          }
-          50% {
-            transform: translateY(-40px) translateX(0px) rotate(180deg);
-            opacity: 0.3;
-          }
-          75% {
-            transform: translateY(-20px) translateX(-10px) rotate(270deg);
-            opacity: 0.2;
-          }
-          100% {
-            transform: translateY(0px) translateX(0px) rotate(360deg);
-            opacity: 0.1;
-          }
-        }
-
-        @keyframes gridMove {
-          0% {
-            transform: translateY(0) translateX(0);
-          }
-          100% {
-            transform: translateY(50px) translateX(50px);
-          }
-        }
-
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 0.3;
-          }
-          50% {
-            transform: scale(1.1);
-            opacity: 0.5;
-          }
-        }
-
-        @keyframes scan {
-          0% {
-            transform: translateY(-100%);
-          }
-          100% {
-            transform: translateY(100%);
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
-
-// Floating Tech Icons Component
-const FloatingTechIcons = () => {
-  const techIcons = [
-    { icon: "⚛️", label: "React" },
-    { icon: "▲", label: "Next.js" },
-    { icon: "λ", label: "Lambda" },
-    { icon: "{}", label: "TypeScript" },
-    { icon: "⚡", label: "Node.js" },
-    { icon: "☁️", label: "Cloud" },
-    { icon: "🐳", label: "Docker" },
-    { icon: "🗄️", label: "Database" },
-  ];
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {techIcons.map((tech, i) => (
-        <div
-          key={i}
-          className="absolute text-2xl opacity-10"
-          style={{
-            left: `${(i * 13) % 100}%`,
-            top: `${(i * 17) % 100}%`,
-            animation: `floatTech ${Math.random() * 20 + 20}s linear infinite`,
-            animationDelay: `${i * 2}s`,
-            transform: "translateZ(0)",
-          }}
-          aria-hidden="true"
-        >
-          {tech.icon}
-        </div>
-      ))}
-      <style jsx>{`
-        @keyframes floatTech {
-          0% {
-            transform: translateY(0) translateX(0) rotate(0deg);
-          }
-          25% {
-            transform: translateY(-100px) translateX(50px) rotate(90deg);
-          }
-          50% {
-            transform: translateY(-200px) translateX(0) rotate(180deg);
-          }
-          75% {
-            transform: translateY(-100px) translateX(-50px) rotate(270deg);
-          }
-          100% {
-            transform: translateY(0) translateX(0) rotate(360deg);
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
 
 export const HeroSection = () => {
   const heroRef = useRef<HTMLElement>(null);
@@ -347,7 +123,6 @@ export const HeroSection = () => {
 
       {/* Enhanced Background */}
       <OptimizedBackground />
-      <FloatingTechIcons />
 
       {/* Main content */}
       <div className="container-wide relative z-10 px-4 sm:px-6 lg:px-8">
@@ -660,6 +435,119 @@ export const HeroSection = () => {
         aria-hidden="true"
       />
     </section>
+  );
+};
+
+// Optimized background component using CSS
+const OptimizedBackground = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight,
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+      {/* Base Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-background to-gray-900" />
+
+      {/* Subtle animated mesh gradient using CSS */}
+      <div
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: `
+            radial-gradient(at 40% 20%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+            radial-gradient(at 80% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+            radial-gradient(at 0% 50%, rgba(14, 165, 233, 0.1) 0px, transparent 50%),
+            radial-gradient(at 80% 50%, rgba(236, 72, 153, 0.1) 0px, transparent 50%)
+          `,
+          transform: `translate(${mousePosition.x * 20}px, ${
+            mousePosition.y * 20
+          }px)`,
+          transition: "transform 0.3s linear",
+        }}
+      />
+
+      {/* Performance-optimized particles using pure CSS */}
+      <div className="absolute inset-0">
+        {Array.from({ length: 30 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-gradient-to-r from-primary/10 to-secondary/10"
+            style={{
+              width: `${Math.random() * 4 + 1}px`,
+              height: `${Math.random() * 4 + 1}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${Math.random() * 20 + 10}s linear infinite`,
+              animationDelay: `${Math.random() * 5}s`,
+              opacity: Math.random() * 0.3 + 0.1,
+              filter: "blur(1px)",
+              transform: "translateZ(0)", // GPU acceleration
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Animated grid lines with minimal opacity */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #ffffff 1px, transparent 1px),
+            linear-gradient(to bottom, #ffffff 1px, transparent 1px)
+          `,
+          backgroundSize: "50px 50px",
+          animation: "gridMove 20s linear infinite",
+          transform: "translateZ(0)",
+        }}
+      />
+
+      {/* Glowing orbs with CSS animations */}
+      <div className="absolute top-1/4 left-1/4 w-64 h-64">
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-full blur-3xl"
+          style={{
+            animation: "pulse 8s ease-in-out infinite",
+            transform: "translateZ(0)",
+          }}
+        />
+      </div>
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64">
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-secondary/5 to-accent/5 rounded-full blur-3xl"
+          style={{
+            animation: "pulse 12s ease-in-out infinite",
+            animationDelay: "1s",
+            transform: "translateZ(0)",
+          }}
+        />
+      </div>
+
+      {/* Subtle scan line effect */}
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          background: `linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 100%
+          )`,
+          backgroundSize: "100% 4px",
+          animation: "scan 15s linear infinite",
+          transform: "translateZ(0)",
+        }}
+      />
+    </div>
   );
 };
 
