@@ -358,7 +358,7 @@ export const ProjectsSection = () => {
               <ProjectCard
                 key={project.id}
                 project={project}
-                index={index}
+                index={0}
                 isHovered={hoveredProject === project.id}
                 onHover={() => setHoveredProject(project.id)}
                 onLeave={() => setHoveredProject(null)}

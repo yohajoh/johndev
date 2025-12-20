@@ -12,13 +12,28 @@ import {
   Users,
   TrendingUp,
   Globe,
+  Circle,
+  CircleDot,
 } from "lucide-react";
-import { MagneticElement } from "@/components/Cursor/CustomCursor";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 
 interface ProjectModalProps {
-  project: any;
+  project: {
+    id: string;
+    title: string;
+    subtitle: string;
+    category: string;
+    images: string[]; // Changed from image to images array
+    technologies: string[];
+    description: string;
+    metrics: { label: string; value: string; icon: any }[];
+    context: string;
+    action: string;
+    result: string;
+    links: { github?: string; live?: string };
+    color: string;
+  };
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
@@ -31,31 +46,119 @@ export const ProjectModal = ({
   onPrev,
 }: ProjectModalProps) => {
   const [mounted, setMounted] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  // Reset carousel when project changes
+  useEffect(() => {
+    setCarouselIndex(0);
+  }, [project.id]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!project?.images?.length) return;
+
+      switch (e.key) {
+        case "ArrowLeft":
+          e.preventDefault();
+          if (e.shiftKey) {
+            onPrev();
+          } else {
+            prevImage();
+          }
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          if (e.shiftKey) {
+            onNext();
+          } else {
+            nextImage();
+          }
+          break;
+        case "Escape":
+          onClose();
+          break;
+      }
+    },
+    [project?.images?.length, onPrev, onNext, onClose]
+  );
 
   useEffect(() => {
     setMounted(true);
     // Prevent body scroll
     document.body.style.overflow = "hidden";
+    // Add keyboard event listener
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.style.overflow = "unset";
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [handleKeyDown]);
 
-  if (!project || !mounted) return null;
+  // Carousel navigation functions
+  const nextImage = () => {
+    if (!project?.images?.length) return;
+    setCarouselIndex((prev) =>
+      prev === project.images.length - 1 ? 0 : prev + 1
+    );
+  };
 
-  // Create a wrapper with cursor provider if needed
-  const modalContent = (
+  const prevImage = () => {
+    if (!project?.images?.length) return;
+    setCarouselIndex((prev) =>
+      prev === 0 ? project.images.length - 1 : prev - 1
+    );
+  };
+
+  const goToImage = (index: number) => {
+    setCarouselIndex(index);
+  };
+
+  // Handle swipe gestures for mobile
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      nextImage();
+    } else if (isRightSwipe) {
+      prevImage();
+    }
+
+    // Reset values
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
+  if (!project || !mounted || !project.images?.length) return null;
+
+  return createPortal(
     <AnimatePresence mode="wait">
+      {/* Main container */}
       <motion.div
-        className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-8"
+        className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-8 pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         {/* Backdrop */}
         <motion.div
-          className="absolute inset-0 bg-black/70 backdrop-blur-md"
+          className="absolute inset-0 bg-black/70 backdrop-blur-md pointer-events-auto"
           onClick={onClose}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -64,49 +167,81 @@ export const ProjectModal = ({
 
         {/* Modal Content */}
         <motion.div
-          className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-background rounded-3xl shadow-2xl"
+          className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-background rounded-3xl shadow-2xl pointer-events-auto"
           initial={{ scale: 0.9, opacity: 0, y: 50 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 50 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button - Without MagneticElement temporarily */}
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
+            className="absolute top-4 right-4 z-20 p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
             aria-label="Close"
           >
             <X className="w-5 h-5 text-foreground" />
           </button>
 
-          {/* Navigation Buttons - Without MagneticElement temporarily */}
-          <div className="absolute top-1/2 left-4 -translate-y-1/2 z-10">
+          {/* Project Navigation Buttons */}
+          <div className="absolute top-1/2 left-4 -translate-y-1/2 z-20">
             <button
               onClick={onPrev}
-              className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
+              className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect group"
               aria-label="Previous project"
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
+              <span className="absolute left-full ml-2 px-2 py-1 bg-background/90 backdrop-blur-sm text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Prev Project (Shift+←)
+              </span>
             </button>
           </div>
-          <div className="absolute top-1/2 right-4 -translate-y-1/2 z-10">
+          <div className="absolute top-1/2 right-4 -translate-y-1/2 z-20">
             <button
               onClick={onNext}
-              className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
+              className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect group"
               aria-label="Next project"
             >
               <ChevronRight className="w-5 h-5 text-foreground" />
+              <span className="absolute right-full mr-2 px-2 py-1 bg-background/90 backdrop-blur-sm text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Next Project (Shift+→)
+              </span>
             </button>
           </div>
 
-          {/* Project Image */}
-          <div className="relative h-64 md:h-80 overflow-hidden rounded-t-3xl">
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${project.image})` }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
+          {/* Project Image Carousel */}
+          <div
+            className="relative h-64 md:h-80 overflow-hidden rounded-t-3xl"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Carousel Container */}
+            <motion.div
+              className="flex h-full"
+              animate={{ x: `-${carouselIndex * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
+              {project.images.map((img, index) => (
+                <div
+                  key={index}
+                  className="relative w-full h-full flex-shrink-0"
+                >
+                  {/* Background Image */}
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${img})` }}
+                  />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
+
+                  {/* Image Counter */}
+                  <div className="absolute top-4 right-4 px-3 py-1.5 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect">
+                    {index + 1} / {project.images.length}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
 
             {/* Category Badge */}
             <div className="absolute bottom-6 left-6">
@@ -114,9 +249,65 @@ export const ProjectModal = ({
                 {project.category}
               </span>
             </div>
+
+            {/* Carousel Navigation - Only show if multiple images */}
+            {project.images.length > 1 && (
+              <>
+                {/* Previous Image Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  <span className="absolute left-full ml-2 px-2 py-1 bg-background/90 backdrop-blur-sm text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    Previous (←)
+                  </span>
+                </button>
+
+                {/* Next Image Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                  <span className="absolute right-full mr-2 px-2 py-1 bg-background/90 backdrop-blur-sm text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    Next (→)
+                  </span>
+                </button>
+
+                {/* Carousel Indicators */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                  {project.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToImage(index);
+                      }}
+                      className="p-1"
+                      aria-label={`Go to image ${index + 1}`}
+                    >
+                      {index === carouselIndex ? (
+                        <CircleDot className="w-3 h-3 text-primary fill-primary" />
+                      ) : (
+                        <Circle className="w-3 h-3 text-foreground/40 hover:text-foreground/60 transition-colors" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Content */}
+          {/* Content - Rest of your existing modal content */}
           <div className="p-6 md:p-10">
             {/* Header */}
             <div className="mb-8">
@@ -236,10 +427,9 @@ export const ProjectModal = ({
           </div>
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
-
-  return createPortal(modalContent, document.body);
 };
 
 export default ProjectModal;

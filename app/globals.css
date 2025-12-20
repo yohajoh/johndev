@@ -315,13 +315,9 @@
   }
 }
 
-.modal-container {
-  z-index: 99999 !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
+.custom-cursor {
+  z-index: 999999 !important;
 }
-
 /* Utility Classes */
 @layer utilities {
   /* Text gradients */

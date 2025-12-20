@@ -436,71 +436,9 @@ export const CustomCursor = () => {
   return (
     <>
       {/* CSS Animations */}
-      <style jsx global>{`
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        @keyframes pulse {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 0.7;
-          }
-          50% {
-            transform: scale(1.1);
-            opacity: 1;
-          }
-        }
-
-        @keyframes blink {
-          0%,
-          100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.3;
-          }
-        }
-
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-3px);
-          }
-        }
-
-        @keyframes ripple {
-          0% {
-            transform: scale(0.5);
-            opacity: 1;
-          }
-          100% {
-            transform: scale(2);
-            opacity: 0;
-          }
-        }
-
-        @keyframes orbit {
-          0% {
-            transform: rotate(0deg) translateX(30px) rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg) translateX(30px) rotate(-360deg);
-          }
-        }
-      `}</style>
 
       {/* All Particles */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-[9997] overflow-hidden">
+      <div className="fixed custom-cursor top-0 left-0 w-full h-full pointer-events-none z-[9997] overflow-hidden">
         {/* Trailing dots that follow cursor */}
         {trailingDots.map((dot, i) => (
           <div
@@ -538,7 +476,9 @@ export const CustomCursor = () => {
             pointerEvents: "none",
           };
 
-          return <div key={particle.id} style={style} />;
+          return (
+            <div key={particle.id} style={style} className="custom-cursor" />
+          );
         })}
       </div>
 
@@ -548,7 +488,7 @@ export const CustomCursor = () => {
           {/* Outer Ring */}
           <div
             ref={cursorRingRef}
-            className="fixed top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
+            className="fixed custom-cursor top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
             style={{
               transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
               width: isHovering ? "60px" : "50px",
@@ -602,7 +542,7 @@ export const CustomCursor = () => {
           {/* Inner Cursor */}
           <div
             ref={cursorRef}
-            className="fixed top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
+            className="fixed custom-cursor top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
             style={{
               transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
               width: isClicking ? "22px" : isHovering ? "16px" : "14px",
@@ -665,7 +605,7 @@ export const CustomCursor = () => {
           {/* Inner dot - moves with cursor */}
           <div
             ref={cursorInnerRef}
-            className="fixed top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
+            className="fixedcustom-cursor top-0 left-0 pointer-events-none z-[9999] transition-all duration-75"
             style={{
               transform: `translate(${cursorPos.current.x}px, ${cursorPos.current.y}px)`,
               width: "6px",
@@ -726,7 +666,7 @@ export const CustomCursor = () => {
           {isClicking && (
             <>
               <div
-                className="fixed top-0 left-0 pointer-events-none z-[9998] rounded-full"
+                className="fixed custom-cursor top-0 left-0 pointer-events-none z-[9998] rounded-full"
                 style={{
                   left: cursorPos.current.x,
                   top: cursorPos.current.y,
