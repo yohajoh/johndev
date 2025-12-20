@@ -14,6 +14,8 @@ import {
   Globe,
 } from "lucide-react";
 import { MagneticElement } from "@/components/Cursor/CustomCursor";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface ProjectModalProps {
   project: any;
@@ -28,12 +30,25 @@ export const ProjectModal = ({
   onNext,
   onPrev,
 }: ProjectModalProps) => {
-  if (!project) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+    // Prevent body scroll
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
+
+  if (!project || !mounted) return null;
+
+  // Create a wrapper with cursor provider if needed
+  const modalContent = (
     <AnimatePresence mode="wait">
       <motion.div
-        className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-8"
+        className="fixed inset-0 z-[99999] flex items-center justify-center p-4 md:p-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -56,39 +71,33 @@ export const ProjectModal = ({
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button */}
-          <MagneticElement strength={0.3}>
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 z-10 p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5 text-foreground" />
-            </button>
-          </MagneticElement>
+          {/* Close Button - Without MagneticElement temporarily */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
 
-          {/* Navigation Buttons */}
+          {/* Navigation Buttons - Without MagneticElement temporarily */}
           <div className="absolute top-1/2 left-4 -translate-y-1/2 z-10">
-            <MagneticElement strength={0.2}>
-              <button
-                onClick={onPrev}
-                className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
-                aria-label="Previous project"
-              >
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-            </MagneticElement>
+            <button
+              onClick={onPrev}
+              className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
+              aria-label="Previous project"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
           </div>
           <div className="absolute top-1/2 right-4 -translate-y-1/2 z-10">
-            <MagneticElement strength={0.2}>
-              <button
-                onClick={onNext}
-                className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
-                aria-label="Next project"
-              >
-                <ChevronRight className="w-5 h-5 text-foreground" />
-              </button>
-            </MagneticElement>
+            <button
+              onClick={onNext}
+              className="p-3 rounded-xl bg-background/80 backdrop-blur-sm border border-border hover:bg-background hover:border-primary/30 transition-all duration-300 glass-effect"
+              aria-label="Next project"
+            >
+              <ChevronRight className="w-5 h-5 text-foreground" />
+            </button>
           </div>
 
           {/* Project Image */}
@@ -202,30 +211,26 @@ export const ProjectModal = ({
             {/* Links */}
             <div className="flex flex-wrap gap-4 pt-8 border-t border-border">
               {project.links.github && (
-                <MagneticElement strength={0.2}>
-                  <a
-                    href={project.links.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 px-6 py-3 bg-card text-foreground font-semibold rounded-xl hover:bg-card/80 transition-all duration-300 shadow-lg hover:shadow-xl glass-effect"
-                  >
-                    <Github className="w-5 h-5" />
-                    <span>View Code</span>
-                  </a>
-                </MagneticElement>
+                <a
+                  href={project.links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-card text-foreground font-semibold rounded-xl hover:bg-card/80 transition-all duration-300 shadow-lg hover:shadow-xl glass-effect"
+                >
+                  <Github className="w-5 h-5" />
+                  <span>View Code</span>
+                </a>
               )}
               {project.links.live && (
-                <MagneticElement strength={0.2}>
-                  <a
-                    href={project.links.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-xl hover:shadow-xl transition-all duration-300 shadow-lg"
-                  >
-                    <ExternalLink className="w-5 h-5" />
-                    <span>Live Demo</span>
-                  </a>
-                </MagneticElement>
+                <a
+                  href={project.links.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-xl hover:shadow-xl transition-all duration-300 shadow-lg"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                  <span>Live Demo</span>
+                </a>
               )}
             </div>
           </div>
@@ -233,6 +238,8 @@ export const ProjectModal = ({
       </motion.div>
     </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default ProjectModal;
