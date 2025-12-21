@@ -93,7 +93,11 @@ export const HeroSection = () => {
 
   const handleOpenResume = useCallback(() => {
     if (isMounted) {
-      window.open("/resume.pdf", "_blank", "noopener,noreferrer");
+      window.open(
+        "https://drive.google.com/file/d/1CTNTQZJm7UPyVkFKdjihIpLA_C7zDGkx/view?usp=drive_link",
+        "_blank",
+        "noopener,noreferrer"
+      );
     }
   }, [isMounted]);
 
