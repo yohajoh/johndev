@@ -10,6 +10,7 @@ import {
   Images,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image"; // Import Next.js Image component
 
 interface ProjectCardProps {
   project: {
@@ -17,10 +18,10 @@ interface ProjectCardProps {
     title: string;
     subtitle: string;
     category: string;
-    images: string[]; // Changed from image to images array
+    images: string[];
     technologies: string[];
     description: string;
-    metrics: { label: string; value: string; icon: any }[];
+    metrics: { label: string; value: string; icon: unknown }[];
     links: { github?: string; live?: string };
     color: string;
     featured?: boolean;
@@ -83,7 +84,15 @@ export const ProjectCard = ({
   };
 
   const colors = getColorClasses(project.color);
-  const thumbnailImage = project.images?.[0] || ""; // Get first image as thumbnail
+  const thumbnailImage = project.images?.[0] || "";
+
+  // Helper function to extract image path
+  const getImagePath = (imgPath: string) => {
+    // Remove '../public' prefix if present
+    return imgPath.startsWith("../public/")
+      ? imgPath.replace("../public/", "/")
+      : imgPath;
+  };
 
   return (
     <motion.div
@@ -113,11 +122,21 @@ export const ProjectCard = ({
       >
         {/* Image Container */}
         <div className="relative h-64 overflow-hidden">
-          {/* Background Image - Using first image as thumbnail */}
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-            style={{ backgroundImage: `url(${thumbnailImage})` }}
-          />
+          {/* Background Image - Using Next.js Image component */}
+          <div className="absolute inset-0">
+            {thumbnailImage ? (
+              <Image
+                src={getImagePath(thumbnailImage)}
+                alt={`${project.title} thumbnail`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                priority={index < 2} // Prioritize loading first 2 images
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800" />
+            )}
+          </div>
 
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
@@ -128,7 +147,7 @@ export const ProjectCard = ({
               {project.category}
             </span>
 
-            {/* Image Counter Badge - Shows how many images this project has */}
+            {/* Image Counter Badge */}
             {project.images.length > 1 && (
               <span className="px-2.5 py-1.5 bg-background/90 backdrop-blur-sm rounded-full text-xs font-medium text-foreground glass-effect flex items-center gap-1">
                 <Images className="w-3 h-3" />
@@ -145,7 +164,7 @@ export const ProjectCard = ({
           >
             <motion.button
               onClick={onClick}
-              className="px-6 py-3 bg-background text-primary rounded-xl font-semibold flex items-center gap-2 hover:scale-105 transition-transform shadow-xl"
+              className="px-6 py-3 bg-background text-primary rounded-xl font-semibold flex items-center gap-2 hover:scale-105 transition-transform shadow-xl z-20 relative"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -165,6 +184,7 @@ export const ProjectCard = ({
           )}
         </div>
 
+        {/* Rest of your component remains exactly the same */}
         {/* Content */}
         <div className="p-6">
           {/* Title & Links */}
@@ -228,27 +248,6 @@ export const ProjectCard = ({
               </span>
             )}
           </div>
-
-          {/* Metrics Preview (Optional) */}
-          {project.metrics && project.metrics.length > 0 && (
-            <div className="grid grid-cols-2 gap-2 pt-4 border-t border-border/50">
-              {project.metrics.slice(0, 2).map((metric, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-md bg-card flex items-center justify-center border border-border">
-                    <metric.icon className="w-3 h-3 text-muted-foreground" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">
-                      {metric.label}
-                    </span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {metric.value}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Decorative Corner */}
@@ -285,7 +284,7 @@ export const ProjectCard = ({
             </motion.div>
           ))}
 
-          {/* Floating Stats - Only show if project is featured */}
+          {/* Floating Stats */}
           {project.featured && (
             <motion.div
               className="absolute -right-4 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-card border border-border shadow-lg glass-effect"
@@ -319,82 +318,6 @@ export const ProjectCard = ({
             </motion.div>
           )}
         </>
-      )}
-    </motion.div>
-  );
-};
-
-// Compact Project Card Variant - Updated for images array
-export const CompactProjectCard = ({
-  project,
-  onClick,
-}: {
-  project: {
-    images: string[];
-    category: string;
-    title: string;
-    description: string;
-    featured?: boolean;
-  };
-  onClick: () => void;
-}) => {
-  const thumbnailImage = project.images?.[0] || "";
-
-  return (
-    <motion.div
-      className="group relative h-48 rounded-2xl overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300"
-      whileHover={{ y: -5 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-    >
-      {/* Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-        style={{ backgroundImage: `url(${thumbnailImage})` }}
-      />
-
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
-
-      {/* Content */}
-      <div className="absolute inset-0 p-6 flex flex-col justify-end">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-background/20 backdrop-blur-sm rounded-full text-sm font-medium text-foreground glass-effect">
-              {project.category}
-            </span>
-            {project.images.length > 1 && (
-              <span className="px-2 py-1 bg-background/20 backdrop-blur-sm rounded-full text-xs font-medium text-foreground glass-effect flex items-center gap-1">
-                <Images className="w-3 h-3" />
-                <span>{project.images.length}</span>
-              </span>
-            )}
-          </div>
-          <ArrowUpRight className="w-5 h-5 text-foreground/60 group-hover:text-foreground transition-colors" />
-        </div>
-        <h3 className="font-heading text-xl text-foreground mb-2">
-          {project.title}
-        </h3>
-        <p className="text-foreground/80 text-sm line-clamp-2">
-          {project.description}
-        </p>
-      </div>
-
-      {/* Hover Effect */}
-      <div className="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-        <span className="text-primary-foreground font-semibold">
-          {project.images.length > 1 ? "View Gallery" : "View Details"}
-        </span>
-      </div>
-
-      {/* Featured Badge */}
-      {project.featured && (
-        <div className="absolute top-4 right-4">
-          <span className="px-2.5 py-1 bg-yellow-500/20 backdrop-blur-sm rounded-full text-xs font-medium text-yellow-600 dark:text-yellow-400 flex items-center gap-1.5 glass-effect border border-yellow-500/20">
-            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-            Featured
-          </span>
-        </div>
       )}
     </motion.div>
   );

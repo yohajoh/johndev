@@ -45,8 +45,6 @@ const SKILLS_DATA = [
   },
 ];
 
-// Amazing Gradient Background with Fluid Animation
-
 export const AboutSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [activeTab, setActiveTab] = useState<"experience" | "education">(
@@ -140,24 +138,12 @@ export const AboutSection = () => {
     };
   }, [isVisible]);
 
-  // Memoized scroll handler
-  const scrollToContact = useCallback(() => {
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      contactSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, []);
-
   return (
     <section
       id="about"
       ref={sectionRef}
       className="section-padding relative overflow-hidden bg-gradient-to-b from-background via-gray-900/20 to-background"
       aria-labelledby="about-heading"
-      style={{ backgroundColor: "rgba(59, 130, 246, 0.2) 0%, transparent 50%" }}
       itemScope
       itemType="https://schema.org/Person"
     >
@@ -185,7 +171,7 @@ export const AboutSection = () => {
         >
           <MagneticElement strength={0.1}>
             <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 mb-6 backdrop-blur-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 shadow-lg"
               role="status"
               aria-label="About me section"
             >
@@ -219,7 +205,7 @@ export const AboutSection = () => {
             {/* Personal introduction card */}
             <article
               className={cn(
-                "p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-card/80 to-background/80 backdrop-blur-md border border-white/10 shadow-2xl",
+                "p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-card/50 border border-border shadow-xl hover:shadow-2xl transition-all duration-300",
                 isVisible ? "animate-fade-in-up" : "opacity-0"
               )}
               style={{ animationDelay: "100ms" }}
@@ -229,15 +215,15 @@ export const AboutSection = () => {
               <div className="flex flex-col sm:flex-row items-start gap-6">
                 {/* Avatar */}
                 <div className="relative">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/20 to-secondary/20">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-secondary/10 shadow-lg">
                     <div className="w-full h-full flex items-center justify-center relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 animate-pulse" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 animate-pulse" />
                       <span className="text-xl sm:text-2xl font-bold text-primary relative z-10">
                         YB
                       </span>
                     </div>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg">
+                  <div className="absolute -bottom-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-xl">
                     <CheckCircle
                       className="w-3 h-3 sm:w-4 sm:h-4 text-white"
                       aria-hidden="true"
@@ -255,29 +241,31 @@ export const AboutSection = () => {
                   </p>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 shadow-sm">
                       <Globe
                         className="w-3 h-3 sm:w-4 sm:h-4 text-primary"
                         aria-hidden="true"
                       />
-                      <span className="text-xs sm:text-sm">
+                      <span className="text-xs sm:text-sm text-muted-foreground">
                         San Francisco, CA
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5">
+                    <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 shadow-sm">
                       <Code
                         className="w-3 h-3 sm:w-4 sm:h-4 text-accent"
                         aria-hidden="true"
                       />
-                      <span className="text-xs sm:text-sm">Full-Stack</span>
+                      <span className="text-xs sm:text-sm text-muted-foreground">
+                        Full-Stack
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Bio */}
-              <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-white/10">
+              <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-border">
                 <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
                   I&#39;m passionate about creating digital solutions that make
                   a real impact. With expertise spanning frontend, backend, and
@@ -305,8 +293,8 @@ export const AboutSection = () => {
                     <MagneticElement key={feature.title} strength={0.1}>
                       <article
                         className={cn(
-                          "p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-card/60 to-background/60 backdrop-blur-md border border-white/10",
-                          "hover:border-primary/50 hover:scale-[1.02] transition-all duration-300 hover:shadow-xl",
+                          "p-4 sm:p-6 rounded-xl bg-card/50 border border-border shadow-lg hover:shadow-xl transition-all duration-300",
+                          "hover:border-primary hover:scale-[1.02]",
                           "animate-fade-in-up"
                         )}
                         style={{ animationDelay: `${index * 100}ms` }}
@@ -314,7 +302,7 @@ export const AboutSection = () => {
                       >
                         <div className="flex items-start gap-4">
                           <div
-                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center flex-shrink-0 shadow-lg`}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r ${feature.gradient} flex items-center justify-center flex-shrink-0 shadow-md`}
                             aria-hidden="true"
                           >
                             <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -323,7 +311,7 @@ export const AboutSection = () => {
                             <h4 className="font-heading font-bold text-foreground mb-2 text-base sm:text-lg">
                               {feature.title}
                             </h4>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-sm text-muted-foreground leading-relaxed">
                               {feature.description}
                             </p>
                           </div>
@@ -340,14 +328,14 @@ export const AboutSection = () => {
           <div className="space-y-8">
             {/* Tabs */}
             <div
-              className="flex gap-2 p-1 rounded-2xl bg-gradient-to-r from-white/5 to-white/5 backdrop-blur-md border border-white/10"
+              className="flex gap-2 p-1 rounded-2xl bg-muted/50 border border-border shadow-lg"
               role="tablist"
               aria-label="Experience and education tabs"
             >
               <Button
                 onClick={() => handleTabChange("experience")}
                 variant={activeTab === "experience" ? "primary" : "ghost"}
-                className="flex-1 backdrop-blur-sm"
+                className="flex-1"
                 aria-selected={activeTab === "experience"}
                 role="tab"
                 aria-controls="experience-content"
@@ -360,7 +348,7 @@ export const AboutSection = () => {
               <Button
                 onClick={() => handleTabChange("education")}
                 variant={activeTab === "education" ? "primary" : "ghost"}
-                className="flex-1 backdrop-blur-sm"
+                className="flex-1"
                 aria-selected={activeTab === "education"}
                 role="tab"
                 aria-controls="education-content"
@@ -412,7 +400,7 @@ export const AboutSection = () => {
                       )}
 
                       {/* Card */}
-                      <div className="p-6 rounded-2xl bg-gradient-to-br from-card/80 to-background/80 backdrop-blur-md border border-white/10 group-hover:border-primary/50 transition-all duration-300 shadow-lg">
+                      <div className="p-6 rounded-xl bg-card/50 border border-border shadow-lg hover:shadow-xl transition-all duration-300 group-hover:border-primary">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
                           <div>
                             <h4 className="font-heading text-lg sm:text-xl font-bold text-foreground">
@@ -431,13 +419,13 @@ export const AboutSection = () => {
                                   : item.institution}
                               </span>
                               {"current" in item && item.current && (
-                                <span className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-500 border border-green-500/20">
+                                <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20 shadow-sm">
                                   Current
                                 </span>
                               )}
                             </div>
                           </div>
-                          <span className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20">
+                          <span className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 shadow-md">
                             {item.period}
                           </span>
                         </div>
@@ -450,8 +438,8 @@ export const AboutSection = () => {
                           >
                             {item.description.map((desc, i) => (
                               <li key={i} className="flex items-start gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                                <span className="text-sm text-muted-foreground">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0 shadow-sm" />
+                                <span className="text-sm text-muted-foreground leading-relaxed">
                                   {desc}
                                 </span>
                               </li>
@@ -460,7 +448,7 @@ export const AboutSection = () => {
                         ) : (
                           <>
                             {"grade" in item && item.grade && (
-                              <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-secondary/10 to-accent/10 mb-6">
+                              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/10 mb-6 shadow-md">
                                 <Award
                                   className="w-5 h-5 text-secondary"
                                   aria-hidden="true"
@@ -480,11 +468,11 @@ export const AboutSection = () => {
 
                         {/* Technologies */}
                         {"technologies" in item && (
-                          <div className="flex flex-wrap gap-2 pt-6 border-t border-white/10">
+                          <div className="flex flex-wrap gap-2 pt-6 border-t border-border">
                             {item.technologies.map((tech) => (
                               <span
                                 key={tech}
-                                className="px-3 py-1.5 text-xs rounded-full bg-white/5 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300 border border-white/5 hover:border-primary/20"
+                                className="px-3 py-1.5 text-xs rounded-full bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all duration-300 border border-border hover:border-primary/20 shadow-sm"
                                 aria-label={`Technology: ${tech}`}
                               >
                                 {tech}
@@ -501,7 +489,7 @@ export const AboutSection = () => {
               {/* Stats section */}
               <article
                 className={cn(
-                  "mt-8 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 backdrop-blur-md border border-white/10 shadow-xl",
+                  "mt-8 p-6 sm:p-8 rounded-2xl bg-card/50 border border-border shadow-xl hover:shadow-2xl transition-all duration-300",
                   isVisible ? "animate-fade-in-up" : "opacity-0"
                 )}
                 style={{ animationDelay: "400ms" }}
@@ -511,11 +499,11 @@ export const AboutSection = () => {
                   Career Highlights
                 </h3>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                   {STATS_DATA.map((stat, index) => (
                     <div
                       key={stat.label}
-                      className="text-center p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/5"
+                      className="text-center p-4 rounded-xl bg-muted/50 border border-border shadow-lg"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <div className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
@@ -540,9 +528,9 @@ export const AboutSection = () => {
                           {Math.round(progressValues[index])}%
                         </span>
                       </div>
-                      <div className="h-2 rounded-full bg-white/5 overflow-hidden">
+                      <div className="h-2 rounded-full bg-muted overflow-hidden shadow-inner">
                         <div
-                          className={`h-full rounded-full bg-gradient-to-r ${skill.color} transition-all duration-1000 ease-out shadow-lg`}
+                          className={`h-full rounded-full bg-gradient-to-r ${skill.color} transition-all duration-1000 ease-out shadow-md`}
                           style={{
                             width: `${progressValues[index]}%`,
                           }}

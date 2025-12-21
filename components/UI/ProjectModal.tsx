@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image"; // Import Next.js Image component
 
 interface ProjectModalProps {
   project: {
@@ -24,7 +25,7 @@ interface ProjectModalProps {
     title: string;
     subtitle: string;
     category: string;
-    images: string[]; // Changed from image to images array
+    images: string[];
     technologies: string[];
     description: string;
     metrics: { label: string; value: string; icon: any }[];
@@ -47,10 +48,12 @@ export const ProjectModal = ({
 }: ProjectModalProps) => {
   const [mounted, setMounted] = useState(false);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Reset carousel when project changes
   useEffect(() => {
     setCarouselIndex(0);
+    setIsLoading(true);
   }, [project.id]);
 
   // Handle keyboard navigation
@@ -99,6 +102,7 @@ export const ProjectModal = ({
   // Carousel navigation functions
   const nextImage = () => {
     if (!project?.images?.length) return;
+    setIsLoading(true);
     setCarouselIndex((prev) =>
       prev === project.images.length - 1 ? 0 : prev + 1
     );
@@ -106,13 +110,20 @@ export const ProjectModal = ({
 
   const prevImage = () => {
     if (!project?.images?.length) return;
+    setIsLoading(true);
     setCarouselIndex((prev) =>
       prev === 0 ? project.images.length - 1 : prev - 1
     );
   };
 
   const goToImage = (index: number) => {
+    setIsLoading(true);
     setCarouselIndex(index);
+  };
+
+  // Handle image load
+  const handleImageLoad = () => {
+    setIsLoading(false);
   };
 
   // Handle swipe gestures for mobile
@@ -143,6 +154,14 @@ export const ProjectModal = ({
     // Reset values
     setTouchStart(0);
     setTouchEnd(0);
+  };
+
+  // Helper function to extract image path
+  const getImagePath = (imgPath: string) => {
+    // Remove '../public' prefix if present
+    return imgPath.startsWith("../public/")
+      ? imgPath.replace("../public/", "/")
+      : imgPath;
   };
 
   if (!project || !mounted || !project.images?.length) return null;
@@ -211,11 +230,16 @@ export const ProjectModal = ({
 
           {/* Project Image Carousel */}
           <div
-            className="relative h-64 md:h-80 overflow-hidden rounded-t-3xl"
+            className="relative h-80 md:h-100 overflow-hidden rounded-t-3xl"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
+            {/* Loading skeleton */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 animate-pulse z-10" />
+            )}
+
             {/* Carousel Container */}
             <motion.div
               className="flex h-full"
@@ -227,16 +251,26 @@ export const ProjectModal = ({
                   key={index}
                   className="relative w-full h-full flex-shrink-0"
                 >
-                  {/* Background Image */}
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${img})` }}
-                  />
+                  {/* Background Image with Next.js Image component */}
+                  <div className="absolute inset-0">
+                    <Image
+                      src={getImagePath(img)}
+                      alt={`${project.title} - Image ${index + 1}`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+                      className="object-cover"
+                      priority={index === carouselIndex && carouselIndex === 0}
+                      onLoad={
+                        index === carouselIndex ? handleImageLoad : undefined
+                      }
+                    />
+                  </div>
+
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
 
                   {/* Image Counter */}
-                  <div className="absolute top-4 right-4 px-3 py-1.5 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect">
+                  <div className="absolute top-4 right-4 px-3 py-1.5 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect z-10">
                     {index + 1} / {project.images.length}
                   </div>
                 </div>
@@ -244,7 +278,7 @@ export const ProjectModal = ({
             </motion.div>
 
             {/* Category Badge */}
-            <div className="absolute bottom-6 left-6">
+            <div className="absolute bottom-6 left-6 z-10">
               <span className="px-4 py-2 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect">
                 {project.category}
               </span>
@@ -259,7 +293,7 @@ export const ProjectModal = ({
                     e.stopPropagation();
                     prevImage();
                   }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group z-20"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="w-5 h-5" />
@@ -274,7 +308,7 @@ export const ProjectModal = ({
                     e.stopPropagation();
                     nextImage();
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group z-20"
                   aria-label="Next image"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -284,7 +318,7 @@ export const ProjectModal = ({
                 </button>
 
                 {/* Carousel Indicators */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
                   {project.images.map((_, index) => (
                     <button
                       key={index}

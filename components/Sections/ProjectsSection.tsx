@@ -1,34 +1,24 @@
+/* eslint-disable react-hooks/set-state-in-render */
 "use client";
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  ExternalLink,
-  Github,
-  Eye,
+  motion,
+  AnimatePresence as MotionAnimatePresence,
+} from "framer-motion";
+import {
   Code2,
-  Filter,
   Search,
   Grid,
   List,
-  ArrowUpRight,
   Star,
   Users,
   TrendingUp,
   Zap,
   Globe,
   Cpu,
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Maximize2,
   Play,
   Pause,
-  Server,
-  Database,
-  Cloud,
-  Palette,
-  Smartphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagneticElement } from "@/components/Cursor/CustomCursor";
@@ -36,40 +26,6 @@ import { Button, IconButton } from "@/components/UI/Button";
 import { ProjectCard } from "@/components/UI/ProjectCard";
 import { ProjectModal } from "@/components/UI/ProjectModal";
 import { PROJECTS_DATA } from "@/lib/constants";
-
-// Technology icon mapping
-const TECH_ICONS: Record<string, React.ElementType> = {
-  "Next.js": Globe,
-  React: Code2,
-  "Vue.js": Code2,
-  "Node.js": Server,
-  Python: Server,
-  Go: Cpu,
-  MongoDB: Database,
-  PostgreSQL: Database,
-  Redis: Database,
-  AWS: Cloud,
-  GCP: Cloud,
-  Docker: Server,
-  Kubernetes: Server,
-  TypeScript: Code2,
-  GraphQL: Server,
-  Firebase: Cloud,
-  "React Native": Smartphone,
-  Stripe: Zap,
-  FastAPI: Server,
-  Kafka: Server,
-  ClickHouse: Database,
-  Jest: Zap,
-  Storybook: Code2,
-  Rollup: Zap,
-  "GitHub Actions": Zap,
-  MQTT: Cloud,
-  "Raspberry Pi": Cpu,
-  "AWS IoT": Cloud,
-  AppCenter: Smartphone,
-  Redux: Code2,
-};
 
 // Project categories
 const PROJECT_CATEGORIES = [
@@ -159,52 +115,14 @@ export const ProjectsSection = () => {
     setSelectedProject(PROJECTS_DATA[prevIndex].id);
   }, [currentProjectIndex]);
 
-  // Get color classes based on theme variables
-  const getColorClasses = useCallback((color: string) => {
-    switch (color) {
-      case "primary":
-        return {
-          bg: "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent",
-          border: "border-primary/20",
-          text: "text-primary",
-          button: "bg-primary text-primary-foreground hover:bg-primary/90",
-          hover: "hover:border-primary/40",
-        };
-      case "secondary":
-        return {
-          bg: "bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent",
-          border: "border-secondary/20",
-          text: "text-secondary",
-          button:
-            "bg-secondary text-secondary-foreground hover:bg-secondary/90",
-          hover: "hover:border-secondary/40",
-        };
-      case "accent":
-        return {
-          bg: "bg-gradient-to-br from-accent/10 via-accent/5 to-transparent",
-          border: "border-accent/20",
-          text: "text-accent",
-          button: "bg-accent text-accent-foreground hover:bg-accent/90",
-          hover: "hover:border-accent/40",
-        };
-      default:
-        return {
-          bg: "bg-gradient-to-br from-card/50 to-background",
-          border: "border-border",
-          text: "text-muted",
-          button: "bg-muted text-muted-foreground hover:bg-muted/90",
-          hover: "hover:border-border",
-        };
-    }
-  }, []);
-
-  // Handle scroll to contact
-  const scrollToContact = useCallback(() => {
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth" });
-    }
-  }, []);
+  // Create a typed version
+  const AnimatePresence = MotionAnimatePresence as React.FC<{
+    children: React.ReactNode;
+    mode?: "sync" | "wait" | "popLayout";
+    initial?: boolean;
+    onExitComplete?: () => void;
+    presenceAffectsLayout?: boolean;
+  }>;
 
   return (
     <>
@@ -382,8 +300,8 @@ export const ProjectsSection = () => {
                 No projects found
               </h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Try adjusting your search or filter to find what you're looking
-                for.
+                Try adjusting your search or filter to find what you&#39;re
+                looking for.
               </p>
               <Button
                 onClick={() => {

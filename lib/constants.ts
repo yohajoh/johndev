@@ -929,6 +929,7 @@ export const PROJECTS_DATA = [
       live: "https://example.com",
     },
     images: [
+      "../public/sec.png",
       "../public/john.jpg",
       "/projects/ecommerce/homepage.jpg",
       "/projects/ecommerce/product-page.jpg",

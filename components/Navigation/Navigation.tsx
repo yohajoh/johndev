@@ -137,21 +137,31 @@ export const Navigation = () => {
       <nav
         ref={navRef}
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-3 sm:py-4",
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out py-3 sm:py-4",
           isScrolled
             ? "bg-background/95 border-b border-border/50 shadow-lg backdrop-blur-lg"
-            : "bg-transparent",
+            : "bg-background/0 border-b border-transparent",
           "transform-gpu"
         )}
         aria-label="Main navigation"
+        style={{
+          transition:
+            "background-color 500ms ease-out, backdrop-filter 500ms ease-out, border-color 500ms ease-out",
+        }}
       >
-        {/* Background overlay when scrolled */}
-        {isScrolled && (
-          <div
-            className="absolute inset-0 bg-background/95 backdrop-blur-lg pointer-events-none"
-            aria-hidden="true"
-          />
-        )}
+        {/* Background overlay when scrolled - for smoother transition */}
+        <div
+          className={cn(
+            "absolute inset-0 backdrop-blur-lg pointer-events-none transition-all duration-500 ease-out",
+            isScrolled ? "opacity-100" : "opacity-0"
+          )}
+          aria-hidden="true"
+          style={{
+            background: isScrolled
+              ? "linear-gradient(to bottom, rgba(var(--background), 0.95), rgba(var(--background), 0.85))"
+              : "transparent",
+          }}
+        />
 
         <div className="container-wide mx-auto px-4 relative z-10">
           <div className="flex items-center justify-between">
