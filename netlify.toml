@@ -2,5 +2,16 @@
   command = "pnpm run build"
   publish = ".next"
 
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
 [functions]
-  directory = ".next/server/app/api"
+  node_bundler = "esbuild"
+  external_node_modules = ["nodemailer", "resend"]
+
+[dev]
+  framework = "#custom"
+  command = "pnpm run dev"
+  port = 3000
