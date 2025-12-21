@@ -386,8 +386,11 @@ If you need to send additional information, simply reply to my response when you
     console.error("Email sending error:", error);
     const elapsedTime = Date.now() - startTime;
 
+    // Type assertion
+    const err = error as Error;
+
     // Check what failed
-    if (error.message && error.message.includes("Owner notification sent")) {
+    if (err.message && err.message.includes("Owner notification sent")) {
       // Owner email succeeded but confirmation failed
       return {
         success: false,
@@ -395,14 +398,13 @@ If you need to send additional information, simply reply to my response when you
         note: "Your message was delivered to me, but we couldn't send you a confirmation.",
         elapsedTime,
       };
-    } else {
-      // Owner email failed (confirmation was never attempted)
-      return {
-        success: false,
-        error: "Failed to send your message",
-        elapsedTime,
-      };
     }
+
+    return {
+      success: false,
+      error: "Failed to send your message",
+      elapsedTime,
+    };
   }
 }
 
