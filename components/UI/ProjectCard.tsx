@@ -1,14 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  ExternalLink,
-  Github,
-  Star,
-  Eye,
-  ArrowUpRight,
-  Images,
-} from "lucide-react";
+import { ExternalLink, Github, Star, Eye, Images } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image"; // Import Next.js Image component
 
@@ -21,7 +14,6 @@ interface ProjectCardProps {
     images: string[];
     technologies: string[];
     description: string;
-    metrics: { label: string; value: string; icon: unknown }[];
     links: { github?: string; live?: string };
     color: string;
     featured?: boolean;

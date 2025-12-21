@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { motion } from "framer-motion";
@@ -24,92 +25,6 @@ const MonogramLogo = ({
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: [0.4, 0, 0.2, 1],
-        when: "beforeChildren",
-        staggerChildren: 0.1,
-      },
-    },
-    hover: {
-      scale: 1.05,
-      rotate: [0, -5, 5, 0],
-      transition: {
-        duration: 0.8,
-        ease: "easeInOut",
-      },
-    },
-  };
-
-  const pathVariants = {
-    hidden: {
-      pathLength: 0,
-      opacity: 0,
-      rotate: -180,
-    },
-    visible: (i: number) => ({
-      pathLength: 1,
-      opacity: 1,
-      rotate: 0,
-      transition: {
-        pathLength: {
-          duration: 1.5,
-          ease: [0.4, 0, 0.2, 1],
-          delay: i * 0.2,
-        },
-        opacity: { duration: 0.5, delay: i * 0.2 },
-        rotate: { duration: 1, ease: "backOut", delay: i * 0.2 },
-      },
-    }),
-  };
-
-  const fillVariants = {
-    hidden: { opacity: 0, scale: 0 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: "backOut",
-        delay: 1.2,
-      },
-    },
-    hover: {
-      scale: 1.1,
-      opacity: 0.9,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const glowVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: [0.3, 0.6, 0.3],
-      scale: [1, 1.2, 1],
-      transition: {
-        opacity: {
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        },
-        scale: {
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        },
-      },
-    },
-  };
 
   // Get colors based on theme
   const colors = {

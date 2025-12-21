@@ -6,7 +6,6 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Layers,
   Brain,
-  Rocket,
   ChevronRight,
   Award,
   Star,
@@ -14,12 +13,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { MagneticElement } from "../Cursor/CustomCursor";
-import { Button } from "@/components/UI/Button";
-import {
-  SKILL_CATEGORIES,
-  SKILLS_DATA,
-  FEATURE_HIGHLIGHTS,
-} from "@/lib/constants";
+import { SKILL_CATEGORIES, SKILLS_DATA } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export const SkillsSection = () => {
@@ -151,16 +145,6 @@ export const SkillsSection = () => {
     setActiveCategory(categoryId);
     setSkillLevels({});
     setIsAnimating(true);
-  }, []);
-
-  const scrollToContact = useCallback(() => {
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      contactSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
   }, []);
 
   // Accessibility: Add keyboard navigation for categories

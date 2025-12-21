@@ -18,12 +18,13 @@ import {
   FEATURE_HIGHLIGHTS,
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import MonogramLogo from "@/components/UI/MonogramLogo";
 
 // Memoized constants for performance
 const STATS_DATA = [
-  { value: "150+", label: "Projects Delivered" },
+  { value: "20+", label: "Projects Delivered" },
   { value: "50+", label: "Happy Clients" },
-  { value: "25+", label: "Technologies" },
+  { value: "20+", label: "Technologies" },
   { value: "99%", label: "Success Rate" },
 ];
 
@@ -215,17 +216,11 @@ export const AboutSection = () => {
               <div className="flex flex-col sm:flex-row items-start gap-6">
                 {/* Avatar */}
                 <div className="relative">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-secondary/10 shadow-lg">
-                    <div className="w-full h-full flex items-center justify-center relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 animate-pulse" />
-                      <span className="text-xl sm:text-2xl font-bold text-primary relative z-10">
-                        YB
-                      </span>
-                    </div>
-                  </div>
-                  <div className="absolute -bottom-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-xl">
+                  <MonogramLogo />
+
+                  <div className="z-[9999] absolute -bottom-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-xl">
                     <CheckCircle
-                      className="w-3 h-3 sm:w-4 sm:h-4 text-white"
+                      className="w-3 h-3 sm:w-4 sm:h-4 text-white "
                       aria-hidden="true"
                     />
                   </div>
@@ -236,8 +231,7 @@ export const AboutSection = () => {
                     Yohannes Belete
                   </h2>
                   <p className="text-muted-foreground mb-4 text-sm sm:text-base">
-                    Senior Full-Stack Developer & System Architect based in San
-                    Francisco
+                    Full-Stack Developer & UI/UX Design based in Adama Ethiopia
                   </p>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -247,7 +241,7 @@ export const AboutSection = () => {
                         aria-hidden="true"
                       />
                       <span className="text-xs sm:text-sm text-muted-foreground">
-                        San Francisco, CA
+                        Adama, Oromia Rigion, Ethiopia
                       </span>
                     </div>
 
@@ -536,8 +530,8 @@ export const AboutSection = () => {
                           }}
                           role="progressbar"
                           aria-valuenow={progressValues[index]}
-                          aria-valuemin="0"
-                          aria-valuemax="100"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
                           aria-label={`${skill.label} progress: ${Math.round(
                             progressValues[index]
                           )}%`}

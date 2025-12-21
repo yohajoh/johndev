@@ -1,32 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Heart,
-  Coffee,
-  Code2,
-  Rocket,
-  ArrowUp,
-  Sun,
-  Moon,
-  Mail,
-  Phone,
-  MapPin,
-  ExternalLink,
-  ChevronRight,
-  Sparkles,
-  Zap,
-  Copyright,
-} from "lucide-react";
+import { Code2, Mail, ExternalLink, ChevronRight } from "lucide-react";
 import { MagneticElement } from "../Cursor/CustomCursor";
-import { InteractiveButton } from "../Cursor/CustomCursor";
 import { NAVIGATION, SOCIAL_LINKS, CONTACT_INFO } from "@/lib/constants";
-import { cn, getCurrentYear } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import MonogramLogo from "@/components/UI/MonogramLogo";
 
 export const Footer = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [currentYear] = useState(getCurrentYear());
   const [scrollProgress, setScrollProgress] = useState(0);
 
   // Intersection Observer for reveal animation
@@ -70,32 +52,6 @@ export const Footer = () => {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Theme management
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-
-    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
-    setTheme(initialTheme);
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
   return (
     <footer
       id="footer"
@@ -130,12 +86,7 @@ export const Footer = () => {
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-xl" />
-                  <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                    <span className="font-heading font-bold text-xl text-white">
-                      YB
-                    </span>
-                  </div>
+                  <MonogramLogo />
                 </div>
                 <div>
                   <h2 className="font-heading text-2xl font-bold text-foreground">
@@ -298,48 +249,3 @@ export const Footer = () => {
 };
 
 export default Footer;
-
-// {/* Newsletter & CTA */}
-// <div
-//   className={cn(
-//     "mt-16 p-8 rounded-3xl bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 border border-white/10",
-//     "transition-all duration-1000 ease-out delay-400",
-//     isVisible
-//       ? "opacity-100 translate-y-0"
-//       : "opacity-0 translate-y-10"
-//   )}
-// >
-//   <div className="grid md:grid-cols-2 gap-8 items-center">
-//     <div>
-//       <h3 className="font-heading text-2xl font-bold text-foreground mb-2">
-//         Stay Updated
-//       </h3>
-//       <p className="text-muted-foreground">
-//         Subscribe to my newsletter for the latest updates, tech
-//         insights, and exclusive content.
-//       </p>
-//     </div>
-
-//     <form className="space-y-4">
-//       <div className="flex gap-3">
-//         <input
-//           type="email"
-//           placeholder="Your email address"
-//           className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 text-foreground placeholder:text-muted-foreground transition-all duration-300"
-//           aria-label="Email address for newsletter"
-//         />
-//         <InteractiveButton
-//           type="submit"
-//           variant="primary"
-//           className="group"
-//         >
-//           <Zap className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-//           Subscribe
-//         </InteractiveButton>
-//       </div>
-//       <p className="text-xs text-muted-foreground">
-//         No spam ever. Unsubscribe anytime.
-//       </p>
-//     </form>
-//   </div>
-// </div>

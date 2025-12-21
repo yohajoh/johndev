@@ -1,15 +1,17 @@
+/* eslint-disable react-hooks/immutability */
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence as MotionAnimatePresence,
+} from "framer-motion";
 import {
   X,
   ExternalLink,
   Github,
   ChevronLeft,
   ChevronRight,
-  Star,
   Zap,
-  Users,
   TrendingUp,
   Globe,
   Circle,
@@ -28,7 +30,6 @@ interface ProjectModalProps {
     images: string[];
     technologies: string[];
     description: string;
-    metrics: { label: string; value: string; icon: any }[];
     context: string;
     action: string;
     result: string;
@@ -165,6 +166,15 @@ export const ProjectModal = ({
   };
 
   if (!project || !mounted || !project.images?.length) return null;
+
+  // Create a typed version
+  const AnimatePresence = MotionAnimatePresence as React.FC<{
+    children: React.ReactNode;
+    mode?: "sync" | "wait" | "popLayout";
+    initial?: boolean;
+    onExitComplete?: () => void;
+    presenceAffectsLayout?: boolean;
+  }>;
 
   return createPortal(
     <AnimatePresence mode="wait">
@@ -362,32 +372,6 @@ export const ProjectModal = ({
                 >
                   {tech}
                 </span>
-              ))}
-            </div>
-
-            {/* Metrics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-              {project.metrics.map((metric: any, index: number) => (
-                <motion.div
-                  key={metric.label}
-                  className="p-4 rounded-2xl bg-card border border-border shadow-sm hover:shadow-md transition-all duration-300 glass-effect"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 glass-effect">
-                      <metric.icon className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="font-heading text-2xl md:text-3xl text-foreground font-bold">
-                      {metric.value}
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {metric.label}
-                  </div>
-                </motion.div>
               ))}
             </div>
 

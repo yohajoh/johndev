@@ -3,16 +3,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Mail,
-  Phone,
-  MapPin,
   Send,
   CheckCircle,
   AlertCircle,
-  Clock,
-  Calendar,
   Users,
   MessageSquare,
-  Zap,
   ExternalLink,
 } from "lucide-react";
 import { MagneticElement } from "../Cursor/CustomCursor";
@@ -267,7 +262,6 @@ export const ContactSection = () => {
   // Memoize constants
   const memoizedContactInfo = useMemo(() => CONTACT_INFO || [], []);
   const memoizedSocialLinks = useMemo(() => SOCIAL_LINKS || [], []);
-  const memoizedWorkingHours = useMemo(() => WORKING_HOURS || [], []);
 
   // Intersection Observer with cleanup
   useEffect(() => {
@@ -396,15 +390,6 @@ export const ContactSection = () => {
     return `${index * 100}ms`;
   }, []);
 
-  // Schedule a call handler
-  const handleScheduleCall = useCallback(() => {
-    window.open(
-      "https://calendly.com/your-link",
-      "_blank",
-      "noopener,noreferrer"
-    );
-  }, []);
-
   // Field definitions for reusable rendering
   const formFields = useMemo(
     () => [
@@ -484,7 +469,7 @@ export const ContactSection = () => {
             className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
             itemProp="headline"
           >
-            Let's{" "}
+            Let&#39;s{" "}
             <span className="text-gradient-primary relative">
               Connect
               <div
@@ -499,7 +484,8 @@ export const ContactSection = () => {
             itemProp="description"
           >
             Have a project in mind or want to discuss potential collaboration?
-            I'm always open to new opportunities and interesting conversations.
+            I&#39;m always open to new opportunities and interesting
+            conversations.
           </p>
         </div>
 
@@ -522,7 +508,7 @@ export const ContactSection = () => {
                 Send a Message
               </h2>
               <p className="text-muted-foreground mb-8">
-                Fill out the form below and I'll get back to you as soon as
+                Fill out the form below and I&#39;ll get back to you as soon as
                 possible.
               </p>
 
@@ -847,62 +833,3 @@ export const ContactSection = () => {
 };
 
 export default ContactSection;
-
-// <div
-//           className={cn(
-//             "mt-16 transition-all duration-700 ease-out delay-900",
-//             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-//           )}
-//         >
-//           <GradientBorderCard
-//             className="shadow-2xl shadow-primary/20"
-//             intensity="high"
-//           >
-//             <div
-//               className="relative aspect-video bg-gradient-to-br from-gray-900 to-gray-800"
-//               itemScope
-//               itemType="https://schema.org/Place"
-//             >
-//               <div className="absolute inset-0 flex items-center justify-center">
-//                 <div className="text-center">
-//                   <GradientBorderCard
-//                     className="inline-block mb-4 shadow-2xl shadow-primary/20"
-//                     intensity="high"
-//                     innerClassName="p-4"
-//                   >
-//                     <div className="w-12 h-12 flex items-center justify-center">
-//                       <MapPin className="w-8 h-8 text-primary" />
-//                     </div>
-//                   </GradientBorderCard>
-//                   <h4
-//                     className="font-heading text-xl font-bold text-foreground mb-2"
-//                     itemProp="name"
-//                   >
-//                     San Francisco, CA
-//                   </h4>
-//                   <p className="text-muted-foreground" itemProp="description">
-//                     Based in the heart of Silicon Valley
-//                   </p>
-//                 </div>
-//               </div>
-
-//               {/* Decorative map grid */}
-//               <div className="absolute inset-0 opacity-5 pointer-events-none">
-//                 {Array.from({ length: 10 }).map((_, i) => (
-//                   <div
-//                     key={`h-${i}`}
-//                     className="absolute h-px w-full bg-gradient-to-r from-transparent via-white to-transparent"
-//                     style={{ top: `${i * 10}%` }}
-//                   />
-//                 ))}
-//                 {Array.from({ length: 10 }).map((_, i) => (
-//                   <div
-//                     key={`v-${i}`}
-//                     className="absolute w-px h-full bg-gradient-to-b from-transparent via-white to-transparent"
-//                     style={{ left: `${i * 10}%` }}
-//                   />
-//                 ))}
-//               </div>
-//             </div>
-//           </GradientBorderCard>
-//         </div>

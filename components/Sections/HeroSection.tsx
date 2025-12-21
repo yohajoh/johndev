@@ -1,5 +1,6 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/purity */
+/* eslint-disable react-hooks/set-state-in-effect */
+
 "use client";
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
@@ -16,7 +17,6 @@ export const HeroSection = () => {
   const heroRef = useRef<HTMLElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [isHoveringPhoto, setIsHoveringPhoto] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   const animationFrameRef = useRef<number>(0);
@@ -294,8 +294,6 @@ export const HeroSection = () => {
             <div className="relative mx-auto max-w-md lg:max-w-lg">
               <div
                 className="relative aspect-square rounded-3xl overflow-hidden border-8 border-card shadow-2xl"
-                onMouseEnter={() => setIsHoveringPhoto(true)}
-                onMouseLeave={() => setIsHoveringPhoto(false)}
                 aria-label="Profile photo of Yohannes Belete"
               >
                 <div
@@ -417,8 +415,8 @@ export const HeroSection = () => {
         className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent z-10"
         role="progressbar"
         aria-valuenow={scrollProgress * 100}
-        aria-valuemin="0"
-        aria-valuemax="100"
+        aria-valuemin={0}
+        aria-valuemax={100}
       >
         {isMounted && (
           <div

@@ -120,7 +120,7 @@ export const NAVIGATION = [
 export const SOCIAL_LINKS = [
   {
     platform: "GitHub",
-    url: "https://github.com/yohannesbelete",
+    url: "https://github.com/yohajoh",
     icon: Github,
     label: "GitHub Profile",
     color: "bg-gray-900 hover:bg-gray-800",
@@ -128,7 +128,7 @@ export const SOCIAL_LINKS = [
   },
   {
     platform: "LinkedIn",
-    url: "https://linkedin.com/in/yohannesbelete",
+    url: "https://linkedin.com/in/yon-belete-a775a83a1",
     icon: Linkedin,
     label: "LinkedIn Profile",
     color: "bg-blue-700 hover:bg-blue-600",
@@ -136,7 +136,7 @@ export const SOCIAL_LINKS = [
   },
   {
     platform: "Twitter",
-    url: "https://twitter.com/yohannesbelete",
+    url: "https://twitter.com/yohajoh",
     icon: Twitter,
     label: "Twitter Profile",
     color: "bg-sky-500 hover:bg-sky-400",
@@ -144,7 +144,7 @@ export const SOCIAL_LINKS = [
   },
   {
     platform: "Instagram",
-    url: "https://instagram.com/yohannesbelete",
+    url: "https://instagram.com/yohannes6851",
     icon: Instagram,
     label: "Instagram Profile",
     color:
@@ -153,7 +153,7 @@ export const SOCIAL_LINKS = [
   },
   {
     platform: "Email",
-    url: "mailto:hello@yohannesbelete.dev",
+    url: "mailto:ybelete490@gmail.com",
     icon: Mail,
     label: "Send Email",
     color: "bg-green-600 hover:bg-green-500",
@@ -481,28 +481,28 @@ export const PROJECT_CATEGORIES = [
 export const CONTACT_INFO = [
   {
     type: "email",
-    value: "hello@yohannesbelete.dev",
+    value: "ybelete490@gmail.com",
     label: "Email Address",
     icon: Mail,
-    href: "mailto:hello@yohannesbelete.dev",
+    href: "mailto:ybelete490@gmail.com",
     description: "Send me an email",
     color: "bg-green-600 hover:bg-green-500",
   },
   {
     type: "phone",
-    value: "+1 (555) 123-4567",
+    value: "+251 902 348 881",
     label: "Phone Number",
     icon: Phone,
-    href: "tel:+15551234567",
+    href: "tel:+251989238378",
     description: "Call or text me",
     color: "bg-blue-600 hover:bg-blue-500",
   },
   {
     type: "location",
-    value: "San Francisco, CA",
+    value: "Adama, Oromia Region, Ethiopia",
     label: "Location",
     icon: MapPin,
-    href: "https://maps.google.com/?q=San+Francisco+CA",
+    href: "https://maps.google.com/?q=Adama+Ethiopia",
     description: "Based in San Francisco",
     color: "bg-red-600 hover:bg-red-500",
   },
@@ -829,10 +829,10 @@ export const EDUCATION = [
 
 // Metrics
 export const METRICS = [
-  { label: "Projects Completed", value: "150+", icon: Briefcase },
+  { label: "Projects Completed", value: "20+", icon: Briefcase },
   { label: "Happy Clients", value: "50+", icon: Heart },
-  { label: "Years Experience", value: "6+", icon: Calendar },
-  { label: "Technologies", value: "25+", icon: Code },
+  { label: "Years Experience", value: "New", icon: Calendar },
+  { label: "Technologies", value: "20+", icon: Code },
 ] as const;
 
 // SEO metadata
