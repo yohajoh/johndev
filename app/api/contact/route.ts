@@ -49,15 +49,15 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW;
 
-  // Clean old entries
-  for (const [key, timestamps] of rateLimit.entries()) {
+  // With this:
+  rateLimit.forEach((timestamps: number[], key: string) => {
     const filtered = timestamps.filter((time: number) => time > windowStart);
     if (filtered.length === 0) {
       rateLimit.delete(key);
     } else {
       rateLimit.set(key, filtered);
     }
-  }
+  });
 
   // Get or create timestamps for this IP
   const timestamps = rateLimit.get(ip) || [];
