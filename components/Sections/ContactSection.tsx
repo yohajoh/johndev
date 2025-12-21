@@ -615,7 +615,7 @@ export const ContactSection = () => {
                 {/* Submit button with enhanced gradient */}
                 <div className="pt-4">
                   <InteractiveButton
-                    type="submit"
+                    // {...({ type: "submit" } as any)}
                     variant="primary"
                     size="lg"
                     className="w-full group relative overflow-hidden shadow-xl shadow-primary/30 hover:shadow-primary/40"
@@ -770,13 +770,13 @@ export const ContactSection = () => {
                           }
                           className="group flex items-center gap-4"
                           aria-label={info.label}
-                          itemProp={
-                            info.type === "email"
-                              ? "email"
-                              : info.type === "telephone"
-                              ? "telephone"
-                              : "url"
-                          }
+                          // itemProp={
+                          //   info.type === "email"
+                          //     ? "email"
+                          //     : info.type === "telephone"
+                          //     ? "telephone"
+                          //     : "url"
+                          // }
                         >
                           <div className="relative">
                             <div
@@ -797,13 +797,13 @@ export const ContactSection = () => {
                             </div>
                             <div
                               className="font-medium text-foreground group-hover:text-primary transition-colors duration-300"
-                              itemProp={
-                                info.type === "email"
-                                  ? "email"
-                                  : info.type === "telephone"
-                                  ? "telephone"
-                                  : "name"
-                              }
+                              // itemProp={
+                              //   info.type === "email"
+                              //     ? "email"
+                              //     : info.type === "telephone"
+                              //     ? "telephone"
+                              //     : "name"
+                              // }
                             >
                               {info.value}
                             </div>

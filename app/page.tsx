@@ -13,7 +13,9 @@ import { smoothScrollTo } from "@/components/Providers/SmoothScroll";
 export default function HomePage() {
   const [activeSection, setActiveSection] = useState("home");
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
   const isScrollingRef = useRef(false);
 
   // Handle scroll and active section with debouncing
