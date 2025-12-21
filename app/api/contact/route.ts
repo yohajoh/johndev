@@ -81,23 +81,38 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
 
 // REAL-WORLD: Create email transporter based on environment
 function createTransporter() {
-  // Check if we should use Resend (production) or Gmail (development)
-  console.log(process.env.RESEND_API_KEY);
-  console.log(process.env.NODE_ENV);
-  const useResend =
-    process.env.RESEND_API_KEY && process.env.NODE_ENV === "production";
+  console.log("=== createTransporter Debug ===");
+  console.log("RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY);
+  console.log("RESEND_API_KEY length:", process.env.RESEND_API_KEY?.length);
+  console.log("NODE_ENV:", process.env.NODE_ENV);
 
-  console.log(useResend);
+  // Check if we should use Resend
+  const hasResendKey =
+    process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.trim().length > 0;
+  const isProduction = process.env.NODE_ENV === "production";
+  const useResend = hasResendKey && isProduction;
+
+  console.log("hasResendKey:", hasResendKey);
+  console.log("isProduction:", isProduction);
+  console.log("useResend:", useResend);
 
   if (useResend) {
-    console.log("Using Resend for production emails");
+    console.log("✅ Using Resend for production emails");
+    const apiKey = process.env.RESEND_API_KEY!.trim();
+    console.log(
+      "Resend API key (first 10 chars):",
+      apiKey.substring(0, 10) + "..."
+    );
+
     return {
       sendMail: async (options: any) => {
         try {
+          console.log("📤 Sending via Resend to:", options.to);
+
           const res = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+              Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
@@ -110,32 +125,39 @@ function createTransporter() {
             }),
           });
 
+          console.log("Resend response status:", res.status);
+
           const responseData = await res.json();
+          console.log("Resend response:", responseData);
 
           if (!res.ok) {
-            console.error("Resend API error:", responseData);
+            console.error("❌ Resend API error:", responseData);
             throw new Error(
               `Resend API error: ${responseData.message || res.statusText}`
             );
           }
 
+          console.log("✅ Email sent successfully via Resend");
           return { messageId: responseData.id || "resend-" + Date.now() };
         } catch (error) {
-          console.error("Error in sendMail:", error);
+          console.error("❌ Error in Resend sendMail:", error);
           throw error;
         }
       },
     };
   }
 
-  // Use Gmail for development (no domain verification needed)
-  console.log("Using Gmail SMTP for development emails");
+  console.log("⚠️ Using Gmail SMTP for development emails");
 
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error(
+    const error = new Error(
       "Gmail credentials not configured. Set EMAIL_USER and EMAIL_PASS in .env.local"
     );
+    console.error("❌", error.message);
+    throw error;
   }
+
+  console.log("✅ Gmail credentials available");
 
   return nodemailer.createTransport({
     host: process.env.EMAIL_HOST || "smtp.gmail.com",
