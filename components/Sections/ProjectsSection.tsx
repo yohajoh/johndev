@@ -11,10 +11,6 @@ import {
   Search,
   Grid,
   List,
-  Star,
-  Users,
-  TrendingUp,
-  Zap,
   Globe,
   Cpu,
   Play,
@@ -315,42 +311,6 @@ export const ProjectsSection = () => {
               </Button>
             </motion.div>
           )}
-
-          {/* Stats Summary */}
-          <motion.div
-            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            {[
-              { icon: TrendingUp, label: "Projects Completed", value: "150+" },
-              { icon: Users, label: "Satisfied Clients", value: "50+" },
-              { icon: Zap, label: "Performance Score", value: "98%" },
-              { icon: Star, label: "Client Rating", value: "4.9/5" },
-            ].map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <MagneticElement key={stat.label} strength={0.1}>
-                  <div className="p-6 rounded-3xl glass-effect border border-border hover:border-primary/30 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-primary/10">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 flex items-center justify-center shadow-lg">
-                        <Icon className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-foreground">
-                          {stat.value}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {stat.label}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </MagneticElement>
-              );
-            })}
-          </motion.div>
         </div>
 
         {/* Floating Icons */}

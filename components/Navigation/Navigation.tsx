@@ -1,14 +1,15 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useScrollProgress } from "@/hooks/useScrollProgress";
-import { useMousePosition } from "@/hooks/useMousePosition";
 import { NAVIGATION, SOCIAL_LINKS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
 import { MinimalMonogramLogo } from "@/components/UI/MonogramLogo";
 import { ThemeToggle } from "@/components/ThemeProvider";
 import { MobileMenu } from "@/components/Navigation/MobileMenu";
+import MonogramLogo from "@/components/UI/MonogramLogo";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +21,6 @@ export const Navigation = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const animationFrameRef = useRef<number>(0);
   const { progress } = useScrollProgress();
-  const { x: mouseX, y: mouseY } = useMousePosition();
 
   // Set mounted state
   useEffect(() => {
@@ -182,12 +182,7 @@ export const Navigation = () => {
                   </div>
                 </div>
                 <div className="hidden md:block">
-                  <span className="font-heading text-lg sm:text-xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                    Yohannes Belete
-                  </span>
-                  <span className="block text-xs text-muted-foreground font-medium">
-                    Senior Developer
-                  </span>
+                  <MonogramLogo size={40} />
                 </div>
               </button>
             </div>
