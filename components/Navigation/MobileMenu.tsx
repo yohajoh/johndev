@@ -1,22 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  X,
-  ChevronRight,
-  Home,
-  User,
-  Code2,
-  Briefcase,
-  MessageSquare,
-  ExternalLink,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { X, ChevronRight, MessageSquare, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/UI/Button";
 import { NAVIGATION, SOCIAL_LINKS, CONTACT_INFO } from "@/lib/constants";
+import MonogramLogo from "@/components/UI/MonogramLogo";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -97,11 +86,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <span className="font-heading font-bold text-lg text-white">
-                  YB
-                </span>
-              </div>
+              <MonogramLogo size={45} />
               <div>
                 <h2 className="font-heading text-lg font-bold text-foreground">
                   Yohannes Belete

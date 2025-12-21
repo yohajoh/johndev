@@ -147,82 +147,30 @@ function createTransporter() {
   });
 }
 
-export async function POST(request: NextRequest) {
+// 🔥 SIMPLE & RELIABLE: Send emails sequentially
+async function sendEmailsSequentially(
+  name: string,
+  email: string,
+  message: string,
+  subject: string
+) {
+  const startTime = Date.now();
+
   try {
-    // Get client IP for rate limiting
-    const ip =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("x-real-ip") ||
-      "unknown";
-
-    // Check rate limit
-    const rateLimitCheck = checkRateLimit(ip);
-    if (!rateLimitCheck.allowed) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Too many requests. Please try again later.",
-          retryAfter: Math.ceil(RATE_LIMIT_WINDOW / 1000),
-        },
-        {
-          status: 429,
-          headers: {
-            "Retry-After": Math.ceil(RATE_LIMIT_WINDOW / 1000).toString(),
-            "X-RateLimit-Remaining": "0",
-            "X-RateLimit-Reset": (Date.now() + RATE_LIMIT_WINDOW).toString(),
-          },
-        }
-      );
-    }
-
-    // Parse request body
-    const body = await request.json().catch(() => ({}));
-
-    // Validate required fields
-    if (!body || typeof body !== "object") {
-      return NextResponse.json(
-        { success: false, error: "Invalid request body" },
-        { status: 400 }
-      );
-    }
-
-    // Validate form data
-    const validation = validateFormData(body);
-    if (!validation.valid) {
-      return NextResponse.json(
-        {
-          success: false,
-          errors: validation.errors,
-          error: validation.errors[0],
-        },
-        { status: 400 }
-      );
-    }
-
-    console.log("Processing contact form submission from:", body.email);
-    const { name, email, message, subject } = body;
-
-    // Create email transporter
     const transporter = createTransporter();
-
-    // Determine "from" address based on environment
     const isProduction = process.env.NODE_ENV === "production";
     const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Yohannes Belete";
     const domain = process.env.NEXT_PUBLIC_DOMAIN || "johndev.omera.tech";
 
     let fromAddress: string;
-
     if (isProduction && process.env.RESEND_API_KEY) {
-      // Production with Resend and verified domain
       fromAddress = `"${siteName}" <contact@${domain}>`;
     } else {
-      // Development with Gmail
       fromAddress = `"${siteName}" <${
         process.env.EMAIL_USER || "ybelete490@gmail.com"
       }>`;
     }
 
-    // Email content
     const emailSubject =
       subject?.trim() || `New Contact Form Submission from ${name.trim()}`;
 
@@ -302,7 +250,7 @@ export async function POST(request: NextRequest) {
     const mailToYou = {
       from: fromAddress,
       to: process.env.EMAIL_USER || "ybelete490@gmail.com",
-      replyTo: email.trim(), // CRITICAL: This makes replies go to the sender
+      replyTo: email.trim(),
       subject: `[Portfolio] ${emailSubject}`,
       html: emailToYouHtml,
       text: `
@@ -324,7 +272,7 @@ This message was sent via your portfolio contact form.
     };
 
     // ============================================
-    // EMAIL 2: Confirmation to the SENDER
+    // EMAIL 2: Confirmation to the SENDER (ONLY IF OWNER EMAIL SUCCEEDS)
     // ============================================
     const senderConfirmationHtml = `
       <!DOCTYPE html>
@@ -382,6 +330,14 @@ This message was sent via your portfolio contact form.
       </html>
     `;
 
+    // 🔥 STEP 1: Send to owner FIRST
+    console.log("Step 1: Sending notification to owner...");
+    await transporter.sendMail(mailToYou);
+    console.log("✓ Owner notification sent successfully");
+
+    // 🔥 STEP 2: Only send confirmation if owner email succeeded
+    console.log("Step 2: Sending confirmation to sender...");
+
     // Email to SENDER (Confirmation)
     const mailToSender = {
       from: fromAddress,
@@ -415,43 +371,172 @@ If you need to send additional information, simply reply to my response when you
       `.trim(),
     };
 
-    // Send both emails
-    console.log("Sending email to portfolio owner...");
-    await transporter.sendMail(mailToYou);
-
-    console.log("Sending confirmation to sender...");
     await transporter.sendMail(mailToSender);
+    console.log("✓ Confirmation sent to sender");
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Email sent successfully",
-        rateLimit: {
-          remaining: rateLimitCheck.remaining,
-          reset: Date.now() + RATE_LIMIT_WINDOW,
-        },
-      },
-      {
-        status: 200,
-        headers: {
-          "X-RateLimit-Remaining": rateLimitCheck.remaining.toString(),
-          "X-RateLimit-Reset": (Date.now() + RATE_LIMIT_WINDOW).toString(),
-        },
-      }
-    );
+    const elapsedTime = Date.now() - startTime;
+    console.log(`✅ Both emails sent successfully in ${elapsedTime}ms`);
+
+    return {
+      success: true,
+      message: "Both emails sent successfully",
+      elapsedTime,
+    };
   } catch (error) {
     console.error("Email sending error:", error);
+    const elapsedTime = Date.now() - startTime;
+
+    // Check what failed
+    if (error.message && error.message.includes("Owner notification sent")) {
+      // Owner email succeeded but confirmation failed
+      return {
+        success: false,
+        error: "Failed to send confirmation email",
+        note: "Your message was delivered to me, but we couldn't send you a confirmation.",
+        elapsedTime,
+      };
+    } else {
+      // Owner email failed (confirmation was never attempted)
+      return {
+        success: false,
+        error: "Failed to send your message",
+        elapsedTime,
+      };
+    }
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const requestStart = Date.now();
+
+  try {
+    // Get client IP for rate limiting
+    const ip =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
+    // Check rate limit
+    const rateLimitCheck = checkRateLimit(ip);
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Too many requests. Please try again later.",
+          retryAfter: Math.ceil(RATE_LIMIT_WINDOW / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": Math.ceil(RATE_LIMIT_WINDOW / 1000).toString(),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": (Date.now() + RATE_LIMIT_WINDOW).toString(),
+          },
+        }
+      );
+    }
+
+    // Parse request body
+    const body = await request.json().catch(() => ({}));
+
+    // Validate required fields
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        { success: false, error: "Invalid request body" },
+        { status: 400 }
+      );
+    }
+
+    // Validate form data
+    const validation = validateFormData(body);
+    if (!validation.valid) {
+      return NextResponse.json(
+        {
+          success: false,
+          errors: validation.errors,
+          error: validation.errors[0],
+        },
+        { status: 400 }
+      );
+    }
+
+    console.log("Processing contact form submission from:", body.email);
+    const { name, email, message, subject } = body;
+
+    // 🔥 Send emails sequentially: Owner first, then confirmation
+    const emailResult = await sendEmailsSequentially(
+      name,
+      email,
+      message,
+      subject || ""
+    );
+
+    const totalTime = Date.now() - requestStart;
+
+    if (emailResult.success) {
+      return NextResponse.json(
+        {
+          success: true,
+          message:
+            emailResult.message ||
+            "Message sent successfully! You should receive a confirmation email shortly.",
+          elapsedTime: emailResult.elapsedTime,
+          totalTime: totalTime,
+          rateLimit: {
+            remaining: rateLimitCheck.remaining,
+            reset: Date.now() + RATE_LIMIT_WINDOW,
+          },
+        },
+        {
+          status: 200,
+          headers: {
+            "X-RateLimit-Remaining": rateLimitCheck.remaining.toString(),
+            "X-RateLimit-Reset": (Date.now() + RATE_LIMIT_WINDOW).toString(),
+            "X-Response-Time": `${totalTime}ms`,
+          },
+        }
+      );
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          error: emailResult.error || "Failed to send email",
+          note:
+            emailResult.note ||
+            "Please try again or contact me directly at ybelete490@gmail.com",
+          elapsedTime: emailResult.elapsedTime,
+          totalTime: totalTime,
+        },
+        {
+          status: 500,
+          headers: {
+            "X-RateLimit-Remaining": rateLimitCheck.remaining.toString(),
+            "X-RateLimit-Reset": (Date.now() + RATE_LIMIT_WINDOW).toString(),
+          },
+        }
+      );
+    }
+  } catch (error) {
+    console.error("Request processing error:", error);
+    const totalTime = Date.now() - requestStart;
 
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to send email. Please try again later.",
+        error: "Failed to process your request. Please try again later.",
         details:
           process.env.NODE_ENV === "development"
             ? (error as Error).message
             : undefined,
+        elapsedTime: totalTime,
+        totalTime: totalTime,
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "X-Response-Time": `${totalTime}ms`,
+        },
+      }
     );
   }
 }
@@ -472,7 +557,10 @@ export async function GET(request: NextRequest) {
         "input_validation",
         "auto_reply",
         "html_emails",
+        "sequential_sending",
       ],
+      logic:
+        "Sends to owner first, then sends confirmation only if owner email succeeds",
     },
     { status: 200 }
   );
