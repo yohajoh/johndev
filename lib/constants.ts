@@ -485,7 +485,7 @@ export const CONTACT_INFO = [
     value: "+251 902 348 881",
     label: "Phone Number",
     icon: Phone,
-    href: "tel:+251989238378",
+    href: "tel:+251 902 348 881",
     description: "Call or text me",
     color: "bg-blue-600 hover:bg-blue-500",
   },
