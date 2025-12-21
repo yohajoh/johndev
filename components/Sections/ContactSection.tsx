@@ -12,8 +12,11 @@ import {
 } from "lucide-react";
 import { MagneticElement } from "../Cursor/CustomCursor";
 import { InteractiveButton } from "../Cursor/CustomCursor";
-import { CONTACT_INFO, SOCIAL_LINKS, WORKING_HOURS } from "@/lib/constants";
+import { CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
 import { cn, isValidEmail } from "@/lib/utils";
+import { sendContactForm, ContactFormData } from "@/lib/api/contact";
+
+// ... Keep all the existing helper components (GradientBorderCard, ContactBackground, GradientFormField) EXACTLY AS THEY ARE ...
 
 // Gradient border wrapper component
 const GradientBorderCard = ({
@@ -119,6 +122,7 @@ const ContactBackground = () => {
 // Reusable form field component with gradient focus effect
 const GradientFormField = ({
   id,
+  name, // Add this
   label,
   icon: Icon,
   type = "text",
@@ -132,6 +136,7 @@ const GradientFormField = ({
   rows,
 }: {
   id: string;
+  name: string; // Add this
   label: string;
   icon: React.ElementType;
   type?: string;
@@ -152,7 +157,8 @@ const GradientFormField = ({
 
   const fieldProps = {
     id,
-    name: id,
+    name: name || id, // Use the name prop
+
     value,
     onChange,
     onFocus,
@@ -257,11 +263,27 @@ export const ContactSection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [activeField, setActiveField] = useState<string | null>(null);
+  const [apiHealth, setApiHealth] = useState<boolean | null>(null);
 
   // Memoize constants
   const memoizedContactInfo = useMemo(() => CONTACT_INFO || [], []);
   const memoizedSocialLinks = useMemo(() => SOCIAL_LINKS || [], []);
+
+  // Check API health on mount
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const response = await fetch("/api/contact");
+        setApiHealth(response.ok);
+      } catch {
+        setApiHealth(false);
+      }
+    };
+
+    checkHealth();
+  }, []);
 
   // Intersection Observer with cleanup
   useEffect(() => {
@@ -297,6 +319,8 @@ export const ContactSection = () => {
       newErrors.name = "Name is required";
     } else if (formState.name.length < 2) {
       newErrors.name = "Name must be at least 2 characters";
+    } else if (formState.name.length > 100) {
+      newErrors.name = "Name must be less than 100 characters";
     }
 
     if (!formState.email.trim()) {
@@ -305,51 +329,78 @@ export const ContactSection = () => {
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (!formState.subject.trim()) {
-      newErrors.subject = "Subject is required";
-    } else if (formState.subject.length < 3) {
-      newErrors.subject = "Subject must be at least 3 characters";
+    if (formState.subject && formState.subject.length > 200) {
+      newErrors.subject = "Subject must be less than 200 characters";
     }
 
     if (!formState.message.trim()) {
       newErrors.message = "Message is required";
     } else if (formState.message.length < 10) {
       newErrors.message = "Message must be at least 10 characters";
-    } else if (formState.message.length > 1000) {
-      newErrors.message = "Message must be less than 1000 characters";
+    } else if (formState.message.length > 2000) {
+      newErrors.message = "Message must be less than 2000 characters";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formState]);
 
-  // Handle form submission
+  // Handle form submission with API call
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
 
       if (!validateForm()) {
         setIsError(true);
-        setTimeout(() => setIsError(false), 3000);
+        setErrorMessage("Please fix the errors in the form");
+        setTimeout(() => {
+          setIsError(false);
+          setErrorMessage("");
+        }, 3000);
         return;
       }
 
       setIsSubmitting(true);
       setIsError(false);
+      setErrorMessage("");
 
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const formData: ContactFormData = {
+          name: formState.name.trim(),
+          email: formState.email.trim(),
+          message: formState.message.trim(),
+          subject: formState.subject.trim() || undefined,
+        };
 
-        setIsSuccess(true);
-        setFormState({ name: "", email: "", subject: "", message: "" });
-        setErrors({});
+        console.log(formData);
+        const result = await sendContactForm(formData);
 
-        // Reset success message after 5 seconds
-        setTimeout(() => setIsSuccess(false), 5000);
+        if (result.success) {
+          setIsSuccess(true);
+          setFormState({ name: "", email: "", subject: "", message: "" });
+          setErrors({});
+
+          // Reset success message after 5 seconds
+          setTimeout(() => setIsSuccess(false), 5000);
+        } else {
+          setErrorMessage(result.error || "Failed to send message");
+          setIsError(true);
+
+          // Auto-hide error after 5 seconds
+          setTimeout(() => {
+            setIsError(false);
+            setErrorMessage("");
+          }, 5000);
+        }
       } catch (error) {
-        setIsError(true);
         console.error("Form submission error:", error);
+        setErrorMessage("An unexpected error occurred. Please try again.");
+        setIsError(true);
+
+        setTimeout(() => {
+          setIsError(false);
+          setErrorMessage("");
+        }, 5000);
       } finally {
         setIsSubmitting(false);
       }
@@ -385,16 +436,12 @@ export const ContactSection = () => {
     setActiveField(null);
   }, []);
 
-  // Animation delay calculator
-  const getAnimationDelay = useCallback((index: number) => {
-    return `${index * 100}ms`;
-  }, []);
-
   // Field definitions for reusable rendering
   const formFields = useMemo(
     () => [
       {
         id: "name",
+        name: "name",
         label: "Your Name",
         icon: Users,
         type: "text",
@@ -402,13 +449,23 @@ export const ContactSection = () => {
       },
       {
         id: "email",
+        name: "email",
         label: "Email Address",
         icon: Mail,
         type: "email",
         placeholder: "john@example.com",
       },
       {
+        id: "subject",
+        name: "subject",
+        label: "Subject (Optional)",
+        icon: MessageSquare,
+        type: "text",
+        placeholder: "Project Inquiry or General Question",
+      },
+      {
         id: "message",
+        name: "message",
         label: "Your Message",
         icon: MessageSquare,
         type: "textarea",
@@ -436,8 +493,26 @@ export const ContactSection = () => {
       />
       <link itemProp="url" href="https://yourdomain.com/#contact" />
 
-      {/* Optimized Background */}
+      {/* Optimized Background - Keep existing ContactBackground component */}
       <ContactBackground />
+
+      {/* API Health Indicator (debug only) */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <div
+            className={cn(
+              "px-3 py-2 rounded-lg text-xs font-mono backdrop-blur-sm",
+              apiHealth === true
+                ? "bg-green-500/20 text-green-500"
+                : apiHealth === false
+                ? "bg-red-500/20 text-red-500"
+                : "bg-yellow-500/20 text-yellow-500"
+            )}
+          >
+            API: {apiHealth === true ? "✓" : apiHealth === false ? "✗" : "..."}
+          </div>
+        </div>
+      )}
 
       <div className="container-wide relative z-10 px-4 sm:px-6 lg:px-8">
         {/* Section header */}
@@ -508,8 +583,8 @@ export const ContactSection = () => {
                 Send a Message
               </h2>
               <p className="text-muted-foreground mb-8">
-                Fill out the form below and I&#39;ll get back to you as soon as
-                possible.
+                Fill out the form below and I&#39;ll get back to you within 24
+                hours.
               </p>
 
               <form
@@ -522,6 +597,7 @@ export const ContactSection = () => {
                   <GradientFormField
                     key={field.id}
                     id={field.id}
+                    name={field.name}
                     label={field.label}
                     icon={field.icon}
                     type={field.type}
@@ -614,7 +690,8 @@ export const ContactSection = () => {
                             Message sent successfully!
                           </p>
                           <p className="text-sm opacity-80">
-                            I'll get back to you soon.
+                            I&#39;ll get back to you soon. Check your email for
+                            confirmation.
                           </p>
                         </div>
                       </div>
@@ -642,7 +719,9 @@ export const ContactSection = () => {
                           />
                         </div>
                         <div>
-                          <p className="font-medium">Submission failed!</p>
+                          <p className="font-medium">
+                            {errorMessage || "Submission failed!"}
+                          </p>
                           <p className="text-sm opacity-80">
                             Please check the form and try again.
                           </p>
@@ -768,9 +847,6 @@ export const ContactSection = () => {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="group flex flex-col items-center justify-center"
-                          style={{
-                            transitionDelay: getAnimationDelay(index + 3),
-                          }}
                           aria-label={`Follow me on ${social.platform}`}
                           itemProp="sameAs"
                         >
@@ -803,6 +879,22 @@ export const ContactSection = () => {
                 })}
               </div>
             </div>
+
+            {/* API Status Info (optional) */}
+            {apiHealth === false && (
+              <div className="mt-8 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-sm text-yellow-500">
+                  <strong>Note:</strong> Contact form functionality may be
+                  limited. You can also email me directly at{" "}
+                  <a
+                    href="mailto:ybelete490@gmail.com"
+                    className="underline hover:text-yellow-400"
+                  >
+                    ybelete490@gmail.com
+                  </a>
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
