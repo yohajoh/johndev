@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
@@ -97,7 +98,7 @@ function createTransporter() {
   console.log("useResend:", useResend);
 
   if (useResend) {
-    console.log("✅ Using Resend for production emails");
+    console.log("✅ Using Resend with verified domain: yohadev.netlify.app");
     const apiKey = process.env.RESEND_API_KEY!.trim();
     console.log(
       "Resend API key (first 10 chars):",
@@ -109,6 +110,17 @@ function createTransporter() {
         try {
           console.log("📤 Sending via Resend to:", options.to);
 
+          // CRITICAL: Use your verified domain as the "from" address
+          // Format: "Display Name" <email@your-verified-domain>
+          const fromAddress =
+            options.from || "Contact Form <contact@yohadev.netlify.app>";
+
+          // Ensure "reply_to" is set to sender's email
+          const replyTo =
+            options.replyTo ||
+            options.reply_to ||
+            (options.to ? options.to.split(",")[0] : undefined);
+
           const res = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
@@ -116,9 +128,9 @@ function createTransporter() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: options.from,
+              from: fromAddress,
               to: options.to,
-              reply_to: options.replyTo || options.reply_to,
+              reply_to: replyTo,
               subject: options.subject,
               html: options.html,
               text: options.text,
@@ -132,6 +144,18 @@ function createTransporter() {
 
           if (!res.ok) {
             console.error("❌ Resend API error:", responseData);
+
+            // If still getting domain error, fall back to Gmail
+            if (
+              responseData.message &&
+              responseData.message.includes("domain is not verified")
+            ) {
+              console.log(
+                "🔄 Domain verification issue, falling back to Gmail..."
+              );
+              throw new Error("RESEND_DOMAIN_FALLBACK");
+            }
+
             throw new Error(
               `Resend API error: ${responseData.message || res.statusText}`
             );
@@ -141,17 +165,53 @@ function createTransporter() {
           return { messageId: responseData.id || "resend-" + Date.now() };
         } catch (error) {
           console.error("❌ Error in Resend sendMail:", error);
+
+          // Normalize unknown error to a string message for safe checks
+          const errMessage =
+            typeof error === "string"
+              ? error
+              : error && typeof error === "object" && "message" in error
+              ? String((error as any).message)
+              : String(error);
+
+          // Fall back to Gmail if Resend fails
+          if (
+            errMessage === "RESEND_DOMAIN_FALLBACK" ||
+            errMessage.includes("domain")
+          ) {
+            console.log("🔄 Falling back to Gmail SMTP...");
+
+            if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+              throw new Error("Gmail credentials not configured for fallback");
+            }
+
+            const gmailTransporter = nodemailer.createTransport({
+              host: "smtp.gmail.com",
+              port: 587,
+              secure: false,
+              auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+              },
+              tls: {
+                rejectUnauthorized: false,
+              },
+            });
+
+            return await gmailTransporter.sendMail(options);
+          }
+
           throw error;
         }
       },
     };
   }
 
-  console.log("⚠️ Using Gmail SMTP for development emails");
+  console.log("⚠️ Using Gmail SMTP for emails");
 
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     const error = new Error(
-      "Gmail credentials not configured. Set EMAIL_USER and EMAIL_PASS in .env.local"
+      "Gmail credentials not configured. Set EMAIL_USER and EMAIL_PASS in Netlify environment variables"
     );
     console.error("❌", error.message);
     throw error;
@@ -186,15 +246,21 @@ async function sendEmailsSequentially(
     const transporter = createTransporter();
     const isProduction = process.env.NODE_ENV === "production";
     const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "Yohannes Belete";
-    const domain = process.env.NEXT_PUBLIC_DOMAIN || "johndev.omera.tech";
 
+    // CRITICAL UPDATE: Use your verified domain for "from" address
     let fromAddress: string;
+
+    // Check if we should use Resend with verified domain
     if (isProduction && process.env.RESEND_API_KEY) {
-      fromAddress = `"${siteName}" <contact@${domain}>`;
+      // Use your verified yohadev.netlify.app domain
+      fromAddress = `"${siteName} Portfolio" <contact@yohadev.netlify.app>`;
+      console.log("📧 Using Resend with verified domain:", fromAddress);
     } else {
+      // Fallback to Gmail
       fromAddress = `"${siteName}" <${
         process.env.EMAIL_USER || "ybelete490@gmail.com"
       }>`;
+      console.log("📧 Using Gmail fallback:", fromAddress);
     }
 
     const emailSubject =
@@ -358,7 +424,7 @@ This message was sent via your portfolio contact form.
 
     // 🔥 STEP 1: Send to owner FIRST
     console.log("Step 1: Sending notification to owner...");
-    await transporter.sendMail(mailToYou);
+    const ownerResult = await transporter.sendMail(mailToYou);
     console.log("✓ Owner notification sent successfully");
 
     // 🔥 STEP 2: Only send confirmation if owner email succeeded
@@ -397,7 +463,7 @@ If you need to send additional information, simply reply to my response when you
       `.trim(),
     };
 
-    await transporter.sendMail(mailToSender);
+    const senderResult = await transporter.sendMail(mailToSender);
     console.log("✓ Confirmation sent to sender");
 
     const elapsedTime = Date.now() - startTime;
@@ -407,6 +473,8 @@ If you need to send additional information, simply reply to my response when you
       success: true,
       message: "Both emails sent successfully",
       elapsedTime,
+      ownerMessageId: ownerResult.messageId,
+      senderMessageId: senderResult.messageId,
     };
   } catch (error) {
     console.error("Email sending error:", error);
@@ -429,6 +497,7 @@ If you need to send additional information, simply reply to my response when you
     return {
       success: false,
       error: "Failed to send your message",
+      details: err.message,
       elapsedTime,
     };
   }
