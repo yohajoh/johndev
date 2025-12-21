@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/purity */
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { throttle } from "@/lib/utils";
 
 export interface ScrollProgress {

@@ -147,7 +147,7 @@ export const HeroSection = () => {
                 <span className="block text-foreground mt-2 xl:text-6xl">
                   {isMounted && (
                     <TypewriterEffect
-                      texts={memoizedTypewriterTexts}
+                      texts={memoizedTypewriterTexts.slice()}
                       speed={50}
                       delay={2000}
                       loop={true}

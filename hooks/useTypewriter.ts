@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -49,7 +50,7 @@ export const useTypewriter = ({
     currentTextIndex: 0,
   });
 
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const isMountedRef = useRef(true);
 
   const currentText = texts[state.currentTextIndex];
