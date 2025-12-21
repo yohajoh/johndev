@@ -82,8 +82,12 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
 // REAL-WORLD: Create email transporter based on environment
 function createTransporter() {
   // Check if we should use Resend (production) or Gmail (development)
+  console.log(process.env.RESEND_API_KEY);
+  console.log(process.env.NODE_ENV);
   const useResend =
     process.env.RESEND_API_KEY && process.env.NODE_ENV === "production";
+
+  console.log(useResend);
 
   if (useResend) {
     console.log("Using Resend for production emails");
