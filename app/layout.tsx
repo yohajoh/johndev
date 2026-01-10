@@ -58,8 +58,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://yohannesbelete.dev",
     title: "Yohannes Belete | Senior Full-Stack Developer & System Architect",
-    description:
-      "Building exceptional digital experiences with modern technologies.",
+    description: "Building exceptional digital experiences with modern technologies.",
     siteName: "Yohannes Belete Portfolio",
     images: [
       {
@@ -73,8 +72,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Yohannes Belete | Senior Full-Stack Developer",
-    description:
-      "Building exceptional digital experiences with modern technologies.",
+    description: "Building exceptional digital experiences with modern technologies.",
     images: ["/og-image.png"],
     creator: "@yohannesbelete",
   },
@@ -108,12 +106,7 @@ export default function RootLayout({
     >
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link
-          rel="icon"
-          href="/icon?<generated>"
-          type="image/<generated>"
-          sizes="<generated>"
-        />
+        <link rel="icon" href="/icon?<generated>" type="image/<generated>" sizes="<generated>" />
         <link
           rel="apple-touch-icon"
           href="/apple-touch-icon?<generated>"
@@ -121,10 +114,7 @@ export default function RootLayout({
           sizes="<generated>"
         />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta
-          name="apple-mobile-web-app-status-bar-style"
-          content="black-translucent"
-        />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -157,15 +147,10 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans bg-background text-foreground min-h-screen overflow-x-hidden selection:bg-primary/30">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <div className="relative">
             <ParticleBackground />
-            <CustomCursor />
+            {/* <CustomCursor /> */}
             <Navigation />
             <main id="main-content" className="relative z-10">
               {children}
