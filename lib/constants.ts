@@ -1128,7 +1128,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "Next.js", "Prisma ORM", "PostgreSQL", "Tailwind CSS", "ShadCN/UI", "FullCalendar", "React Query"],
     year: 2024,
     links: {
-      github: "https://github.com/yourusername/lab-schedule",
+      github: "https://github.com/yohajoh/lab-schedule",
       live: "https://lab-assistant-s9fg.vercel.app",
     },
     image: "../public/schedule.png", // Single screenshot

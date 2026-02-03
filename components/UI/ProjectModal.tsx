@@ -102,10 +102,15 @@ export const ProjectModal = ({
 
   // Helper function to extract image path
   const getImagePath = (imgPath: string) => {
-    // Remove '../public' prefix if present
-    return imgPath.startsWith("../public/")
-      ? imgPath.replace("../public/", "/")
-      : imgPath;
+    // Remove '../public' or '..public' prefix if present
+    if (imgPath.startsWith("../public/") || imgPath.startsWith("..public/")) {
+      return imgPath.replace(/^\.\.\/?public\//, "/");
+    }
+    // If it doesn't start with /, add it
+    if (!imgPath.startsWith("/") && !imgPath.startsWith("http")) {
+      return "/" + imgPath;
+    }
+    return imgPath;
   };
 
   // Get color classes based on project color
@@ -214,29 +219,27 @@ export const ProjectModal = ({
           </div>
 
           {/* Project Image */}
-          <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-t-3xl">
+          <div className="relative h-auto overflow-hidden rounded-t-3xl">
             {/* Loading skeleton */}
             {isLoading && (
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 animate-pulse z-10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 animate-pulse z-10 h-64 sm:h-80 md:h-96" />
             )}
 
             {/* Single Image */}
-            <div className="relative w-full h-full">
+            <div className="relative w-full">
               {/* Background Image with Next.js Image component */}
-              <div className="absolute inset-0">
+              <div className="relative w-full h-auto">
                 <Image
                   src={getImagePath(project.image)}
                   alt={`${project.title} screenshot`}
-                  fill
+                  width={1200}
+                  height={600}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
-                  className="object-cover"
+                  className="w-full h-auto object-contain"
                   priority={true}
                   onLoad={handleImageLoad}
                 />
               </div>
-
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
 
               {/* Category Badge */}
               <div className="absolute bottom-4 left-4 z-10 flex items-center gap-3">

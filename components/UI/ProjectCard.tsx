@@ -72,8 +72,7 @@ export const ProjectCard = ({
           bg: "bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent",
           border: "border-secondary/20",
           text: "text-secondary",
-          button:
-            "bg-secondary text-secondary-foreground hover:bg-secondary/90",
+          button: "bg-secondary text-secondary-foreground hover:bg-secondary/90",
           hover: "hover:border-secondary/40",
           glass: "glass-effect border-secondary/20",
         };
@@ -103,10 +102,15 @@ export const ProjectCard = ({
 
   // Helper function to extract image path
   const getImagePath = (imgPath: string) => {
-    // Remove '../public' prefix if present
-    return imgPath.startsWith("../public/")
-      ? imgPath.replace("../public/", "/")
-      : imgPath;
+    // Remove '../public' or '..public' prefix if present
+    if (imgPath.startsWith("../public/") || imgPath.startsWith("..public/")) {
+      return imgPath.replace(/^\.\.\/?public\//, "/");
+    }
+    // If it doesn't start with /, add it
+    if (!imgPath.startsWith("/") && !imgPath.startsWith("http")) {
+      return "/" + imgPath;
+    }
+    return imgPath;
   };
 
   // Card classes based on variant and compact mode
@@ -115,16 +119,16 @@ export const ProjectCard = ({
     "bg-gradient-to-br from-card to-card/90 border border-border/50",
     "hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10",
     "active:scale-[0.98]",
-    
+
     // Size variations
-    variant === "grid" 
-      ? compact 
-        ? "rounded-2xl p-4" 
+    variant === "grid"
+      ? compact
+        ? "rounded-2xl p-4"
         : "rounded-3xl p-6"
-      : compact 
-        ? "rounded-2xl p-4" 
-        : "rounded-2xl p-5",
-    
+      : compact
+      ? "rounded-2xl p-4"
+      : "rounded-2xl p-5",
+
     // List variant specific
     variant === "list" && "flex flex-col sm:flex-row sm:items-start gap-4"
   );
@@ -132,44 +136,36 @@ export const ProjectCard = ({
   // Image container classes
   const imageContainerClasses = cn(
     "relative overflow-hidden rounded-xl",
-    variant === "grid" 
-      ? compact 
-        ? "h-36 sm:h-40 mb-3" 
+    variant === "grid"
+      ? compact
+        ? "h-36 sm:h-40 mb-3"
         : "h-48 mb-4"
       : variant === "list"
-      ? compact 
-        ? "w-full sm:w-36 h-32 mb-3 sm:mb-0 flex-shrink-0" 
+      ? compact
+        ? "w-full sm:w-36 h-32 mb-3 sm:mb-0 flex-shrink-0"
         : "w-full sm:w-40 h-36 mb-4 sm:mb-0 flex-shrink-0"
       : "h-48 mb-4"
   );
 
   // Content container classes for list view
-  const contentClasses = cn(
-    variant === "list" && "flex-1"
-  );
+  const contentClasses = cn(variant === "list" && "flex-1");
 
   // Title classes
   const titleClasses = cn(
     "font-heading font-bold text-foreground",
-    compact 
-      ? "text-base sm:text-lg mb-1" 
-      : "text-lg sm:text-xl mb-2"
+    compact ? "text-base sm:text-lg mb-1" : "text-lg sm:text-xl mb-2"
   );
 
   // Subtitle classes
   const subtitleClasses = cn(
     "text-muted-foreground",
-    compact 
-      ? "text-xs sm:text-sm mb-2 line-clamp-1" 
-      : "text-sm mb-3 line-clamp-1"
+    compact ? "text-xs sm:text-sm mb-2 line-clamp-1" : "text-sm mb-3 line-clamp-1"
   );
 
   // Description classes
   const descriptionClasses = cn(
     "text-muted-foreground",
-    compact 
-      ? "text-xs sm:text-sm line-clamp-2 mb-3" 
-      : "text-sm sm:text-base line-clamp-3 mb-4"
+    compact ? "text-xs sm:text-sm line-clamp-2 mb-3" : "text-sm sm:text-base line-clamp-3 mb-4"
   );
 
   // Metrics container classes
@@ -227,9 +223,6 @@ export const ProjectCard = ({
                 )}
               </div>
 
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
-
               {/* Category Badge */}
               <div className="absolute top-2 left-2 z-10">
                 <span className="px-2 py-1 bg-background/90 backdrop-blur-sm rounded-full text-xs font-medium text-foreground glass-effect">
@@ -246,7 +239,7 @@ export const ProjectCard = ({
                   <h3 className={titleClasses}>{project.title}</h3>
                   <p className={subtitleClasses}>{project.subtitle}</p>
                 </div>
-                
+
                 {/* Year and Links */}
                 <div className="flex items-center gap-2 mt-2 sm:mt-0 sm:ml-4">
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -352,9 +345,6 @@ export const ProjectCard = ({
                 )}
               </div>
 
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
-
               {/* Category Badge */}
               <div className="absolute top-2 left-2 z-10">
                 <span className="px-2 py-1 bg-background/90 backdrop-blur-sm rounded-full text-xs font-medium text-foreground glass-effect">
@@ -371,14 +361,6 @@ export const ProjectCard = ({
                   </span>
                 </div>
               )}
-
-              {/* View Overlay */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-                <div className="flex items-center gap-2 text-white">
-                  <Eye className="w-5 h-5" />
-                  <span className="font-medium text-sm sm:text-base">View Details</span>
-                </div>
-              </div>
             </div>
 
             {/* Content */}
