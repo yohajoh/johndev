@@ -14,12 +14,18 @@ import {
   Zap,
   TrendingUp,
   Globe,
-  Circle,
-  CircleDot,
+  Database,
+  Phone,
+  Bot,
+  Home,
+  BatteryCharging,
+  Users,
+  Layers,
+  Star,
 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import Image from "next/image"; // Import Next.js Image component
+import Image from "next/image";
 
 interface ProjectModalProps {
   project: {
@@ -27,14 +33,19 @@ interface ProjectModalProps {
     title: string;
     subtitle: string;
     category: string;
-    images: string[];
+    image: string;
     technologies: string[];
     description: string;
+    longDescription: string;
     context: string;
     action: string;
     result: string;
     links: { github?: string; live?: string };
     color: string;
+    year: number;
+    featured?: boolean;
+    stats?: { label: string; value: string }[];
+    metrics?: { label: string; value: string; icon: any }[];
   };
   onClose: () => void;
   onNext: () => void;
@@ -48,44 +59,28 @@ export const ProjectModal = ({
   onPrev,
 }: ProjectModalProps) => {
   const [mounted, setMounted] = useState(false);
-  const [carouselIndex, setCarouselIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Reset carousel when project changes
-  useEffect(() => {
-    setCarouselIndex(0);
-    setIsLoading(true);
-  }, [project.id]);
-
   // Handle keyboard navigation
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (!project?.images?.length) return;
-
-      switch (e.key) {
-        case "ArrowLeft":
-          e.preventDefault();
-          if (e.shiftKey) {
-            onPrev();
-          } else {
-            prevImage();
-          }
-          break;
-        case "ArrowRight":
-          e.preventDefault();
-          if (e.shiftKey) {
-            onNext();
-          } else {
-            nextImage();
-          }
-          break;
-        case "Escape":
-          onClose();
-          break;
-      }
-    },
-    [project?.images?.length, onPrev, onNext, onClose]
-  );
+  const handleKeyDown = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "ArrowLeft":
+        e.preventDefault();
+        if (e.shiftKey) {
+          onPrev();
+        }
+        break;
+      case "ArrowRight":
+        e.preventDefault();
+        if (e.shiftKey) {
+          onNext();
+        }
+        break;
+      case "Escape":
+        onClose();
+        break;
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -98,63 +93,11 @@ export const ProjectModal = ({
       document.body.style.overflow = "unset";
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleKeyDown]);
-
-  // Carousel navigation functions
-  const nextImage = () => {
-    if (!project?.images?.length) return;
-    setIsLoading(true);
-    setCarouselIndex((prev) =>
-      prev === project.images.length - 1 ? 0 : prev + 1
-    );
-  };
-
-  const prevImage = () => {
-    if (!project?.images?.length) return;
-    setIsLoading(true);
-    setCarouselIndex((prev) =>
-      prev === 0 ? project.images.length - 1 : prev - 1
-    );
-  };
-
-  const goToImage = (index: number) => {
-    setIsLoading(true);
-    setCarouselIndex(index);
-  };
+  }, [onPrev, onNext, onClose]);
 
   // Handle image load
   const handleImageLoad = () => {
     setIsLoading(false);
-  };
-
-  // Handle swipe gestures for mobile
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      nextImage();
-    } else if (isRightSwipe) {
-      prevImage();
-    }
-
-    // Reset values
-    setTouchStart(0);
-    setTouchEnd(0);
   };
 
   // Helper function to extract image path
@@ -165,7 +108,39 @@ export const ProjectModal = ({
       : imgPath;
   };
 
-  if (!project || !mounted || !project.images?.length) return null;
+  // Get color classes based on project color
+  const getColorClasses = (color: string) => {
+    switch (color) {
+      case "primary":
+        return {
+          context: "from-primary/10 to-primary/5 border-primary/20 text-primary",
+          action: "from-secondary/10 to-secondary/5 border-secondary/20 text-secondary",
+          result: "from-accent/10 to-accent/5 border-accent/20 text-accent",
+        };
+      case "secondary":
+        return {
+          context: "from-blue-500/10 to-blue-500/5 border-blue-500/20 text-blue-500",
+          action: "from-primary/10 to-primary/5 border-primary/20 text-primary",
+          result: "from-green-500/10 to-green-500/5 border-green-500/20 text-green-500",
+        };
+      case "accent":
+        return {
+          context: "from-purple-500/10 to-purple-500/5 border-purple-500/20 text-purple-500",
+          action: "from-pink-500/10 to-pink-500/5 border-pink-500/20 text-pink-500",
+          result: "from-orange-500/10 to-orange-500/5 border-orange-500/20 text-orange-500",
+        };
+      default:
+        return {
+          context: "from-primary/10 to-primary/5 border-primary/20 text-primary",
+          action: "from-secondary/10 to-secondary/5 border-secondary/20 text-secondary",
+          result: "from-accent/10 to-accent/5 border-accent/20 text-accent",
+        };
+    }
+  };
+
+  const colors = getColorClasses(project.color);
+
+  if (!project || !mounted) return null;
 
   // Create a typed version
   const AnimatePresence = MotionAnimatePresence as React.FC<{
@@ -238,195 +213,157 @@ export const ProjectModal = ({
             </button>
           </div>
 
-          {/* Project Image Carousel */}
-          <div
-            className="relative h-80 md:h-100 overflow-hidden rounded-t-3xl"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
+          {/* Project Image */}
+          <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-t-3xl">
             {/* Loading skeleton */}
             {isLoading && (
               <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 animate-pulse z-10" />
             )}
 
-            {/* Carousel Container */}
-            <motion.div
-              className="flex h-full"
-              animate={{ x: `-${carouselIndex * 100}%` }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-            >
-              {project.images.map((img, index) => (
-                <div
-                  key={index}
-                  className="relative w-full h-full flex-shrink-0"
-                >
-                  {/* Background Image with Next.js Image component */}
-                  <div className="absolute inset-0">
-                    <Image
-                      src={getImagePath(img)}
-                      alt={`${project.title} - Image ${index + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
-                      className="object-cover"
-                      priority={index === carouselIndex && carouselIndex === 0}
-                      onLoad={
-                        index === carouselIndex ? handleImageLoad : undefined
-                      }
-                    />
-                  </div>
+            {/* Single Image */}
+            <div className="relative w-full h-full">
+              {/* Background Image with Next.js Image component */}
+              <div className="absolute inset-0">
+                <Image
+                  src={getImagePath(project.image)}
+                  alt={`${project.title} screenshot`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+                  className="object-cover"
+                  priority={true}
+                  onLoad={handleImageLoad}
+                />
+              </div>
 
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
 
-                  {/* Image Counter */}
-                  <div className="absolute top-4 right-4 px-3 py-1.5 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect z-10">
-                    {index + 1} / {project.images.length}
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-
-            {/* Category Badge */}
-            <div className="absolute bottom-6 left-6 z-10">
-              <span className="px-4 py-2 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect">
-                {project.category}
-              </span>
+              {/* Category Badge */}
+              <div className="absolute bottom-4 left-4 z-10 flex items-center gap-3">
+                <span className="px-4 py-2 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect">
+                  {project.category}
+                </span>
+                
+                {/* Year Badge */}
+                <span className="px-3 py-1.5 bg-background/90 backdrop-blur-sm text-foreground text-sm font-medium rounded-full shadow-lg glass-effect flex items-center gap-1">
+                  <span>{project.year}</span>
+                </span>
+                
+                {/* Featured Badge */}
+                {project.featured && (
+                  <span className="px-3 py-1.5 bg-yellow-500/20 backdrop-blur-sm text-yellow-600 dark:text-yellow-400 text-sm font-medium rounded-full shadow-lg glass-effect flex items-center gap-1.5 border border-yellow-500/20">
+                    <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                    Featured
+                  </span>
+                )}
+              </div>
             </div>
-
-            {/* Carousel Navigation - Only show if multiple images */}
-            {project.images.length > 1 && (
-              <>
-                {/* Previous Image Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevImage();
-                  }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group z-20"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                  <span className="absolute left-full ml-2 px-2 py-1 bg-background/90 backdrop-blur-sm text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    Previous (←)
-                  </span>
-                </button>
-
-                {/* Next Image Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextImage();
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all duration-300 glass-effect group z-20"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                  <span className="absolute right-full mr-2 px-2 py-1 bg-background/90 backdrop-blur-sm text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    Next (→)
-                  </span>
-                </button>
-
-                {/* Carousel Indicators */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
-                  {project.images.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        goToImage(index);
-                      }}
-                      className="p-1"
-                      aria-label={`Go to image ${index + 1}`}
-                    >
-                      {index === carouselIndex ? (
-                        <CircleDot className="w-3 h-3 text-primary fill-primary" />
-                      ) : (
-                        <Circle className="w-3 h-3 text-foreground/40 hover:text-foreground/60 transition-colors" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
           </div>
 
-          {/* Content - Rest of your existing modal content */}
-          <div className="p-6 md:p-10">
+          {/* Content */}
+          <div className="p-4 sm:p-6 md:p-10">
             {/* Header */}
-            <div className="mb-8">
-              <h3 className="font-heading text-3xl md:text-4xl text-foreground mb-3">
+            <div className="mb-6 sm:mb-8">
+              <h3 className="font-heading text-2xl sm:text-3xl md:text-4xl text-foreground mb-2 sm:mb-3">
                 {project.title}
               </h3>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-base sm:text-lg text-muted-foreground">
                 {project.subtitle}
               </p>
             </div>
 
             {/* Technologies */}
-            <div className="flex flex-wrap gap-2 mb-8">
+            <div className="flex flex-wrap gap-2 mb-6 sm:mb-8">
               {project.technologies.map((tech: string) => (
                 <span
                   key={tech}
-                  className="px-4 py-2 bg-card text-muted-foreground text-sm font-medium rounded-xl border border-border shadow-sm glass-effect"
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 bg-card text-muted-foreground text-xs sm:text-sm font-medium rounded-lg sm:rounded-xl border border-border shadow-sm glass-effect"
                 >
                   {tech}
                 </span>
               ))}
             </div>
 
+            {/* Metrics */}
+            {project.metrics && project.metrics.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                {project.metrics.map((metric, index) => {
+                  const Icon = metric.icon;
+                  return (
+                    <div key={index} className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/2 border border-white/10">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                        <div className="text-lg sm:text-xl font-bold text-foreground">{metric.value}</div>
+                      </div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">{metric.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Description */}
+            {project.longDescription && (
+              <div className="mb-6 sm:mb-8">
+                <h4 className="font-heading text-lg sm:text-xl text-foreground mb-3 sm:mb-4">Overview</h4>
+                <p className="text-sm sm:text-base text-foreground leading-relaxed">
+                  {project.longDescription}
+                </p>
+              </div>
+            )}
+
             {/* CAR Framework */}
-            <div className="space-y-8 mb-10">
+            <div className="space-y-4 sm:space-y-6 mb-8 sm:mb-10">
               {/* Context */}
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 shadow-sm glass-effect">
-                <h4 className="flex items-center gap-3 font-heading text-lg text-primary mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 glass-effect">
-                    <Globe className="w-4 h-4" />
+              <div className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r ${colors.context} shadow-sm glass-effect`}>
+                <h4 className="flex items-center gap-3 font-heading text-base sm:text-lg mb-3 sm:mb-4">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20 glass-effect">
+                    <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   Context
                 </h4>
-                <p className="text-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground leading-relaxed">
                   {project.context}
                 </p>
               </div>
 
               {/* Action */}
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-secondary/10 to-secondary/5 border border-secondary/20 shadow-sm glass-effect">
-                <h4 className="flex items-center gap-3 font-heading text-lg text-secondary mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center border border-secondary/20 glass-effect">
-                    <Zap className="w-4 h-4" />
+              <div className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r ${colors.action} shadow-sm glass-effect`}>
+                <h4 className="flex items-center gap-3 font-heading text-base sm:text-lg mb-3 sm:mb-4">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-secondary/10 flex items-center justify-center border border-secondary/20 glass-effect">
+                    <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   Action
                 </h4>
-                <p className="text-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground leading-relaxed">
                   {project.action}
                 </p>
               </div>
 
               {/* Result */}
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-accent/10 to-accent/5 border border-accent/20 shadow-sm glass-effect">
-                <h4 className="flex items-center gap-3 font-heading text-lg text-accent mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center border border-accent/20 glass-effect">
-                    <TrendingUp className="w-4 h-4" />
+              <div className={`p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r ${colors.result} shadow-sm glass-effect`}>
+                <h4 className="flex items-center gap-3 font-heading text-base sm:text-lg mb-3 sm:mb-4">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-accent/10 flex items-center justify-center border border-accent/20 glass-effect">
+                    <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
                   </div>
                   Result
                 </h4>
-                <p className="text-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-foreground leading-relaxed">
                   {project.result}
                 </p>
               </div>
             </div>
 
             {/* Links */}
-            <div className="flex flex-wrap gap-4 pt-8 border-t border-border">
+            <div className="flex flex-wrap gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-border">
               {project.links.github && (
                 <a
                   href={project.links.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-card text-foreground font-semibold rounded-xl hover:bg-card/80 transition-all duration-300 shadow-lg hover:shadow-xl glass-effect"
+                  className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-card text-foreground font-semibold rounded-xl hover:bg-card/80 transition-all duration-300 shadow-lg hover:shadow-xl glass-effect text-sm sm:text-base"
                 >
-                  <Github className="w-5 h-5" />
+                  <Github className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>View Code</span>
                 </a>
               )}
@@ -435,9 +372,9 @@ export const ProjectModal = ({
                   href={project.links.live}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-xl hover:shadow-xl transition-all duration-300 shadow-lg"
+                  className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground font-semibold rounded-xl hover:shadow-xl transition-all duration-300 shadow-lg text-sm sm:text-base"
                 >
-                  <ExternalLink className="w-5 h-5" />
+                  <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Live Demo</span>
                 </a>
               )}

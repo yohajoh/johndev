@@ -169,15 +169,13 @@ export const HeroSection = () => {
                 className="text-xl text-muted-foreground max-w-2xl leading-relaxed"
                 itemProp="description"
               >
-                Building exceptional digital experiences with modern
-                technologies. Specializing in full-stack development, cloud
-                architecture, and performance optimization for scalable
-                applications.
+                MERN Stack & Next.js developer specializing in modern full-stack development, 
+                building scalable web applications with clean architecture.
               </p>
             </div>
 
             {/* Metrics */}
-            <div
+            {/* <div
               className="grid grid-cols-2 sm:grid-cols-4 gap-4"
               role="list"
               aria-label="Achievements"
@@ -215,7 +213,7 @@ export const HeroSection = () => {
                   </MagneticElement>
                 );
               })}
-            </div>
+            </div> */}
 
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4 pt-4">
@@ -415,7 +413,7 @@ export const HeroSection = () => {
       </button>
 
       {/* Progress indicator */}
-      <div
+      {/* <div
         className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent z-10"
         role="progressbar"
         aria-valuenow={scrollProgress * 100}
@@ -429,7 +427,7 @@ export const HeroSection = () => {
             aria-hidden="true"
           />
         )}
-      </div>
+      </div> */}
 
       {/* Bottom Gradient */}
       <div

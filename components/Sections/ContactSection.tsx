@@ -9,120 +9,103 @@ import {
   Users,
   MessageSquare,
   ExternalLink,
+  MapPin,
+  Phone,
+  Clock,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 import { MagneticElement } from "../Cursor/CustomCursor";
 import { InteractiveButton } from "../Cursor/CustomCursor";
-import { CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
+import { CONTACT_INFO } from "@/lib/constants";
 import { cn, isValidEmail } from "@/lib/utils";
 import { sendContactForm, ContactFormData } from "@/lib/api/contact";
 
-// ... Keep all the existing helper components (GradientBorderCard, ContactBackground, GradientFormField) EXACTLY AS THEY ARE ...
+// Professional earthy color palette (no blues/pinks/purples)
+const colors = {
+  primary: "#059669", // Emerald
+  secondary: "#D97706", // Amber
+  accent: "#DC2626", // Red
+  dark: "#111827", // Gray 900
+  light: "#F9FAFB", // Gray 50
+  muted: "#6B7280", // Gray 500
+  highlight: "#7C3AED", // Violet (only for highlights)
+  success: "#10B981", // Green
+};
 
-// Gradient border wrapper component
-const GradientBorderCard = ({
-  children,
-  className = "",
-  innerClassName = "",
-  intensity = "normal",
-}: {
-  children: React.ReactNode;
-  className?: string;
-  innerClassName?: string;
-  intensity?: "normal" | "high";
-}) => {
-  const borderIntensity = intensity === "high" ? "0.3" : "0.15";
-
+// Custom border with corner accents - hide corners on mobile
+const ElegantBorder = ({ children, className = "" }) => {
   return (
-    <div className={cn("relative rounded-3xl p-[2px]", className)}>
-      {/* Gradient border */}
-      <div
-        className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary via-secondary to-accent"
-        style={{
-          opacity: borderIntensity,
-          filter: `blur(${intensity === "high" ? "8px" : "4px"})`,
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Glowing shadow effect */}
-      <div
-        className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary via-secondary to-accent"
-        style={{
-          opacity: `${intensity === "high" ? "0.1" : "0.05"}`,
-          filter: `blur(${intensity === "high" ? "40px" : "20px"})`,
-          transform: "translateZ(0)",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Inner content */}
-      <div
-        className={cn(
-          "relative rounded-3xl bg-gradient-to-br from-card/90 via-background/90 to-card/90",
-          "backdrop-blur-sm border border-white/5",
-          innerClassName
-        )}
-      >
+    <div className={cn("relative", className)}>
+      {/* Corner accents - hidden on mobile for cleaner look */}
+      <div className="hidden sm:block absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 border-emerald-400/30 rounded-tl-md" />
+      <div className="hidden sm:block absolute -top-2 -right-2 w-3 h-3 border-t-2 border-r-2 border-amber-400/30 rounded-tr-md" />
+      <div className="hidden sm:block absolute -bottom-2 -left-2 w-3 h-3 border-b-2 border-l-2 border-emerald-400/30 rounded-bl-md" />
+      <div className="hidden sm:block absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 border-amber-400/30 rounded-br-md" />
+      
+      {/* Content - adjusted for mobile */}
+      <div className="relative z-10 bg-gray-900/50 backdrop-blur-lg border border-gray-700/30 rounded-lg sm:rounded-xl">
         {children}
       </div>
     </div>
   );
 };
 
-// Optimized background effects component
-const ContactBackground = () => {
+// Creative background with mobile optimizations
+const CreativeBackground = () => {
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      {/* Base gradient with shadow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-gray-900/10 shadow-2xl" />
-
-      {/* Subtle animated mesh gradient */}
-      <div
-        className="absolute inset-0 opacity-10"
+      {/* Base gradient - earthy tones */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-emerald-950/20" />
+      
+      {/* Subtle grid pattern - reduced opacity on mobile */}
+      <div 
+        className="absolute inset-0 opacity-3 sm:opacity-5"
         style={{
           backgroundImage: `
-            radial-gradient(at 40% 20%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-            radial-gradient(at 80% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-            radial-gradient(at 0% 50%, rgba(14, 165, 233, 0.1) 0px, transparent 50%)
+            linear-gradient(90deg, transparent 98%, ${colors.primary}20 98%),
+            linear-gradient(0deg, transparent 98%, ${colors.secondary}20 98%)
           `,
-          backgroundAttachment: "fixed",
+          backgroundSize: '40px 40px',
         }}
       />
-
-      {/* Glowing orbs with proper shadows */}
-      <div className="absolute bottom-0 right-0 w-96 h-96">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-secondary/10 to-accent/10 rounded-full blur-3xl"
+      
+      {/* Geometric shapes - simplified for mobile */}
+      <div className="absolute top-1/3 left-1/4 w-32 h-32 sm:w-48 sm:h-48">
+        <div 
+          className="absolute inset-0 border border-emerald-500/5"
           style={{
-            animation: "pulse 8s ease-in-out infinite",
-            boxShadow: "0 0 100px 50px rgba(168, 85, 247, 0.1)",
+            clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
+            animation: 'float 25s ease-in-out infinite',
           }}
         />
       </div>
-
-      {/* Animated lines (CSS-only) */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute h-px w-full bg-gradient-to-r from-transparent via-primary/5 to-transparent"
-            style={{
-              top: `${i * 10}%`,
-              animation: `lineFloat ${20 + i * 2}s linear infinite`,
-              animationDelay: `${i * 0.5}s`,
-              willChange: "transform",
-            }}
-          />
-        ))}
+      
+      <div className="absolute bottom-1/3 right-1/4 w-40 h-40 sm:w-64 sm:h-64">
+        <div 
+          className="absolute inset-0 border border-amber-500/5"
+          style={{
+            clipPath: 'polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)',
+            animation: 'float 30s ease-in-out infinite reverse',
+          }}
+        />
+      </div>
+      
+      {/* Subtle orbs - reduced blur on mobile */}
+      <div className="absolute top-1/4 right-1/3 w-40 h-40 sm:w-64 sm:h-64">
+        <div className="absolute inset-0 bg-emerald-500/3 rounded-full blur-xl sm:blur-3xl" />
+      </div>
+      <div className="absolute bottom-1/4 left-1/3 w-64 h-64 sm:w-96 sm:h-96">
+        <div className="absolute inset-0 bg-amber-500/2 rounded-full blur-xl sm:blur-3xl" />
       </div>
     </div>
   );
 };
 
-// Reusable form field component with gradient focus effect
-const GradientFormField = ({
+// Mobile-optimized form field
+const CreativeFormField = ({
   id,
-  name, // Add this
+  name,
   label,
   icon: Icon,
   type = "text",
@@ -134,22 +117,6 @@ const GradientFormField = ({
   onBlur,
   placeholder,
   rows,
-}: {
-  id: string;
-  name: string; // Add this
-  label: string;
-  icon: React.ElementType;
-  type?: string;
-  value: string;
-  error?: string;
-  activeField: string | null;
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
-  onFocus: () => void;
-  onBlur: () => void;
-  placeholder: string;
-  rows?: number;
 }) => {
   const isTextArea = type === "textarea";
   const hasError = !!error;
@@ -157,22 +124,23 @@ const GradientFormField = ({
 
   const fieldProps = {
     id,
-    name: name || id, // Use the name prop
-
+    name,
     value,
     onChange,
     onFocus,
     onBlur,
     placeholder,
     className: cn(
-      "w-full px-4 py-3 rounded-xl bg-white/5 border transition-all duration-300",
-      "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:shadow-lg focus:shadow-primary/20",
-      "placeholder:text-muted-foreground/50 backdrop-blur-sm",
+      "w-full px-4 py-3 rounded-lg transition-all duration-300 font-medium text-base sm:text-sm",
+      "bg-gray-800/30 border",
+      "placeholder:text-gray-500 placeholder:text-sm",
+      "focus:outline-none focus:ring-1",
+      "backdrop-blur-sm",
       hasError
-        ? "border-red-500/50 focus:border-red-500"
+        ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20"
         : isActive
-        ? "border-primary/50"
-        : "border-white/10 hover:border-white/20 hover:shadow-md"
+        ? "border-emerald-500/50 focus:border-emerald-500 focus:ring-emerald-500/20"
+        : "border-gray-600/50 hover:border-emerald-500/30 focus:border-emerald-500/50"
     ),
     "aria-invalid": hasError,
     "aria-describedby": hasError ? `${id}-error` : undefined,
@@ -180,29 +148,15 @@ const GradientFormField = ({
 
   return (
     <div className="space-y-2 relative">
-      <label
-        htmlFor={id}
-        className="text-sm font-medium text-foreground flex items-center gap-2"
-      >
-        <div className="relative">
-          <Icon className="w-4 h-4 text-primary relative z-10" />
-          {isActive && (
-            <div
-              className="absolute -inset-1 bg-primary/20 rounded-full blur-md animate-pulse"
-              aria-hidden="true"
-            />
-          )}
-        </div>
-        {label}
-      </label>
-
-      {/* Gradient border effect on focus */}
-      {isActive && !hasError && (
-        <div
-          className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 animate-pulse"
-          aria-hidden="true"
-        />
-      )}
+      <div className="flex items-center justify-between">
+        <label
+          htmlFor={id}
+          className="text-sm font-medium text-gray-300 flex items-center gap-2"
+        >
+          <Icon className="w-4 h-4 text-emerald-400" />
+          {label}
+        </label>
+      </div>
 
       <div className="relative">
         {isTextArea ? (
@@ -211,35 +165,23 @@ const GradientFormField = ({
           <input {...fieldProps} type={type} />
         )}
 
-        {/* Error indicator */}
-        {hasError && (
-          <div
-            className="absolute right-3 top-1/2 -translate-y-1/2"
-            aria-hidden="true"
-          >
-            <div className="relative">
-              <AlertCircle className="w-5 h-5 text-red-500 relative z-10" />
-              <div
-                className="absolute inset-0 bg-red-500/20 rounded-full blur-sm"
-                aria-hidden="true"
-              />
-            </div>
-          </div>
+        {/* Active indicator - hidden on mobile */}
+        {isActive && !hasError && (
+          <div className="hidden sm:block absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-amber-500" />
         )}
 
-        {/* Active field glow */}
-        {isActive && !hasError && (
-          <div
-            className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 pointer-events-none"
-            aria-hidden="true"
-          />
+        {/* Error indicator */}
+        {hasError && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <AlertCircle className="w-5 h-5 text-red-500" />
+          </div>
         )}
       </div>
 
       {hasError && (
         <p
           id={`${id}-error`}
-          className="text-sm text-red-500 animate-fade-in flex items-center gap-2"
+          className="text-sm text-red-400 flex items-center gap-2 animate-fade-in"
         >
           <AlertCircle className="w-4 h-4" />
           {error}
@@ -265,27 +207,11 @@ export const ContactSection = () => {
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [activeField, setActiveField] = useState<string | null>(null);
-  const [apiHealth, setApiHealth] = useState<boolean | null>(null);
 
-  // Memoize constants
+  // Memoize contact info
   const memoizedContactInfo = useMemo(() => CONTACT_INFO || [], []);
-  const memoizedSocialLinks = useMemo(() => SOCIAL_LINKS || [], []);
 
-  // Check API health on mount
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const response = await fetch("/api/contact");
-        setApiHealth(response.ok);
-      } catch {
-        setApiHealth(false);
-      }
-    };
-
-    checkHealth();
-  }, []);
-
-  // Intersection Observer with cleanup
+  // Intersection Observer with mobile threshold
   useEffect(() => {
     if (!sectionRef.current) return;
 
@@ -297,8 +223,8 @@ export const ContactSection = () => {
         }
       },
       {
-        threshold: 0.1,
-        rootMargin: "50px",
+        threshold: 0.05, // Lower threshold for mobile
+        rootMargin: "30px",
       }
     );
 
@@ -311,7 +237,7 @@ export const ContactSection = () => {
     };
   }, []);
 
-  // Form validation with memoization
+  // Form validation
   const validateForm = useCallback(() => {
     const newErrors: Record<string, string> = {};
 
@@ -319,8 +245,6 @@ export const ContactSection = () => {
       newErrors.name = "Name is required";
     } else if (formState.name.length < 2) {
       newErrors.name = "Name must be at least 2 characters";
-    } else if (formState.name.length > 100) {
-      newErrors.name = "Name must be less than 100 characters";
     }
 
     if (!formState.email.trim()) {
@@ -329,23 +253,17 @@ export const ContactSection = () => {
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (formState.subject && formState.subject.length > 200) {
-      newErrors.subject = "Subject must be less than 200 characters";
-    }
-
     if (!formState.message.trim()) {
       newErrors.message = "Message is required";
     } else if (formState.message.length < 10) {
       newErrors.message = "Message must be at least 10 characters";
-    } else if (formState.message.length > 2000) {
-      newErrors.message = "Message must be less than 2000 characters";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formState]);
 
-  // Handle form submission with API call
+  // Handle form submission
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -372,31 +290,24 @@ export const ContactSection = () => {
           subject: formState.subject.trim() || undefined,
         };
 
-        console.log(formData);
         const result = await sendContactForm(formData);
 
         if (result.success) {
           setIsSuccess(true);
           setFormState({ name: "", email: "", subject: "", message: "" });
           setErrors({});
-
-          // Reset success message after 5 seconds
           setTimeout(() => setIsSuccess(false), 5000);
         } else {
           setErrorMessage(result.error || "Failed to send message");
           setIsError(true);
-
-          // Auto-hide error after 5 seconds
           setTimeout(() => {
             setIsError(false);
             setErrorMessage("");
           }, 5000);
         }
       } catch (error) {
-        console.error("Form submission error:", error);
         setErrorMessage("An unexpected error occurred. Please try again.");
         setIsError(true);
-
         setTimeout(() => {
           setIsError(false);
           setErrorMessage("");
@@ -414,7 +325,6 @@ export const ContactSection = () => {
       const { name, value } = e.target;
       setFormState((prev) => ({ ...prev, [name]: value }));
 
-      // Clear error for this field if exists
       if (errors[name]) {
         setErrors((prev) => {
           const newErrors = { ...prev };
@@ -436,7 +346,7 @@ export const ContactSection = () => {
     setActiveField(null);
   }, []);
 
-  // Field definitions for reusable rendering
+  // Field definitions
   const formFields = useMemo(
     () => [
       {
@@ -459,7 +369,7 @@ export const ContactSection = () => {
         id: "subject",
         name: "subject",
         label: "Subject (Optional)",
-        icon: MessageSquare,
+        icon: Zap,
         type: "text",
         placeholder: "Project Inquiry or General Question",
       },
@@ -470,7 +380,7 @@ export const ContactSection = () => {
         icon: MessageSquare,
         type: "textarea",
         placeholder: "Tell me about your project...",
-        rows: 5,
+        rows: 4, // Reduced rows for mobile
       },
     ],
     []
@@ -480,445 +390,255 @@ export const ContactSection = () => {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative min-h-screen py-24 overflow-hidden bg-background"
+      className="relative min-h-screen py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden"
       aria-labelledby="contact-heading"
-      itemScope
-      itemType="https://schema.org/ContactPage"
     >
-      {/* SEO Metadata */}
-      <meta itemProp="name" content="Contact Yohannes Belete" />
-      <meta
-        itemProp="description"
-        content="Get in touch with Yohannes Belete for project inquiries, collaboration opportunities, or technical consultations."
-      />
-      <link itemProp="url" href="https://yourdomain.com/#contact" />
-
-      {/* Optimized Background - Keep existing ContactBackground component */}
-      <ContactBackground />
-
-      {/* API Health Indicator (debug only) */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="fixed bottom-4 right-4 z-50">
-          <div
-            className={cn(
-              "px-3 py-2 rounded-lg text-xs font-mono backdrop-blur-sm",
-              apiHealth === true
-                ? "bg-green-500/20 text-green-500"
-                : apiHealth === false
-                ? "bg-red-500/20 text-red-500"
-                : "bg-yellow-500/20 text-yellow-500"
-            )}
-          >
-            API: {apiHealth === true ? "✓" : apiHealth === false ? "✗" : "..."}
-          </div>
-        </div>
-      )}
+      {/* Creative Background */}
+      <CreativeBackground />
 
       <div className="container-wide relative z-10 px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
+        {/* Section header - Mobile optimized */}
         <div
           className={cn(
-            "text-center mb-16 transition-all duration-700 ease-out",
+            "text-center mb-8 sm:mb-12 lg:mb-16 transition-all duration-700",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
-          role="banner"
         >
           <MagneticElement strength={0.1}>
-            <GradientBorderCard
-              className="inline-block mb-6 shadow-2xl shadow-primary/20"
-              intensity="high"
-            >
-              <div className="px-4 py-2">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">
-                    Get In Touch
-                  </span>
-                </div>
-              </div>
-            </GradientBorderCard>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4 sm:mb-6">
+              <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+              <span className="text-xs sm:text-sm font-medium text-emerald-400">
+                Get In Touch
+              </span>
+            </div>
           </MagneticElement>
 
           <h1
             id="contact-heading"
-            className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6"
-            itemProp="headline"
+            className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6"
           >
-            Let&#39;s{" "}
-            <span className="text-gradient-primary relative">
-              Connect
-              <div
-                className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse shadow-lg shadow-primary/50"
-                aria-hidden="true"
-              />
+            Ready to{" "}
+            <span className="relative inline-block">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-400">
+                Collaborate?
+              </span>
+              <div className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-0.5 sm:h-1 bg-gradient-to-r from-emerald-500 via-amber-500 to-emerald-500 rounded-full" />
             </span>
           </h1>
 
-          <p
-            className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed"
-            itemProp="description"
-          >
-            Have a project in mind or want to discuss potential collaboration?
-            I&#39;m always open to new opportunities and interesting
-            conversations.
+          <p className="text-sm sm:text-base md:text-lg text-gray-300 max-w-2xl sm:max-w-3xl mx-auto leading-relaxed px-2">
+            Let's discuss your project and explore how we can work together to create something exceptional.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16">
           {/* Left column - Contact form */}
           <div
             className={cn(
-              "transition-all duration-700 ease-out delay-150",
+              "transition-all duration-700 delay-150",
               isVisible
                 ? "opacity-100 translate-x-0"
                 : "opacity-0 -translate-x-8"
             )}
           >
-            <GradientBorderCard
-              className="shadow-2xl shadow-primary/20 hover:shadow-primary/30 transition-shadow duration-500"
-              intensity="high"
-              innerClassName="p-8"
-            >
-              <h2 className="font-heading text-2xl font-bold text-foreground mb-2">
-                Send a Message
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                Fill out the form below and I&#39;ll get back to you within 24
-                hours.
-              </p>
-
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-6"
-                noValidate
-                aria-label="Contact form"
-              >
-                {formFields.map((field) => (
-                  <GradientFormField
-                    key={field.id}
-                    id={field.id}
-                    name={field.name}
-                    label={field.label}
-                    icon={field.icon}
-                    type={field.type}
-                    value={formState[field.id as keyof typeof formState]}
-                    error={errors[field.id]}
-                    activeField={activeField}
-                    onChange={handleChange}
-                    onFocus={() => handleFieldFocus(field.id)}
-                    onBlur={handleFieldBlur}
-                    placeholder={field.placeholder}
-                    rows={field.rows}
-                  />
-                ))}
-
-                {/* Submit button with enhanced gradient */}
-                <div className="pt-4">
-                  <InteractiveButton
-                    // {...({ type: "submit" } as any)}
-                    variant="primary"
-                    size="lg"
-                    className="w-full group relative overflow-hidden shadow-xl shadow-primary/30 hover:shadow-primary/40"
-                    disabled={isSubmitting}
-                    aria-label={
-                      isSubmitting ? "Sending message..." : "Send message"
-                    }
-                  >
-                    {/* Button gradient background */}
-                    <div
-                      className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                      aria-hidden="true"
-                    />
-
-                    {/* Button glow effect */}
-                    <div
-                      className="absolute -inset-2 bg-gradient-to-r from-primary/30 via-secondary/30 to-accent/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                      aria-hidden="true"
-                    />
-
-                    {/* Button content */}
-                    <div className="relative z-10 flex items-center justify-center gap-3">
-                      {isSubmitting ? (
-                        <>
-                          <div
-                            className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
-                            aria-hidden="true"
-                          />
-                          <span>Sending...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send
-                            className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300"
-                            aria-hidden="true"
-                          />
-                          <span>Send Message</span>
-                          <div
-                            className="w-2 h-2 rounded-full bg-white/50 animate-pulse"
-                            aria-hidden="true"
-                          />
-                        </>
-                      )}
-                    </div>
-                  </InteractiveButton>
+            <ElegantBorder>
+              <div className="p-4 sm:p-5 md:p-6 lg:p-8">
+                <div className="mb-4 sm:mb-6 lg:mb-8">
+                  <h2 className="font-heading text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
+                    Send a Message
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-400">
+                    I'll respond within 24 hours
+                  </p>
                 </div>
 
-                {/* Success/Error messages with gradient borders */}
-                <div className="transition-all duration-300 min-h-[80px]">
-                  {isSuccess && (
-                    <GradientBorderCard
-                      className="shadow-lg shadow-green-500/20 animate-fade-in"
-                      innerClassName="p-4"
-                    >
-                      <div
-                        className="flex items-center gap-3 text-green-500"
-                        role="alert"
-                        aria-live="polite"
-                      >
-                        <div className="relative">
-                          <CheckCircle
-                            className="w-5 h-5 relative z-10"
-                            aria-hidden="true"
-                          />
-                          <div
-                            className="absolute inset-0 bg-green-500/20 rounded-full blur-sm"
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            Message sent successfully!
-                          </p>
-                          <p className="text-sm opacity-80">
-                            I&#39;ll get back to you soon. Check your email for
-                            confirmation.
-                          </p>
-                        </div>
-                      </div>
-                    </GradientBorderCard>
-                  )}
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-4 sm:space-y-5 lg:space-y-6"
+                  noValidate
+                >
+                  <div className="space-y-3 sm:space-y-4">
+                    {formFields.map((field) => (
+                      <CreativeFormField
+                        key={field.id}
+                        {...field}
+                        value={formState[field.id as keyof typeof formState]}
+                        error={errors[field.id]}
+                        activeField={activeField}
+                        onChange={handleChange}
+                        onFocus={() => handleFieldFocus(field.id)}
+                        onBlur={handleFieldBlur}
+                      />
+                    ))}
+                  </div>
 
-                  {isError && (
-                    <GradientBorderCard
-                      className="shadow-lg shadow-red-500/20 animate-fade-in"
-                      innerClassName="p-4"
+                  {/* Submit button - Mobile optimized */}
+                  <div className="pt-2 sm:pt-3 lg:pt-4">
+                    <InteractiveButton
+                      type="submit"
+                      className="w-full group relative overflow-hidden rounded-lg active:scale-[0.98] transition-transform"
+                      disabled={isSubmitting}
                     >
-                      <div
-                        className="flex items-center gap-3 text-red-500"
-                        role="alert"
-                        aria-live="assertive"
-                      >
-                        <div className="relative">
-                          <AlertCircle
-                            className="w-5 h-5 relative z-10"
-                            aria-hidden="true"
-                          />
-                          <div
-                            className="absolute inset-0 bg-red-500/20 rounded-full blur-sm"
-                            aria-hidden="true"
-                          />
-                        </div>
-                        <div>
-                          <p className="font-medium">
-                            {errorMessage || "Submission failed!"}
-                          </p>
-                          <p className="text-sm opacity-80">
-                            Please check the form and try again.
-                          </p>
+                      {/* Background */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-amber-600 opacity-90 group-hover:opacity-100 transition-opacity" />
+                      
+                      {/* Hover effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-amber-500 opacity-0 group-hover:opacity-30 transition-opacity" />
+                      
+                      {/* Button content */}
+                      <div className="relative z-10 flex items-center justify-center gap-2 sm:gap-3 py-2.5 sm:py-3">
+                        {isSubmitting ? (
+                          <>
+                            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span className="font-semibold text-sm sm:text-base">Sending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform" />
+                            <span className="font-semibold text-sm sm:text-base">Send Message</span>
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white animate-pulse" />
+                          </>
+                        )}
+                      </div>
+                    </InteractiveButton>
+                  </div>
+
+                  {/* Status messages */}
+                  <div className="min-h-[50px] sm:min-h-[60px]">
+                    {isSuccess && (
+                      <div className="p-3 sm:p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                        <div className="flex items-start gap-2 sm:gap-3 text-emerald-400">
+                          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-sm sm:text-base">Message sent successfully!</p>
+                            <p className="text-xs sm:text-sm opacity-80 mt-0.5">
+                              I'll get back to you soon.
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </GradientBorderCard>
-                  )}
-                </div>
-              </form>
-            </GradientBorderCard>
+                    )}
+
+                    {isError && (
+                      <div className="p-3 sm:p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                        <div className="flex items-start gap-2 sm:gap-3 text-red-400">
+                          <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-sm sm:text-base">
+                              {errorMessage || "Submission failed!"}
+                            </p>
+                            <p className="text-xs sm:text-sm opacity-80 mt-0.5">
+                              Please check and try again.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </ElegantBorder>
           </div>
 
           {/* Right column - Contact info */}
-          <div className="space-y-8">
-            {/* Contact information */}
+          <div className="space-y-6 sm:space-y-8">
+            {/* Contact methods - Mobile optimized */}
             <div
               className={cn(
-                "transition-all duration-700 ease-out delay-300",
+                "transition-all duration-700 delay-300",
                 isVisible
                   ? "opacity-100 translate-x-0"
                   : "opacity-0 translate-x-8"
               )}
             >
-              <h2 className="font-heading text-2xl font-bold text-foreground mb-6">
-                Contact Information
+              <h2 className="font-heading text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
+                Direct Contact
               </h2>
 
-              <div className="space-y-4">
-                {memoizedContactInfo.map((info, index) => {
+              <div className="space-y-3 sm:space-y-4">
+                {memoizedContactInfo.map((info) => {
                   const Icon = info.icon;
+                  const getIconColor = () => {
+                    switch(info.type) {
+                      case 'email': return 'text-emerald-400';
+                      case 'telephone': return 'text-amber-400';
+                      case 'location': return 'text-gray-400';
+                      default: return 'text-emerald-400';
+                    }
+                  };
+
                   return (
                     <MagneticElement key={info.type} strength={0.1}>
-                      <GradientBorderCard
-                        className="shadow-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 transform hover:-translate-y-1"
-                        innerClassName="p-4"
-                      >
-                        <a
-                          href={info.href}
-                          target={
-                            info.href?.startsWith("http") ? "_blank" : undefined
-                          }
-                          rel={
-                            info.href?.startsWith("http")
-                              ? "noopener noreferrer"
-                              : undefined
-                          }
-                          className="group flex items-center gap-4"
-                          aria-label={info.label}
-                          // itemProp={
-                          //   info.type === "email"
-                          //     ? "email"
-                          //     : info.type === "telephone"
-                          //     ? "telephone"
-                          //     : "url"
-                          // }
-                        >
-                          <div className="relative">
-                            <div
-                              className={`w-12 h-12 rounded-xl ${info.color} flex items-center justify-center shadow-lg`}
-                              aria-hidden="true"
-                            >
-                              <Icon className="w-6 h-6 text-white" />
+                      <div className="group">
+                        <ElegantBorder>
+                          <a
+                            href={info.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-3 sm:p-4 md:p-5 flex items-center gap-3 sm:gap-4 hover:bg-gray-800/20 transition-colors"
+                          >
+                            <div className="relative flex-shrink-0">
+                              <div className={cn(
+                                "w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-lg flex items-center justify-center",
+                                info.type === 'email' ? 'bg-emerald-500/10' :
+                                info.type === 'telephone' ? 'bg-amber-500/10' :
+                                'bg-gray-500/10'
+                              )}>
+                                <Icon className={cn("w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6", getIconColor())} />
+                              </div>
                             </div>
-                            {/* Icon glow effect */}
-                            <div
-                              className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                              aria-hidden="true"
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-sm text-muted-foreground">
-                              {info.label}
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs sm:text-sm text-gray-400 truncate">
+                                {info.label}
+                              </div>
+                              <div className="font-medium text-white group-hover:text-emerald-400 transition-colors text-sm sm:text-base truncate">
+                                {info.value}
+                              </div>
                             </div>
-                            <div
-                              className="font-medium text-foreground group-hover:text-primary transition-colors duration-300"
-                              // itemProp={
-                              //   info.type === "email"
-                              //     ? "email"
-                              //     : info.type === "telephone"
-                              //     ? "telephone"
-                              //     : "name"
-                              // }
-                            >
-                              {info.value}
-                            </div>
-                          </div>
-                          <ExternalLink
-                            className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors duration-300 group-hover:translate-x-1"
-                            aria-hidden="true"
-                          />
-                        </a>
-                      </GradientBorderCard>
+                            <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-gray-500 group-hover:text-emerald-400 transition-colors flex-shrink-0" />
+                          </a>
+                        </ElegantBorder>
+                      </div>
                     </MagneticElement>
                   );
                 })}
               </div>
             </div>
 
-            {/* Social links */}
-            <div
-              className={cn(
-                "transition-all duration-700 ease-out delay-600",
-                isVisible
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-8"
-              )}
-            >
-              <h3 className="font-heading text-xl font-bold text-foreground mb-4">
-                Connect with Me
-              </h3>
+            {/* Availability & Info - Stacked on mobile */}
+            <div className="space-y-3 sm:space-y-4">
+              {/* Response time */}
+              <div className="p-3 sm:p-4 md:p-5 rounded-xl bg-gray-800/30 border border-gray-700/50">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-white mb-1 text-sm sm:text-base">
+                      Response Time
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-300">
+                      I typically respond within 24 hours on weekdays.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {memoizedSocialLinks.map((social, index) => {
-                  const Icon = social.icon;
-                  return (
-                    <MagneticElement key={social.platform} strength={0.2}>
-                      <GradientBorderCard
-                        className="shadow-md hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 transform hover:-translate-y-1"
-                        innerClassName="p-4"
-                      >
-                        <a
-                          href={social.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group flex flex-col items-center justify-center"
-                          aria-label={`Follow me on ${social.platform}`}
-                          itemProp="sameAs"
-                        >
-                          <div className="relative mb-2">
-                            <div
-                              className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center shadow-lg",
-                                social.color,
-                                "group-hover:scale-110 transition-transform duration-300"
-                              )}
-                              aria-hidden="true"
-                            >
-                              <Icon
-                                className={cn("w-5 h-5", social.textColor)}
-                              />
-                            </div>
-                            {/* Hover glow effect */}
-                            <div
-                              className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                              aria-hidden="true"
-                            />
-                          </div>
-                          <span className="text-xs font-medium text-foreground">
-                            {social.platform}
-                          </span>
-                        </a>
-                      </GradientBorderCard>
-                    </MagneticElement>
-                  );
-                })}
+              {/* Project discussion */}
+              <div className="p-3 sm:p-4 md:p-5 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="font-semibold text-white mb-1 text-sm sm:text-base">
+                      Let's Build Together
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-300">
+                      Whether it's a new project or collaboration, I'm excited to hear about your ideas.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* API Status Info (optional) */}
-            {apiHealth === false && (
-              <div className="mt-8 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                <p className="text-sm text-yellow-500">
-                  <strong>Note:</strong> Contact form functionality may be
-                  limited. You can also email me directly at{" "}
-                  <a
-                    href="mailto:ybelete490@gmail.com"
-                    className="underline hover:text-yellow-400"
-                  >
-                    ybelete490@gmail.com
-                  </a>
-                </p>
-              </div>
-            )}
           </div>
         </div>
-
-        {/* Location section */}
-      </div>
-
-      {/* Performance optimized particles */}
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        aria-hidden="true"
-      >
-        {Array.from({ length: 15 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-full bg-primary/10"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${Math.random() * 15 + 10}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
-              willChange: "transform, opacity",
-            }}
-          />
-        ))}
       </div>
     </section>
   );
