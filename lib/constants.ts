@@ -904,7 +904,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "Next.js", "Tailwind CSS", "Prisma ORM", "PostgreSQL", "NextAuth.js", "ShadCN/UI", "WebSocket"],
     year: 2024,
     links: {
-      github: "https://github.com/yourusername/todolist",
+      github: "https://github.com/yohajoh/todo-app",
       live: "https://todolist-ap.vercel.app",
     },
     image: "../public/todo-list.png", // Single screenshot
@@ -936,7 +936,7 @@ export const PROJECTS_DATA = [
     technologies: ["React", "JavaScript", "Context API", "React Router", "Styled Components", "Mock API", "Local Storage"],
     year: 2023,
     links: {
-      github: "https://github.com/yourusername/fast-react-pizza",
+      github: "https://github.com/yohajoh/Fast-React-Pizza",
       live: "https://fast-react-pizza-two-iota.vercel.app",
     },
     image: "../public/fast-react-piza.png", // Single screenshot
@@ -968,7 +968,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "React", "Tailwind CSS", "Framer Motion", "React Router", "Lucide Icons"],
     year: 2023,
     links: {
-      github: "https://github.com/yourusername/medcare-hospital",
+      github: "https://github.com/yohajoh/muse-clinic",
       live: "https://medcare-hospital-seven.vercel.app",
     },
     image: "../public/madecare.png", // Single screenshot
@@ -1000,7 +1000,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "React", "Tailwind CSS", "OpenAI API", "Context API", "Local Storage", "React Query"],
     year: 2024,
     links: {
-      github: "https://github.com/yourusername/j-chatbot",
+      github: "https://github.com/yohajoh/j-chatbot",
       live: "https://j-chatbot-ao2e.vercel.app",
     },
     image: "../public/j-chatbot.png", // Single screenshot
@@ -1032,7 +1032,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "React", "Tailwind CSS", "Node.js", "Express.js", "Socket.io", "WebRTC", "Simple-Peer"],
     year: 2024,
     links: {
-      github: "https://github.com/yourusername/quantum-sync",
+      github: "https://github.com/yohajoh/QuantumSync",
       live: "https://quantum-sync-psi.vercel.app",
     },
     image: "../public/video.png", // Single screenshot
@@ -1064,7 +1064,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "React", "Tailwind CSS", "Node.js", "Express.js", "MongoDB", "Socket.io", "JWT", "Multer"],
     year: 2024,
     links: {
-      github: "https://github.com/yourusername/st-giyorgis",
+      github: "https://github.com/yohajoh/st-giyorgis",
       live: "https://st-giyorgis.vercel.app",
     },
     image: "../public/st-giyorgis.png", // Single screenshot
@@ -1096,7 +1096,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "Next.js", "Prisma ORM", "PostgreSQL", "Tailwind CSS", "ShadCN/UI", "Recharts", "NextAuth"],
     year: 2024,
     links: {
-      github: "https://github.com/yourusername/financial-dashboard",
+      github: "https://github.com/yohajoh/dashboard",
       live: "https://dashboard-theta-lilac.vercel.app",
     },
     image: "..public/dashboard.png", // Single screenshot
@@ -1128,7 +1128,7 @@ export const PROJECTS_DATA = [
     technologies: ["TypeScript", "Next.js", "Prisma ORM", "PostgreSQL", "Tailwind CSS", "ShadCN/UI", "FullCalendar", "React Query"],
     year: 2024,
     links: {
-      github: "https://github.com/yourusername/lab-assistant",
+      github: "https://github.com/yourusername/lab-schedule",
       live: "https://lab-assistant-s9fg.vercel.app",
     },
     image: "../public/schedule.png", // Single screenshot
@@ -1160,10 +1160,10 @@ export const PROJECTS_DATA = [
     technologies: ["JavaScript", "React", "Tailwind CSS", "React Query", "Context API", "Date-fns", "React Router"],
     year: 2023,
     links: {
-      github: "https://github.com/yourusername/wild-oasis",
+      github: "https://github.com/yohajoh/The-Wild-Oasis",
       live: "#",
     },
-    image: "/projects/oasis-screenshot.png", // Single screenshot
+    image: "", // Single screenshot
     featured: false,
     color: "accent",
     metrics: [
@@ -1195,7 +1195,7 @@ export const PROJECTS_DATA = [
       github: "https://github.com/yohajoh/worldwise",
       live: "#",
     },
-    image: "/projects/worldwise-screenshot.png", // Single screenshot
+    image: "", // Single screenshot
     featured: false,
     color: "primary",
     metrics: [
