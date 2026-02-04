@@ -38,6 +38,22 @@ interface ElegantBorderProps {
   className?: string;
 }
 
+interface CreativeFormFieldProps {
+  id: string;
+  name: string;
+  label: string;
+  icon: React.ElementType; // For the Icon component
+  type?: "text" | "email" | "textarea" | "tel" | "password";
+  value: string;
+  error?: string;
+  activeField: string | null;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onFocus: (id: string) => void;
+  onBlur: () => void;
+  placeholder?: string;
+  rows?: number;
+}
+
 const ElegantBorder = ({ children, className = "" }: ElegantBorderProps) => {
   return (
     <div className={className ? `relative ${className}` : "relative"}>
@@ -107,7 +123,7 @@ const CreativeBackground = () => {
 };
 
 // Mobile-optimized form field
-const CreativeFormField = ({
+const CreativeFormField: React.FC<CreativeFormFieldProps> = ({
   id,
   name,
   label,
