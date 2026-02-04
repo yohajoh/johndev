@@ -33,17 +33,21 @@ const colors = {
   success: "#10B981", // Green
 };
 
-// Custom border with corner accents - hide corners on mobile
-const ElegantBorder = ({ children, className = "" }) => {
+interface ElegantBorderProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+const ElegantBorder = ({ children, className = "" }: ElegantBorderProps) => {
   return (
-    <div className={cn("relative", className)}>
+    <div className={className ? `relative ${className}` : "relative"}>
       {/* Corner accents - hidden on mobile for cleaner look */}
       <div className="hidden sm:block absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 border-emerald-400/30 rounded-tl-md" />
       <div className="hidden sm:block absolute -top-2 -right-2 w-3 h-3 border-t-2 border-r-2 border-amber-400/30 rounded-tr-md" />
       <div className="hidden sm:block absolute -bottom-2 -left-2 w-3 h-3 border-b-2 border-l-2 border-emerald-400/30 rounded-bl-md" />
       <div className="hidden sm:block absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 border-amber-400/30 rounded-br-md" />
       
-      {/* Content - adjusted for mobile */}
+      {/* Content container */}
       <div className="relative z-10 bg-gray-900/50 backdrop-blur-lg border border-gray-700/30 rounded-lg sm:rounded-xl">
         {children}
       </div>
