@@ -160,7 +160,7 @@ export const Footer = () => {
             >
               <div className="flex items-start gap-4">
                 <div className="relative flex-shrink-0 w-16 h-16">
-                  <MonogramLogo size="sm" />
+                  <MonogramLogo/>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h2 className="font-heading text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
