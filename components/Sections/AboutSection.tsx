@@ -215,7 +215,7 @@ export const AboutSection = () => {
                 {/* Avatar - Smaller on mobile */}
                 <div className="relative flex-shrink-0">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16">
-                    <MonogramLogo size="xs" />
+                    <MonogramLogo />
                   </div>
                   <div className="z-[9999] absolute -bottom-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg">
                     <CheckCircle
